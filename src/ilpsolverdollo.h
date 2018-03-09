@@ -31,9 +31,10 @@ public:
   }
   
   /// Solve
-  void solve(int timeLimit,
+  bool solve(int timeLimit,
              int memoryLimit,
-             int nrThreads);
+             int nrThreads,
+             bool verbose);
   
   /// Initialize solver
   virtual void init();

@@ -1,5 +1,5 @@
 /*
- * simulatemain.cpp
+ * analyzemain.cpp
  *
  *  Created on: 8-mar-2018
  *      Author: M. El-Kebir

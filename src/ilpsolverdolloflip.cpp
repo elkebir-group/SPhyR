@@ -113,6 +113,6 @@ void IlpSolverDolloFlip::initObjective()
     }
   }
   
-  _model.add(IloMaximize(_env, obj));
+  _model.add(IloMaximize(_env, 1000 * obj));
 //  _model.add(IloMinimize(_env, obj));
 }

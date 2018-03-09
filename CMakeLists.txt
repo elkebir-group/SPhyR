@@ -4,8 +4,38 @@ project( SPhyR )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
-set( Dollo_src
-  src/dollomain.cpp
+set (kDP_src
+  src/kdpmain.cpp
+  src/matrix.cpp
+  src/utils.cpp
+  src/ilpsolverdollo.cpp
+)
+
+set (kDP_hdr
+  src/matrix.h
+  src/utils.h
+  src/ilpsolverdollo.h
+  src/dollocallback.h
+)
+
+set (kDPF_src
+  src/kdpfmain.cpp
+  src/matrix.cpp
+  src/utils.cpp
+  src/ilpsolverdollo.cpp
+  src/ilpsolverdolloflip.cpp
+)
+
+set (kDPF_hdr
+  src/matrix.h
+  src/utils.h
+  src/ilpsolverdollo.h
+  src/ilpsolverdolloflip.h
+  src/dollocallback.h
+)
+
+set (kDPFC_src
+  src/kdpfcmain.cpp
   src/matrix.cpp
   src/utils.cpp
   src/ilpsolverdollo.cpp
@@ -13,21 +43,19 @@ set( Dollo_src
   src/ilpsolverdolloflipcluster.cpp
   src/ilpsolverdolloflipclustered.cpp
   src/coordinateascent.cpp
-  src/phylogenetictree.cpp
 )
 
-set( Dollo_hdr
+set (kDPFC_hdr
+  src/matrix.h
   src/utils.h
   src/ilpsolverdollo.h
   src/ilpsolverdolloflip.h
   src/ilpsolverdolloflipcluster.h
   src/ilpsolverdolloflipclustered.h
-  src/matrix.h
-  src/dollocallback.h
   src/coordinateascent.h
+  src/dollocallback.h
   src/dkm/dkm.hpp
   src/dkm/dkm_utils.hpp
-  src/phylogenetictree.h
 )
 
 set( analyze_src
@@ -37,6 +65,17 @@ set( analyze_src
 )
 
 set( analyze_hdr
+  src/utils.h
+  src/matrix.h
+)
+
+set( perturb_src
+  src/perturbmain.cpp
+  src/utils.cpp
+  src/matrix.cpp
+)
+
+set( perturb_hdr
   src/utils.h
   src/matrix.h
 )
@@ -142,8 +181,14 @@ set( CommonLibs
   emon
 )
 
-add_executable( sphyr ${Dollo_src} ${Dollo_hdr} )
-target_link_libraries( sphyr ${CommonLibs} )
+add_executable( kDP ${kDP_src} ${kDP_hdr} )
+target_link_libraries( kDP ${CommonLibs} )
+
+add_executable( kDPF ${kDPF_src} ${kDPF_hdr} )
+target_link_libraries( kDPF ${CommonLibs} )
+
+add_executable( kDPFC ${kDPFC_src} ${kDPFC_hdr} )
+target_link_libraries( kDPFC ${CommonLibs} )
 
 add_executable( visualize ${visualize_src} ${visualize_hdr} )
 target_link_libraries( visualize ${CommonLibs} )
@@ -153,3 +198,6 @@ target_link_libraries( simulate ${CommonLibs} )
 
 add_executable( analyze ${analyze_src} ${analyze_hdr} )
 target_link_libraries( analyze ${CommonLibs} )
+
+add_executable( perturb ${perturb_src} ${perturb_hdr} )
+target_link_libraries( perturb ${CommonLibs} )

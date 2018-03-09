@@ -60,6 +60,8 @@ public:
     _D[p][c] = i;
   }
   
+  void perturb(double alpha, double beta, int seed);
+  
   struct Violation
   {
   public:

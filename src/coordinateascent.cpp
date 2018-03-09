@@ -62,12 +62,13 @@ void CoordinateAscent::initZ()
 
 double CoordinateAscent::solveE(int timeLimit,
                                 int memoryLimit,
-                                int nrThreads)
+                                int nrThreads,
+                                bool verbose)
 {
   IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
   solvePhylogeny.init();
   solvePhylogeny.initHotStart(_E, _z);
-  solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads);
+  solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads, verbose);
   
   _E = solvePhylogeny.getSolE();
 #ifdef DEBUG
@@ -176,9 +177,10 @@ double CoordinateAscent::solveZ()
   return L;
 }
 
-double CoordinateAscent::solve(int timeLimit,
-                               int memoryLimit,
-                               int nrThreads)
+bool CoordinateAscent::solve(int timeLimit,
+                             int memoryLimit,
+                             int nrThreads,
+                             bool verbose)
 {
   initZ();
   
@@ -186,7 +188,7 @@ double CoordinateAscent::solve(int timeLimit,
   int iteration = 1;
   while (g_tol.nonZero(delta))
   {
-    double LL = solveE(timeLimit, memoryLimit, nrThreads);
+    double LL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
     std::cerr << "Iteration " << iteration << " -- E step -- log likelihood " << LL << std::endl;
     double L = solveZ();
     std::cerr << "Iteration " << iteration << " -- z step -- log likelihood " << L << std::endl;
@@ -195,5 +197,5 @@ double CoordinateAscent::solve(int timeLimit,
     _L = L;
   }
   
-  return _L;
+  return true;
 }

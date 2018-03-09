@@ -7,6 +7,7 @@
 
 #include "ilpsolverdollo.h"
 #include "dollocallback.h"
+#include <lemon/time_measure.h>
 
 IlpSolverDollo::IlpSolverDollo(const Matrix& D,
                                int k)
@@ -140,21 +141,27 @@ void IlpSolverDollo::initConstraints()
 //        {
 //          for (int d = c + 1; d < _n; ++d)
 //          {
-//            _model.add((1 - _E[p][c][0]) + _E[q][c][0] + (1 - _E[r][c][0])
-//                       + _E[p][d][0] + (1 - _E[q][d][0]) + (1 - _E[r][d][0]) <= 5);
+//            // condition 1
+//            for (int i = 1; i <= _k + 1; ++i)
+//            {
+//              for (int j = 2; j <= _k + 1; ++j)
+//              {
+//                _model.add(_E[p][c][i] + _E[q][c][0] + _E[r][c][i]
+//                           + (1 - _E[p][d][j]) + _E[q][d][j] + _E[r][d][j] <= 5);
+//              }
+//            }
 //
+//            // condition 2
 //            for (int i = 2; i <= _k + 1; ++i)
 //            {
-//              _model.add(_E[p][c][i] + (1 - _E[q][c][i]) + _E[r][c][i]
-//                         + _E[p][d][0] + (1 - _E[q][d][0]) + (1 - _E[r][d][0]) <= 5);
+//              for (int j = 1; j <= _k + 1; ++j)
+//              {
+//                _model.add(_E[p][c][i] + (1 - _E[q][c][i]) + _E[r][c][i]
+//                           + _E[p][d][0] + _E[q][d][j] + _E[r][d][j] <= 5);
+//              }
 //            }
 //
-//            for (int j = 2; j <= _k + 1; ++j)
-//            {
-//              _model.add((1 - _E[p][c][0]) + _E[q][c][0] + (1 - _E[r][c][0])
-//                         + (1 - _E[p][d][j]) + _E[q][d][j] + _E[r][d][j] <= 5);
-//            }
-//
+//            // condition 3
 //            for (int i = 2; i <= _k + 1; ++i)
 //            {
 //              for (int j = 2; j <= _k + 1; ++j)
@@ -163,6 +170,10 @@ void IlpSolverDollo::initConstraints()
 //                           + (1 - _E[p][d][j]) + _E[q][d][j] + _E[r][d][j] <= 5);
 //              }
 //            }
+//
+//            // condition 4
+//            _model.add(_E[p][c][1] + _E[q][c][0] + _E[r][c][1]
+//                       + _E[p][d][0] + _E[q][d][1] + _E[r][d][1] <= 5);
 //          }
 //        }
 //      }
@@ -189,18 +200,35 @@ void IlpSolverDollo::initObjective()
   _model.add(IloMinimize(_env, obj));
 }
 
-void IlpSolverDollo::solve(int timeLimit,
+bool IlpSolverDollo::solve(int timeLimit,
                            int memoryLimit,
-                           int nrThreads)
+                           int nrThreads,
+                           bool verbose)
 {
   const int m = _D.getNrTaxa();
   
-  _env.setOut(_env.getNullStream());
-  _env.setError(_env.getNullStream());
-  _env.setWarning(_env.getNullStream());
-  
-  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::UserCutCallbackI>(_env, _E, m, _n, _k)));
-  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::LazyConstraintCallbackI>(_env, _E, m, _n, _k)));
+  if (!verbose)
+  {
+    _env.setOut(_env.getNullStream());
+    _env.setError(_env.getNullStream());
+    _env.setWarning(_env.getNullStream());
+    _cplex.setOut(_env.getNullStream());
+    _cplex.setError(_env.getNullStream());
+    _cplex.setWarning(_env.getNullStream());
+  }
+  else
+  {
+    _env.setOut(std::cerr);
+    _env.setError(std::cerr);
+    _env.setWarning(std::cerr);
+    _cplex.setOut(std::cerr);
+    _cplex.setError(std::cerr);
+    _cplex.setWarning(std::cerr);
+  }
+
+  IloFastMutex mutex;
+  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::UserCutCallbackI>(_env, _E, m, _n, _k, &mutex)));
+  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::LazyConstraintCallbackI>(_env, _E, m, _n, _k, &mutex)));
   
   _cplex.setParam(IloCplex::ParallelMode, -1);
   if (nrThreads > 0)
@@ -217,12 +245,15 @@ void IlpSolverDollo::solve(int timeLimit,
   }
   
 //  _cplex.exportModel("/tmp/test.lp");
-  if (_cplex.solve())
+  lemon::Timer timer;
+  bool res = _cplex.solve();
+  if (res)
   {
-    std::cout << "CPLEX: [" << _cplex.getObjValue() << " , " << _cplex.getObjValue() << "]" << std::endl;
+    std::cerr << "CPLEX: [" << _cplex.getObjValue() << " , " << _cplex.getBestObjValue() << "]" << std::endl;
+    std::cerr << "Elapsed time: " << timer.realTime() << std::endl;
     processSolution();
-    std::cout << _solE << std::endl;
   }
+  return res;
 }
 
 void IlpSolverDollo::processSolution()

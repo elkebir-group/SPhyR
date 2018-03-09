@@ -6,6 +6,7 @@
  */
 
 #include "matrix.h"
+#include <random>
 
 Matrix::Matrix()
   : _m(0)
@@ -21,8 +22,35 @@ Matrix::Matrix(int m, int n)
 {
 }
 
+void Matrix::perturb(double alpha, double beta, int seed)
+{
+  std::mt19937 rng(seed);
+  std::uniform_real_distribution<> unif(0., 1.);
+  
+  for (int p = 0; p < _m; ++p)
+  {
+    for (int c = 0; c < _n; ++c)
+    {
+      if (_D[p][c] == 0)
+      {
+        if (unif(rng) < alpha)
+        {
+          _D[p][c] = 1;
+        }
+      }
+      else if (_D[p][c] == 1)
+      {
+        if (unif(rng) < beta)
+        {
+          _D[p][c] = 0;
+        }
+      }
+    }
+  }
+}
+
 void Matrix::identifyViolations(int k,
-                                     ViolationList& violationList) const
+                                ViolationList& violationList) const
 {
   for (int p = 0; p < _m; ++p)
   {

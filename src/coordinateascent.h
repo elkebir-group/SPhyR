@@ -29,9 +29,10 @@ public:
                    int l,
                    int seed);
   
-  double solve(int timeLimit,
-               int memoryLimit,
-               int nrThreads);
+  bool solve(int timeLimit,
+             int memoryLimit,
+             int nrThreads,
+             bool verbose);
   
   const Matrix& getE() const
   {
@@ -43,12 +44,18 @@ public:
     return _z;
   }
   
+  double getLogLikelihood() const
+  {
+    return _L;
+  }
+  
 private:
   void initZ();
   
   double solveE(int timeLimit,
                 int memoryLimit,
-                int nrThreads);
+                int nrThreads,
+                bool verbose);
   
   double solveZ();
   
