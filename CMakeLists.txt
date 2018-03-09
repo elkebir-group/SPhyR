@@ -179,6 +179,7 @@ set( CommonLibs
   concert
   pthread
   emon
+  dl
 )
 
 add_executable( kDP ${kDP_src} ${kDP_hdr} )

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 #include <lemon/list_graph.h>
 #include <lemon/tolerance.h>
 #include <boost/algorithm/string.hpp>
