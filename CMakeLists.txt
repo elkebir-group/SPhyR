@@ -9,6 +9,7 @@ set (kDP_src
   src/matrix.cpp
   src/utils.cpp
   src/ilpsolverdollo.cpp
+  src/dolloheuristic.cpp
 )
 
 set (kDP_hdr
@@ -16,6 +17,7 @@ set (kDP_hdr
   src/utils.h
   src/ilpsolverdollo.h
   src/dollocallback.h
+  src/dolloheuristic.h
 )
 
 set (kDPF_src
@@ -24,6 +26,7 @@ set (kDPF_src
   src/utils.cpp
   src/ilpsolverdollo.cpp
   src/ilpsolverdolloflip.cpp
+  src/dolloheuristic.cpp
 )
 
 set (kDPF_hdr
@@ -32,6 +35,7 @@ set (kDPF_hdr
   src/ilpsolverdollo.h
   src/ilpsolverdolloflip.h
   src/dollocallback.h
+  src/dolloheuristic.h
 )
 
 set (kDPFC_src
@@ -43,6 +47,7 @@ set (kDPFC_src
   src/ilpsolverdolloflipcluster.cpp
   src/ilpsolverdolloflipclustered.cpp
   src/coordinateascent.cpp
+  src/dolloheuristic.cpp
 )
 
 set (kDPFC_hdr
@@ -54,6 +59,7 @@ set (kDPFC_hdr
   src/ilpsolverdolloflipclustered.h
   src/coordinateascent.h
   src/dollocallback.h
+  src/dolloheuristic.h
   src/dkm/dkm.hpp
   src/dkm/dkm_utils.hpp
 )

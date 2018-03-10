@@ -7,6 +7,7 @@
 
 #include "ilpsolverdollo.h"
 #include "dollocallback.h"
+#include "dolloheuristic.h"
 #include <lemon/time_measure.h>
 
 IlpSolverDollo::IlpSolverDollo(const Matrix& D,
@@ -185,6 +186,8 @@ void IlpSolverDollo::initObjective()
 {
   const int m = _D.getNrTaxa();
   
+  double factor = 1. / (m * _n);
+  
   IloExpr obj(_env);
   for (int p = 0; p < m; ++p)
   {
@@ -192,12 +195,12 @@ void IlpSolverDollo::initObjective()
     {
       for (int i = 2; i <= _k + 1; ++i)
       {
-        obj += _E[p][c][i];
+        obj += pow(factor, _k + 1 - i) * _E[p][c][i];
       }
     }
   }
   
-  _model.add(IloMinimize(_env, obj));
+  _model.add(IloMinimize(_env, 1000 * obj));
 }
 
 bool IlpSolverDollo::solve(int timeLimit,
@@ -229,7 +232,9 @@ bool IlpSolverDollo::solve(int timeLimit,
   IloFastMutex mutex;
   _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::UserCutCallbackI>(_env, _E, m, _n, _k, &mutex)));
   _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::LazyConstraintCallbackI>(_env, _E, m, _n, _k, &mutex)));
+//  _cplex.use(IloCplex::Callback(new (_env) DolloHeuristic(_env, _E, m, _n, _k, &mutex)));
   
+  _cplex.setParam(IloCplex::MIPEmphasis, IloCplex::MIPEmphasisFeasibility);
   _cplex.setParam(IloCplex::ParallelMode, -1);
   if (nrThreads > 0)
   {
