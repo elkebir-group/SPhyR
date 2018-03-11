@@ -65,12 +65,14 @@ void Matrix::identifyViolations(int k,
           for (int d = c + 1; d < _n; ++d)
           {
             // condition 1
-            for (int i = 1; i <= k + 1; ++i)
+            for (int j = 2; j <= k + 1; ++j)
             {
-              for (int j = 2; j <= k + 1; ++j)
+              for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
               {
-                if (_D[p][c] == i && _D[q][c] == 0 && _D[r][c] == i
-                    && _D[p][d] != j && _D[q][d] == j && _D[r][d] == j)
+                if (j_prime == j) continue;
+                
+                if (_D[p][c] == 1 && _D[q][c] == 0 && _D[r][c] == 1
+                    && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
                 {
                   violationList.push_back(Violation(c, d, p, q, r, 1));
                 }
@@ -80,10 +82,12 @@ void Matrix::identifyViolations(int k,
             // condition 2
             for (int i = 2; i <= k + 1; ++i)
             {
-              for (int j = 1; j <= k + 1; ++j)
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
               {
-                if (_D[p][c] == i && _D[q][c] != i && _D[r][c] == i
-                    && _D[p][d] == 0 && _D[q][d] == j && _D[r][d] == j)
+                if (i == i_prime) continue;
+                
+                if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
+                    && _D[p][d] == 0 && _D[q][d] == 1 && _D[r][d] == 1)
                 {
                   violationList.push_back(Violation(c, d, p, q, r, 2));
                 }
@@ -93,21 +97,40 @@ void Matrix::identifyViolations(int k,
             // condition 3
             for (int i = 2; i <= k + 1; ++i)
             {
-              for (int j = 2; j <= k + 1; ++j)
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
               {
-                if (_D[p][c] == i && _D[q][c] != i && _D[r][c] == i
-                    && _D[p][d] != j && _D[q][d] == j && _D[r][d] == j)
+                if (i == i_prime) continue;
+                for (int j = 2; j <= k + 1; ++j)
                 {
-                  violationList.push_back(Violation(c, d, p, q, r, 3));
+                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
+                  {
+                    if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
+                        && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
+                    {
+                      violationList.push_back(Violation(c, d, p, q, r, 3));
+                    }
+                  }
                 }
               }
             }
             
             // condition 4
-            if (_D[p][c] == 1 && _D[q][c] == 0 && _D[r][c] == 1
-                && _D[p][d] == 0 && _D[q][d] == 1 && _D[r][d] == 1)
+            for (int i = 1; i <= k + 1; ++i)
             {
-              violationList.push_back(Violation(c, d, p, q, r, 4));
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
+              {
+                for (int j = 1; j <= k + 1; ++j)
+                {
+                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
+                  {
+                    if (_D[p][c] == i && _D[q][c] == 0 && _D[r][c] == i_prime
+                        && _D[p][d] == 0 && _D[q][d] == j && _D[r][d] == j_prime)
+                    {
+                      violationList.push_back(Violation(c, d, p, q, r, 4));
+                    }
+                  }
+                }
+              }
             }
           }
         }

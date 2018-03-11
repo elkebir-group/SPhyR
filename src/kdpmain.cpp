@@ -10,6 +10,7 @@
 #include "matrix.h"
 #include "ilpsolverdollo.h"
 #include "phylogenetictree.h"
+#include "columngen.h"
 
 int main(int argc, char** argv)
 {
@@ -19,9 +20,11 @@ int main(int argc, char** argv)
   int nrThreads = 1;
   int timeLimit = -1;
   bool verbose = false;
+  bool columnGeneration = false;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
+  ap.refOption("c", "Enable column generation", columnGeneration)
+    .refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
@@ -50,20 +53,41 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
-  IlpSolverDollo solver(D, k);
-  solver.init();
-  
-  if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
+  if (columnGeneration)
   {
-    if (outputFilename.empty())
+    ColumnGen solver(D, k);
+    solver.init();
+    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      std::cout << solver.getSolE();
+      if (outputFilename.empty())
+      {
+        std::cout << solver.getSolA();
+      }
+      else
+      {
+        std::ofstream outE(outputFilename.c_str());
+        outE << solver.getSolA();
+        outE.close();
+      }
     }
-    else
+  }
+  else
+  {
+    IlpSolverDollo solver(D, k);
+    solver.init();
+    
+    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      std::ofstream outE(outputFilename.c_str());
-      outE << solver.getSolE();
-      outE.close();
+      if (outputFilename.empty())
+      {
+        std::cout << solver.getSolE();
+      }
+      else
+      {
+        std::ofstream outE(outputFilename.c_str());
+        outE << solver.getSolE();
+        outE.close();
+      }
     }
   }
   
