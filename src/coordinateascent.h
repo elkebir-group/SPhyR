@@ -24,6 +24,7 @@ public:
   /// @param seed Random number generator seed
   CoordinateAscent(const Matrix& D,
                    int k,
+                   bool lazy,
                    double alpha,
                    double beta,
                    int l,
@@ -32,7 +33,8 @@ public:
   bool solve(int timeLimit,
              int memoryLimit,
              int nrThreads,
-             bool verbose);
+             bool verbose,
+             int nrRestarts);
   
   const Matrix& getE() const
   {
@@ -50,7 +52,7 @@ public:
   }
   
 private:
-  void initZ();
+  void initZ(int seed);
   
   double solveE(int timeLimit,
                 int memoryLimit,
@@ -68,6 +70,8 @@ private:
   const Matrix& _D;
   /// Maximum number of losses
   const int _k;
+  /// Use lazy constraints
+  const bool _lazy;
   /// False negative rate
   const double _alpha;
   /// False positive rate

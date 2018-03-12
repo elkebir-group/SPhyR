@@ -21,6 +21,7 @@ int main(int argc, char** argv)
   int timeLimit = -1;
   bool verbose = false;
   bool columnGeneration = false;
+  bool lazy = true;
   
   lemon::ArgParser ap(argc, argv);
   ap.refOption("c", "Enable column generation", columnGeneration)
@@ -28,6 +29,7 @@ int main(int argc, char** argv)
     .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
+//    .refOption("lazy", "Use lazy constrainst", lazy)
     .refOption("v", "Verbose output", verbose)
     .other("input", "Input file")
     .other("output", "Output file");
@@ -53,20 +55,23 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
+  StlIntVector mapping;
+  D = D.simplify(mapping);
+  
   if (columnGeneration)
   {
-    ColumnGen solver(D, k);
+    ColumnGen solver(D, k, lazy);
     solver.init();
     if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
       if (outputFilename.empty())
       {
-        std::cout << solver.getSolA();
+        std::cout << solver.getSolA().expand(mapping);
       }
       else
       {
         std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolA();
+        outE << solver.getSolA().expand(mapping);
         outE.close();
       }
     }
@@ -80,12 +85,12 @@ int main(int argc, char** argv)
     {
       if (outputFilename.empty())
       {
-        std::cout << solver.getSolE();
+        std::cout << solver.getSolE().expand(mapping);
       }
       else
       {
         std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolE();
+        outE << solver.getSolE().expand(mapping);
         outE.close();
       }
     }

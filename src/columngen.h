@@ -19,10 +19,17 @@ public:
   /// @param B Input matrix
   /// @param k Maximum number of losses
   ColumnGen(const Matrix& B,
-            int k);
+            int k,
+            bool lazy);
   
   /// Initialize solver
   virtual void init();
+  
+  /// Set upper bound on objective
+  virtual void setObjUpperBound(double UB)
+  {
+    _model.add(_obj <= UB);
+  }
   
   /// Return solution matrix
   const Matrix& getSolA() const
@@ -36,11 +43,18 @@ public:
              bool verbose);
   
 protected:
+  ColumnGen(const Matrix& B,
+            int n,
+            int k,
+            bool lazy);
+  
   virtual void initActiveVariables();
   
   virtual void initVariables();
   
   virtual void initConstraints();
+  
+  virtual void initFixedColumns();
   
   virtual void initFixedEntriesConstraints();
   
@@ -52,7 +66,7 @@ protected:
   
   void processSolution();
   
-  bool separate();
+  int separate();
   
   typedef IloArray<IloBoolVarArray> IloBoolVarMatrix;
   typedef IloArray<IloBoolVarMatrix> IloBoolVar3Matrix;
@@ -62,15 +76,49 @@ protected:
   
   int getIndex(int p, int c, int i) const
   {
-    const int n = _B.getNrCharacters();
-    return (n * (_k + 2)) * p + (_k + 2) * c + i;
+    return (_n * (_k + 2)) * p + (_k + 2) * c + i;
   }
+  
+  struct Triple
+  {
+  public:
+    Triple(int p, int c, int i)
+      : _p(p)
+      , _c(c)
+      , _i(i)
+    {
+    }
+    
+    Triple()
+      : _p(-1)
+      , _c(-1)
+      , _i(-1)
+    {
+    }
+    
+    int _p;
+    int _c;
+    int _i;
+  };
+  
+  int getIndex(const Triple& triple) const
+  {
+    return getIndex(triple._p, triple._c, triple._i);
+  }
+  
+  typedef std::array<Triple, 6> ViolatedConstraint;
+  
+  typedef std::list<ViolatedConstraint> ViolatedConstraintList;
   
 protected:
   /// Input matrix
   const Matrix& _B;
+  ///
+  const int _n;
   /// Maximum number of losses
   const int _k;
+  /// Lazy constraints
+  const bool _lazy;
   /// Cplex environment
   IloEnv _env;
   /// Cplex model
@@ -79,12 +127,16 @@ protected:
   IloCplex _cplex;
   /// _A[p][c][i] is the multi-state matrix
   IloBoolVar3Matrix _A;
-  
+  /// Flatten variable matrix _A
   IloBoolVarArray _vars;
-  ///
+  /// Objective function
+  IloExpr _obj;
+  /// Indicates which variables are active
   StlBool3Matrix _activeVariables;
-  ///
+  /// Number of active variables
   int _nrActiveVariables;
+  /// Number of constraints
+  int _nrConstraints;
   /// Solution matrix
   Matrix _solA;
 };

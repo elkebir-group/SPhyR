@@ -17,22 +17,25 @@ int main(int argc, char** argv)
   int k = 1;
   double alpha = 1e-3;
   double beta = 0.3;
-  int l = -1;
+  int l = 10;
   bool exact = false;
   int seed = 0;
   int memoryLimit = -1;
   int nrThreads = 1;
   int timeLimit = -1;
   bool verbose = false;
+  bool lazy = true;
+  int restarts = 1;
   
   lemon::ArgParser ap(argc, argv);
   ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
-    .refOption("l", "Number of SNV clusters (default: -1, unlimited)", l)
+    .refOption("l", "Number of SNV clusters (default: 10)", l)
     .refOption("exact", "Exact algorithm", exact)
-    .refOption("s", "Random number generator seed (only applicable when used with -sA)", seed)
-    .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
+    .refOption("N", "Number of restarts (default: 1)", restarts)
+    .refOption("s", "Random number generator seed (default: 0)", seed)
+    .refOption("T", "Time limit in seconds (default: -1, unlimited). Only used with -exact.", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
     .refOption("v", "Verbose output", verbose)
@@ -60,39 +63,44 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
+  StlIntVector mapping;
+  D = D.simplify(mapping);
+  
   if (exact)
   {
     IlpSolverDolloFlipCluster solver(D, k, alpha, beta, l);
     solver.init();
     if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
+      Matrix A = solver.getSolE().expand(mapping);
       if (outputFilename.empty())
       {
-        std::cout << solver.getSolE();
+        std::cout << A;
       }
       else
       {
         std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolE();
+        outE << A;
         outE.close();
       }
     }
   }
   else
   {
-    CoordinateAscent ca(D, k, alpha, beta, l, seed);
-    ca.solve(timeLimit, memoryLimit, nrThreads, verbose);
+    CoordinateAscent ca(D, k, lazy, alpha, beta, l, seed);
+    ca.solve(-1, memoryLimit, nrThreads, verbose, restarts);
+    Matrix bestA = ca.getE().expand(ca.getZ()).expand(mapping);
+    
+    std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
     
     if (outputFilename.empty())
     {
-      std::cout << ca.getE();
-      std::cout << ca.getZ();
+      std::cout << bestA;
     }
     else
     {
       std::ofstream outFile(outputFilename.c_str());
-      outFile << ca.getE();
-      outFile << ca.getZ();
+      outFile << bestA;
       outFile.close();
     }
   }

@@ -16,6 +16,7 @@
 #include <map>
 #include <lemon/list_graph.h>
 #include <lemon/tolerance.h>
+#include <lemon/time_measure.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -40,6 +41,8 @@ extern lemon::Tolerance<double> g_tol;
 
 /// Current line number
 extern int g_lineNumber;
+
+extern lemon::Timer g_timer;
 
 std::ostream& operator<<(std::ostream& out, const StlIntVector& z);
 

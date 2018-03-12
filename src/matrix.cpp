@@ -22,6 +22,122 @@ Matrix::Matrix(int m, int n)
 {
 }
 
+Matrix Matrix::simplify(StlIntVector& mapping) const
+{
+  mapping = StlIntVector(_n, -3);
+  
+  int newNrCharacters = _n;
+  for (int c = 0; c < _n; c++)
+  {
+    int nrZeros = 0;
+    int nrOnes = 0;
+    int nrMissing = 0;
+    
+    int lastOne = -1;
+    
+    for (int p = 0; p < _m; p++)
+    {
+      int b_pc = getEntry(p, c);
+      if (b_pc == 0)
+      {
+        ++nrZeros;
+      }
+      else if (b_pc == 1)
+      {
+        ++nrOnes;
+        lastOne = p;
+      }
+      else
+      {
+        ++nrMissing;
+      }
+    }
+    
+    if (nrZeros + nrMissing == _m)
+    {
+      mapping[c] = -1; // ALL ZEROS
+      --newNrCharacters;
+    }
+    else if (nrOnes + nrMissing == _m)
+    {
+      mapping[c] = -2; // ALL ONES
+      --newNrCharacters;
+    }
+    else if (nrOnes == 1)
+    {
+      assert(0 <= lastOne && lastOne < _m);
+      mapping[c] = -4 - lastOne; // SINGLE_ONE
+      --newNrCharacters;
+    }
+  }
+  
+  Matrix newB(_m, newNrCharacters);
+  int cc = 0;
+  for (int c = 0; c < _n; c++)
+  {
+    if (mapping[c] == -3)
+    {
+      mapping[c] = cc;
+      for (int p = 0; p < _m; ++p)
+      {
+        newB.setEntry(p, cc, getEntry(p, c));
+      }
+      ++cc;
+    }
+  }
+  
+  return newB;
+}
+
+Matrix Matrix::expand(const StlIntVector& mapping) const
+{
+  Matrix newB(_m, mapping.size());
+  
+  const int newNrCharacters = mapping.size();
+  for (int c = 0; c < newNrCharacters; c++)
+  {
+    if (mapping[c] == -1)
+    {
+      for (int p = 0; p < _m; ++p)
+      {
+        newB.setEntry(p, c, 0);
+      }
+    }
+    else if (mapping[c] == -2)
+    {
+      for (int p = 0; p < _m; ++p)
+      {
+        newB.setEntry(p, c, 1);
+      }
+    }
+    else if (mapping[c] <= -4)
+    {
+      const int taxon = -4 - mapping[c];
+      assert(0 <= taxon && taxon < _m);
+      for (int p = 0; p < _m; ++p)
+      {
+        if (p == taxon)
+        {
+          newB.setEntry(p, c, 1);
+        }
+        else
+        {
+          newB.setEntry(p, c, 0);
+        }
+      }
+    }
+    else
+    {
+      for (int p = 0; p < _m; ++p)
+      {
+        newB.setEntry(p, c, getEntry(p, mapping[c]));
+      }
+    }
+  }
+  
+  return newB;
+}
+
 void Matrix::perturb(double alpha, double beta, int seed)
 {
   std::mt19937 rng(seed);

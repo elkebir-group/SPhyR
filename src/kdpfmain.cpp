@@ -10,6 +10,7 @@
 #include "matrix.h"
 #include "ilpsolverdolloflip.h"
 #include "phylogenetictree.h"
+#include "columngenflip.h"
 
 int main(int argc, char** argv)
 {
@@ -21,15 +22,19 @@ int main(int argc, char** argv)
   double alpha = 1e-3;
   double beta = 0.3;
   bool verbose = false;
+  bool columnGeneration = false;
+  bool lazy = false;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
+  ap.refOption("c", "Enable column generation", columnGeneration)
+    .refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
     .refOption("v", "Verbose output", verbose)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
+    .refOption("lazy", "Use lazy constraints", lazy)
     .other("input", "Input file")
     .other("output", "Output file");
   ap.parse();
@@ -54,20 +59,47 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
-  IlpSolverDolloFlip solver(D, k, alpha, beta);
-  solver.init();
+  StlIntVector mapping;
+  D = D.simplify(mapping);
   
-  if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
+  if (columnGeneration)
   {
-    if (outputFilename.empty())
+    ColumnGenFlip solver(D, k, lazy, alpha, beta);
+    solver.init();
+    
+    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      std::cout << solver.getSolE();
+      Matrix A = solver.getSolA().expand(mapping);
+      if (outputFilename.empty())
+      {
+        std::cout << A;
+      }
+      else
+      {
+        std::ofstream outE(outputFilename.c_str());
+        outE << A;
+        outE.close();
+      }
     }
-    else
+  }
+  else
+  {
+    IlpSolverDolloFlip solver(D, k, alpha, beta);
+    solver.init();
+    
+    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      std::ofstream outE(outputFilename.c_str());
-      outE << solver.getSolE();
-      outE.close();
+      Matrix A = solver.getSolE().expand(mapping);
+      if (outputFilename.empty())
+      {
+        std::cout << A;
+      }
+      else
+      {
+        std::ofstream outE(outputFilename.c_str());
+        outE << A;
+        outE.close();
+      }
     }
   }
   

@@ -70,5 +70,18 @@ int main(int argc, char** argv)
             << " / " << A.getNrTaxa() * A.getNrCharacters()
             << " = " << (double) violationEntries.size() / (A.getNrTaxa() * A.getNrCharacters()) << std::endl;
   
+  for (int c = 0; c < A.getNrCharacters(); ++c)
+  {
+    int ones_c = A.getNrOfOnes(c);
+    if (ones_c == 0)
+    {
+      std::cout << "Character " << c << " has no 1s" << std::endl;
+    }
+    else if (ones_c == 1)
+    {
+      std::cout << "Character " << c << " has a single 1" << std::endl;
+    }
+  }
+  
   return 0;
 }

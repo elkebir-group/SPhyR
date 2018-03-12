@@ -11,6 +11,8 @@ int g_lineNumber = 0;
 
 lemon::Tolerance<double> g_tol(1e-4);
 
+lemon::Timer g_timer;
+
 std::string getLineNumber()
 {
   char buf[1024];

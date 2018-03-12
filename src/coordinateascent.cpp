@@ -8,15 +8,19 @@
 #include "coordinateascent.h"
 #include "dkm/dkm.hpp"
 #include "ilpsolverdolloflipclustered.h"
+#include "columngenflipclustered.h"
+#include "cluster.h"
 
 CoordinateAscent::CoordinateAscent(const Matrix& D,
                                    int k,
+                                   bool lazy,
                                    double alpha,
                                    double beta,
                                    int l,
                                    int seed)
   : _D(D)
   , _k(k)
+  , _lazy(lazy)
   , _alpha(alpha)
   , _beta(beta)
   , _l(l)
@@ -27,37 +31,11 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
 {
 }
 
-void CoordinateAscent::initZ()
+void CoordinateAscent::initZ(int seed)
 {
-  // kMeans
-  const int m = _D.getNrTaxa();
-  const int n = _D.getNrCharacters();
-  
-  const int MAX_CELLS = 1000;
-  
-  assert(m <= MAX_CELLS);
-  
-  std::vector<std::array<double, MAX_CELLS> > data;
-  for (int c = 0; c < n; ++c)
-  {
-    data.push_back(std::array<double, MAX_CELLS>());
-    for (int p = 0; p < m; ++p)
-    {
-      int d_pc = _D.getEntry(p, c);
-      double val = d_pc == -1 ? 0.5 : d_pc;
-      data.back()[p] = val;
-    }
-    for (int p = m; p < MAX_CELLS; ++p)
-    {
-      data.back()[p] = 0.;
-    }
-  }
-  
-  auto z = std::get<1>(dkm::kmeans_lloyd(data, _l, _seed));
-  for (int c = 0; c < n; ++c)
-  {
-    _z[c] = z[c];
-  }
+  Cluster cluster(_D, _l);
+  cluster.cluster(seed);
+  _z = cluster.getMapping();
 }
 
 double CoordinateAscent::solveE(int timeLimit,
@@ -65,12 +43,13 @@ double CoordinateAscent::solveE(int timeLimit,
                                 int nrThreads,
                                 bool verbose)
 {
-  IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
+//  IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
+  ColumnGenFlipClustered solvePhylogeny(_D, _k, _lazy, _alpha, _beta, _l, _z);
   solvePhylogeny.init();
-  solvePhylogeny.initHotStart(_E, _z);
+//  solvePhylogeny.initHotStart(_E, _z);
   solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads, verbose);
   
-  _E = solvePhylogeny.getSolE();
+  _E = solvePhylogeny.getSolA();
 #ifdef DEBUG
   InputMatrix::ViolationList violationList;
   assert(_E.identifyViolations(_k, violationList));
@@ -180,22 +159,43 @@ double CoordinateAscent::solveZ()
 bool CoordinateAscent::solve(int timeLimit,
                              int memoryLimit,
                              int nrThreads,
-                             bool verbose)
+                             bool verbose,
+                             int nrRestarts)
 {
-  initZ();
+  Matrix bestA;
+  double bestLikelihood = -std::numeric_limits<double>::max();
+  StlIntVector bestZ;
   
-  double delta = 1;
-  int iteration = 1;
-  while (g_tol.nonZero(delta))
+  for (int restartCount = 1; restartCount <= nrRestarts; ++restartCount)
   {
-    double LL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
-    std::cerr << "Iteration " << iteration << " -- E step -- log likelihood " << LL << std::endl;
-    double L = solveZ();
-    std::cerr << "Iteration " << iteration << " -- z step -- log likelihood " << L << std::endl;
+    initZ(_seed + restartCount - 1);
     
-    delta = L - _L;
-    _L = L;
+    double delta = 1;
+    int iteration = 1;
+    while (g_tol.nonZero(delta))
+    {
+      double LL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
+      std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- E step -- log likelihood " << LL << std::endl;
+      double L = solveZ();
+      std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- z step -- log likelihood " << L << std::endl;
+      std::cerr << std::endl;
+      
+      delta = L - _L;
+      _L = L;
+      ++iteration;
+    }
+    
+    if (bestLikelihood < _L)
+    {
+      bestA = _E;
+      bestLikelihood = _L;
+      bestZ = _z;
+    }
   }
+  
+  _E = bestA;
+  _L = bestLikelihood;
+  _z = bestZ;
   
   return true;
 }

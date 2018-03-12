@@ -250,12 +250,11 @@ bool IlpSolverDollo::solve(int timeLimit,
   }
   
 //  _cplex.exportModel("/tmp/test.lp");
-  lemon::Timer timer;
   bool res = _cplex.solve();
   if (res)
   {
     std::cerr << "CPLEX: [" << _cplex.getObjValue() << " , " << _cplex.getBestObjValue() << "]" << std::endl;
-    std::cerr << "Elapsed time: " << timer.realTime() << std::endl;
+    std::cerr << "Elapsed time: " << g_timer.realTime() << std::endl;
     processSolution();
   }
   return res;

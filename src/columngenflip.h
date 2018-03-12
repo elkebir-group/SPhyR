@@ -21,9 +21,18 @@ public:
   /// @param k Maximum number of losses
   ColumnGenFlip(const Matrix& B,
                 int k,
+                bool lazy,
                 double alpha,
                 double beta);
+  
 protected:
+  ColumnGenFlip(const Matrix& B,
+                int n,
+                int k,
+                bool lazy,
+                double alpha,
+                double beta);
+  
   virtual void initFixedEntriesConstraints();
   
   virtual void initObjective();
@@ -31,8 +40,8 @@ protected:
   virtual void activate(int p, int c, int i);
   
 protected:
-  double _alpha;
-  double _beta;
+  const double _alpha;
+  const double _beta;
 };
 
 #endif // COLUMNGENFLIP_H

@@ -11,9 +11,22 @@
 
 ColumnGenFlip::ColumnGenFlip(const Matrix& B,
                              int k,
+                             bool lazy,
                              double alpha,
                              double beta)
-  : ColumnGen(B, k)
+  : ColumnGen(B, k, lazy)
+  , _alpha(alpha)
+  , _beta(beta)
+{
+}
+
+ColumnGenFlip::ColumnGenFlip(const Matrix& B,
+                             int n,
+                             int k,
+                             bool lazy,
+                             double alpha,
+                             double beta)
+  : ColumnGen(B, n, k, lazy)
   , _alpha(alpha)
   , _beta(beta)
 {
@@ -26,19 +39,17 @@ void ColumnGenFlip::initFixedEntriesConstraints()
 void ColumnGenFlip::initObjective()
 {
   const int m = _B.getNrTaxa();
-  const int n = _B.getNrCharacters();
   
   const double log_alpha = log(_alpha);
   const double log_1_minus_alpha = log(1 - _alpha);
   const double log_beta = log(_beta);
   const double log_1_minus_beta = log(1 - _beta);
   
-  IloExpr obj(_env);
   IloExpr x(_env);
   IloExpr y(_env);
   for (int p = 0; p < m; p++)
   {
-    for (int c = 0; c < n; c++)
+    for (int c = 0; c < _n; c++)
     {
       int b_pc = _B.getEntry(p, c);
       if (b_pc == 0)
@@ -47,15 +58,15 @@ void ColumnGenFlip::initObjective()
         {
           if (j == 0)
           {
-            obj += log_1_minus_alpha * _A[p][c][j];
+            _obj += log_1_minus_alpha * _A[p][c][j];
           }
           else if (j == 1)
           {
-            obj += log_beta * _A[p][c][j];
+            _obj += log_beta * _A[p][c][j];
           }
           else
           {
-            obj += log_1_minus_alpha * _A[p][c][j];
+            _obj += log_1_minus_alpha * _A[p][c][j];
           }
         }
       }
@@ -65,22 +76,37 @@ void ColumnGenFlip::initObjective()
         {
           if (j == 0)
           {
-            obj += log_alpha * _A[p][c][j];
+            _obj += log_alpha * _A[p][c][j];
           }
           else if (j == 1)
           {
-            obj += log_1_minus_beta * _A[p][c][j];
+            _obj += log_1_minus_beta * _A[p][c][j];
           }
           else
           {
-            obj += log_alpha * _A[p][c][j];
+            _obj += log_alpha * _A[p][c][j];
           }
         }
       }
     }
   }
   
-  _model.add(IloMaximize(_env, 1000 * obj));
+  IloExpr lossSum(_env);
+  double unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
+  for (int p = 0; p < m; ++p)
+  {
+    for (int c = 0; c < _n; ++c)
+    {
+      for (int i = 2; i <= _k + 1; ++i)
+      {
+        lossSum += _A[p][c][i] * pow(1./(m * _n), _k + 2 - i);// (unit / (m * _n));
+      }
+    }
+  }
+  
+  _obj += lossSum * unit;
+  _obj = 1000 * _obj;
+  _model.add(IloMaximize(_env, _obj));
 }
 
 void ColumnGenFlip::activate(int p, int c, int i)

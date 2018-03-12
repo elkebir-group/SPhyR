@@ -44,17 +44,23 @@ void IlpSolverDolloFlip::initObjective()
   const double log_1_minus_alpha = log(1 - _alpha);
   const double log_beta = log(_beta);
   const double log_1_minus_beta = log(1 - _beta);
+  const double logg_beta = log_beta - log_1_minus_beta;
+  const double logg_alpha = log_alpha - log_1_minus_alpha;
   
   IloExpr obj(_env);
-  IloExpr x(_env);
-  IloExpr y(_env);
+  IloExpr x(_env);   // 0 (input) to 1 (output) FN
+  IloExpr y(_env);   // 1 (input) to 0,2,3... (output) FP
+  int X = 0;         // zeros in D
+  int Y = 0;         // ones in D
+  
   for (int p = 0; p < m; p++)
   {
     for (int c = 0; c < n; c++)
     {
       int d_pc = _D.getEntry(p, c);
-      if (d_pc == 0)// || d_pc == -1)
+      if (d_pc == 0)
       {
+        ++X;
         for (int j = 0; j <= _k + 1; ++j)
         {
           if (j == 0)
@@ -64,7 +70,7 @@ void IlpSolverDolloFlip::initObjective()
           else if (j == 1)
           {
             obj += log_beta * _E[p][c][j];
-            y += _E[p][c][j];
+            x += _E[p][c][j];
           }
           else
           {
@@ -74,12 +80,13 @@ void IlpSolverDolloFlip::initObjective()
       }
       else if (d_pc == 1)
       {
+        ++Y;
         for (int j = 0; j <= _k + 1; ++j)
         {
           if (j == 0)
           {
             obj += log_alpha * _E[p][c][j];
-            x += _E[p][c][j];
+            y += _E[p][c][j];
           }
           else if (j == 1)
           {
@@ -88,20 +95,16 @@ void IlpSolverDolloFlip::initObjective()
           else
           {
             obj += log_alpha * _E[p][c][j];
-            x += _E[p][c][j];
+            y += _E[p][c][j];
           }
         }
       }
     }
   }
 //  obj.clear();
-//  double lambda = getLambda(_alpha, _beta);
-//  obj += lambda * x;
-//  obj += (1 - lambda) * y;
+//  obj += logg_beta * x + logg_alpha * y + X * log_1_minus_beta + Y * log_1_minus_alpha;
   
   double unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
-//  std::cout << "Lambda = " << lambda << std::endl;
-//  double unit = std::min(lambda, 1 - lambda);
   for (int p = 0; p < m; ++p)
   {
     for (int c = 0; c < n; ++c)

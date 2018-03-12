@@ -35,6 +35,23 @@ public:
     return _n;
   }
   
+  /// Return number of ones
+  int getNrOfOnes(int c) const
+  {
+    assert(0 <= c && c < _n);
+    
+    int res = 0;
+    for (int p = 0; p < _m; ++p)
+    {
+      if (_D[p][c] == 1)
+      {
+        ++res;
+      }
+    }
+    
+    return res;
+  }
+  
   /// Return input entry
   ///
   /// @param p Taxon
@@ -89,6 +106,10 @@ public:
   
   void identifyViolations(int k,
                           ViolationList& violationList) const;
+  
+  Matrix simplify(StlIntVector& mapping) const;
+  
+  Matrix expand(const StlIntVector& mapping) const;
   
 protected:
   /// Number of taxa

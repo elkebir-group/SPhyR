@@ -356,7 +356,7 @@ void DolloCallback<T>::separate()
 }
 
 template<>
-void DolloCallback<IloCplex::UserCutCallbackI>::main()
+inline void DolloCallback<IloCplex::UserCutCallbackI>::main()
 {
   if (_currentIterations == _maxIterations)
   {
@@ -375,7 +375,7 @@ void DolloCallback<IloCplex::UserCutCallbackI>::main()
 
 
 template<class T>
-void DolloCallback<T>::main()
+inline void DolloCallback<T>::main()
 {
   if (_currentIterations == _maxIterations)
   {

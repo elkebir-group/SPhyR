@@ -29,7 +29,8 @@ set (kDPF_src
   src/ilpsolverdollo.cpp
   src/ilpsolverdolloflip.cpp
   src/dolloheuristic.cpp
-#  src/columngenflip.cpp
+  src/columngen.cpp
+  src/columngenflip.cpp
 )
 
 set (kDPF_hdr
@@ -39,7 +40,8 @@ set (kDPF_hdr
   src/ilpsolverdolloflip.h
   src/dollocallback.h
   src/dolloheuristic.h
-#  src/columngenflip.h
+  src/columngen.h
+  src/columngenflip.h
 )
 
 set (kDPFC_src
@@ -52,6 +54,10 @@ set (kDPFC_src
   src/ilpsolverdolloflipclustered.cpp
   src/coordinateascent.cpp
   src/dolloheuristic.cpp
+  src/columngenflipclustered.cpp
+  src/columngenflip.cpp
+  src/columngen.cpp
+  src/cluster.cpp
 )
 
 set (kDPFC_hdr
@@ -64,8 +70,12 @@ set (kDPFC_hdr
   src/coordinateascent.h
   src/dollocallback.h
   src/dolloheuristic.h
+  src/cluster.h
   src/dkm/dkm.hpp
   src/dkm/dkm_utils.hpp
+  src/columngenflipclustered.h
+  src/columngenflip.h
+  src/columngen.h
 )
 
 set( analyze_src
