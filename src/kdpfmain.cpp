@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   double beta = 0.3;
   bool verbose = false;
   bool columnGeneration = false;
-  bool lazy = false;
+  bool lazy = true;
   
   lemon::ArgParser ap(argc, argv);
   ap.refOption("c", "Enable column generation", columnGeneration)
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     .refOption("v", "Verbose output", verbose)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
-    .refOption("lazy", "Use lazy constraints", lazy)
+//    .refOption("lazy", "Use lazy constraints", lazy)
     .other("input", "Input file")
     .other("output", "Output file");
   ap.parse();
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   std::ifstream inD(ap.files()[0]);
   if (!inD.good())
   {
-    std::cerr << "Error: failed to open '" << argv[1] << "' for reading"
+    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
     << std::endl;
     return 1;
   }
@@ -59,8 +59,8 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
-  StlIntVector mapping;
-  D = D.simplify(mapping);
+  StlIntVector characterMapping, taxonMapping;
+  D = D.simplify(characterMapping, taxonMapping);
   
   if (columnGeneration)
   {
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
     
     if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      Matrix A = solver.getSolA().expand(mapping);
+      Matrix A = solver.getSolA().expand(characterMapping, taxonMapping);
       if (outputFilename.empty())
       {
         std::cout << A;
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     
     if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      Matrix A = solver.getSolE().expand(mapping);
+      Matrix A = solver.getSolE().expand(characterMapping, taxonMapping);
       if (outputFilename.empty())
       {
         std::cout << A;

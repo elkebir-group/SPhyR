@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   std::ifstream inD(ap.files()[0]);
   if (!inD.good())
   {
-    std::cerr << "Error: failed to open '" << argv[1] << "' for reading"
+    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
     << std::endl;
     return 1;
   }
@@ -55,8 +55,8 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
-  StlIntVector mapping;
-  D = D.simplify(mapping);
+  StlIntVector chacterMapping, taxonMapping;
+  D = D.simplify(chacterMapping, taxonMapping);
   
   if (columnGeneration)
   {
@@ -66,12 +66,12 @@ int main(int argc, char** argv)
     {
       if (outputFilename.empty())
       {
-        std::cout << solver.getSolA().expand(mapping);
+        std::cout << solver.getSolA().expand(chacterMapping, taxonMapping);
       }
       else
       {
         std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolA().expand(mapping);
+        outE << solver.getSolA().expand(chacterMapping, taxonMapping);
         outE.close();
       }
     }
@@ -85,12 +85,12 @@ int main(int argc, char** argv)
     {
       if (outputFilename.empty())
       {
-        std::cout << solver.getSolE().expand(mapping);
+        std::cout << solver.getSolE().expand(chacterMapping, taxonMapping);
       }
       else
       {
         std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolE().expand(mapping);
+        outE << solver.getSolE().expand(chacterMapping, taxonMapping);
         outE.close();
       }
     }

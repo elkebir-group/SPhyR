@@ -107,9 +107,19 @@ public:
   void identifyViolations(int k,
                           ViolationList& violationList) const;
   
-  Matrix simplify(StlIntVector& mapping) const;
+  Matrix simplify(StlIntVector& characterMapping,
+                  StlIntVector& taxonMapping) const;
   
-  Matrix expand(const StlIntVector& mapping) const;
+  Matrix simplifyColumns(StlIntVector& characterMapping) const;
+  
+  Matrix simplifyRows(StlIntVector& taxonMapping) const;
+  
+  Matrix expand(const StlIntVector& characterMapping,
+                const StlIntVector& taxonMapping) const;
+  
+  Matrix expandColumns(const StlIntVector& characterMapping) const;
+  
+  Matrix expandRows(const StlIntVector& taxonMapping) const;
   
 protected:
   /// Number of taxa

@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   std::ifstream inE(ap.files()[0]);
   if (!inE.good())
   {
-    std::cerr << "Error: failed to open '" << argv[1] << "' for reading"
+    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
               << std::endl;
     return 1;
   }

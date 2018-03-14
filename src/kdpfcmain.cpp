@@ -52,7 +52,7 @@ int main(int argc, char** argv)
   std::ifstream inD(ap.files()[0]);
   if (!inD.good())
   {
-    std::cerr << "Error: failed to open '" << argv[1] << "' for reading"
+    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
               << std::endl;
     return 1;
   }
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
   inD >> D;
   inD.close();
   
-  StlIntVector mapping;
-  D = D.simplify(mapping);
+  StlIntVector characterMapping, taxonMapping;
+  D = D.simplify(characterMapping, taxonMapping);
   
   if (exact)
   {
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     solver.init();
     if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
     {
-      Matrix A = solver.getSolE().expand(mapping);
+      Matrix A = solver.getSolE().expand(characterMapping, taxonMapping);
       if (outputFilename.empty())
       {
         std::cout << A;
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
   {
     CoordinateAscent ca(D, k, lazy, alpha, beta, l, seed);
     ca.solve(-1, memoryLimit, nrThreads, verbose, restarts);
-    Matrix bestA = ca.getE().expand(ca.getZ()).expand(mapping);
+    Matrix bestA = ca.getE().expandColumns(ca.getZ()).expand(characterMapping, taxonMapping);
     
     std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
     
