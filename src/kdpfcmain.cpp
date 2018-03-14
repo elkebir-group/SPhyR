@@ -8,7 +8,7 @@
 #include <fstream>
 #include <lemon/arg_parser.h>
 #include "matrix.h"
-#include "ilpsolverdolloflipcluster.h"
+//#include "ilpsolverdolloflipcluster.h"
 #include "coordinateascent.h"
 
 int main(int argc, char** argv)
@@ -17,7 +17,8 @@ int main(int argc, char** argv)
   int k = 1;
   double alpha = 1e-3;
   double beta = 0.3;
-  int l = 10;
+  int lC = 10;
+  int lT = 10;
   bool exact = false;
   int seed = 0;
   int memoryLimit = -1;
@@ -31,7 +32,8 @@ int main(int argc, char** argv)
   ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
-    .refOption("l", "Number of SNV clusters (default: 10)", l)
+    .refOption("lC", "Number of SNV clusters (default: 10)", lC)
+    .refOption("lT", "Number of cell clusters (default: 10)", lT)
     .refOption("exact", "Exact algorithm", exact)
     .refOption("N", "Number of restarts (default: 1)", restarts)
     .refOption("s", "Random number generator seed (default: 0)", seed)
@@ -62,34 +64,41 @@ int main(int argc, char** argv)
   Matrix D;
   inD >> D;
   inD.close();
-  
+
   StlIntVector characterMapping, taxonMapping;
   D = D.simplify(characterMapping, taxonMapping);
   
-  if (exact)
+//  if (exact)
+//  {
+//    IlpSolverDolloFlipCluster solver(D, k, alpha, beta, l);
+//    solver.init();
+//    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
+//    {
+//      Matrix A = solver.getSolE().expand(characterMapping, taxonMapping);
+//      if (outputFilename.empty())
+//      {
+//        std::cout << A;
+//      }
+//      else
+//      {
+//        std::ofstream outE(outputFilename.c_str());
+//        outE << A;
+//        outE.close();
+//      }
+//    }
+//  }
+//  else
   {
-    IlpSolverDolloFlipCluster solver(D, k, alpha, beta, l);
-    solver.init();
-    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
-    {
-      Matrix A = solver.getSolE().expand(characterMapping, taxonMapping);
-      if (outputFilename.empty())
-      {
-        std::cout << A;
-      }
-      else
-      {
-        std::ofstream outE(outputFilename.c_str());
-        outE << A;
-        outE.close();
-      }
-    }
-  }
-  else
-  {
-    CoordinateAscent ca(D, k, lazy, alpha, beta, l, seed);
+    CoordinateAscent ca(D, k, lazy, alpha, beta, lT, lC, seed);
     ca.solve(-1, memoryLimit, nrThreads, verbose, restarts);
-    Matrix bestA = ca.getE().expandColumns(ca.getZ()).expand(characterMapping, taxonMapping);
+    Matrix bestA = ca.getE();
+//    std::cout << bestA << std::endl;
+    bestA = bestA.expandColumns(ca.getZC());
+//    std::cout << bestA << std::endl;
+    bestA = bestA.expandRows(ca.getZT());
+//    std::cout << bestA << std::endl;
+    bestA = bestA.expand(characterMapping, taxonMapping);
+//    std::cout << bestA << std::endl;
     
     std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
     

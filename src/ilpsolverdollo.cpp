@@ -14,6 +14,7 @@ IlpSolverDollo::IlpSolverDollo(const Matrix& D,
                                int k)
   : _D(D)
   , _k(k)
+  , _m(D.getNrTaxa())
   , _n(D.getNrCharacters())
   , _env()
   , _model(_env)
@@ -25,9 +26,11 @@ IlpSolverDollo::IlpSolverDollo(const Matrix& D,
 
 IlpSolverDollo::IlpSolverDollo(const Matrix& D,
                                int k,
+                               int m,
                                int n)
   : _D(D)
   , _k(k)
+  , _m(m)
   , _n(n)
   , _env()
   , _model(_env)
@@ -47,12 +50,10 @@ void IlpSolverDollo::init()
 
 void IlpSolverDollo::initVariables()
 {
-  const int m = _D.getNrTaxa();
-  
   char buf[1024];
   
-  _E = IloBoolVar3Matrix(_env, m);
-  for (int p = 0; p < m; p++)
+  _E = IloBoolVar3Matrix(_env, _m);
+  for (int p = 0; p < _m; p++)
   {
     _E[p] = IloBoolVarMatrix(_env, _n);
     for (int c = 0; c < _n; ++c)
@@ -69,10 +70,8 @@ void IlpSolverDollo::initVariables()
 
 void IlpSolverDollo::initFixedEntries()
 {
-  const int m = _D.getNrTaxa();
-
   IloExpr sum(_env);
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -91,12 +90,10 @@ void IlpSolverDollo::initFixedEntries()
 
 void IlpSolverDollo::initConstraints()
 {
-  const int m = _D.getNrTaxa();
-  
   IloExpr sum(_env);
   
   // Each entry has a unique state
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -115,7 +112,7 @@ void IlpSolverDollo::initConstraints()
   {
     for (int i = 2; i <= _k + 1; ++i)
     {
-      for (int p = 0; p < m; p++)
+      for (int p = 0; p < _m; p++)
       {
         sum += _E[p][c][i];
       }
@@ -184,12 +181,10 @@ void IlpSolverDollo::initConstraints()
 
 void IlpSolverDollo::initObjective()
 {
-  const int m = _D.getNrTaxa();
-  
-  double factor = 1. / (m * _n);
+  double factor = 1. / (_m * _n);
   
   IloExpr obj(_env);
-  for (int p = 0; p < m; ++p)
+  for (int p = 0; p < _m; ++p)
   {
     for (int c = 0; c < _n; ++c)
     {
@@ -208,8 +203,6 @@ bool IlpSolverDollo::solve(int timeLimit,
                            int nrThreads,
                            bool verbose)
 {
-  const int m = _D.getNrTaxa();
-  
   if (!verbose)
   {
     _env.setOut(_env.getNullStream());
@@ -230,8 +223,8 @@ bool IlpSolverDollo::solve(int timeLimit,
   }
 
   IloFastMutex mutex;
-  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::UserCutCallbackI>(_env, _E, m, _n, _k, &mutex)));
-  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::LazyConstraintCallbackI>(_env, _E, m, _n, _k, &mutex)));
+  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::UserCutCallbackI>(_env, _E, _m, _n, _k, &mutex)));
+  _cplex.use(IloCplex::Callback(new (_env) DolloCallback<IloCplex::LazyConstraintCallbackI>(_env, _E, _m, _n, _k, &mutex)));
 //  _cplex.use(IloCplex::Callback(new (_env) DolloHeuristic(_env, _E, m, _n, _k, &mutex)));
   
   _cplex.setParam(IloCplex::MIPEmphasis, IloCplex::MIPEmphasisFeasibility);
@@ -281,9 +274,7 @@ void IlpSolverDollo::processSolution()
 
 void IlpSolverDollo::printSolution(std::ostream& out) const
 {
-  const int m = _D.getNrTaxa();
-  
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     bool first = true;
     for (int c = 0; c < _n; ++c)

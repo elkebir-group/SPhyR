@@ -9,10 +9,13 @@
 #include "dkm/dkm.hpp"
 
 Cluster::Cluster(const Matrix& D,
-                 int l)
+                 int lT,
+                 int lC)
   : _D(D)
-  , _l(l)
-  , _mapping(D.getNrCharacters(), -1)
+  , _lT(lT)
+  , _zT(D.getNrTaxa(), -1)
+  , _lC(lC)
+  , _zC(D.getNrCharacters(), -1)
 {
 }
 
@@ -42,9 +45,35 @@ void Cluster::cluster(int seed)
     }
   }
   
-  auto z = std::get<1>(dkm::kmeans_lloyd(data, _l, seed));
+  auto z = std::get<1>(dkm::kmeans_lloyd(data, _lC, seed));
   for (int c = 0; c < n; ++c)
   {
-    _mapping[c] = z[c];
+    _zC[c] = z[c];
+  }
+  
+  const int MAX_SNVS = 1000;
+  
+  assert(n <= MAX_SNVS);
+  
+  std::vector<std::array<double, MAX_SNVS> > data2;
+  for (int p = 0; p < m; ++p)
+  {
+    data2.push_back(std::array<double, MAX_SNVS>());
+    for (int c = 0; c < n; ++c)
+    {
+      int d_pc = _D.getEntry(p, c);
+      double val = d_pc == -1 ? 0.5 : d_pc;
+      data2.back()[c] = val;
+    }
+    for (int c = n; c < MAX_SNVS; ++c)
+    {
+      data2.back()[c] = 0.;
+    }
+  }
+  
+  auto z2 = std::get<1>(dkm::kmeans_lloyd(data2, _lT, seed));
+  for (int p = 0; p < m; ++p)
+  {
+    _zT[p] = z2[p];
   }
 }

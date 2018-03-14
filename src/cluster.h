@@ -16,22 +16,33 @@ class Cluster
 public:
   /// Cluster matrix D
   Cluster(const Matrix& D,
-          int l);
+          int lT,
+          int lC);
   
   void cluster(int seed);
   
-  const StlIntVector& getMapping()
+  const StlIntVector& getCharacterMapping() const
   {
-    return _mapping;
+    return _zC;
   }
+  
+  const StlIntVector& getTaxonMapping() const
+  {
+    return _zT;
+  }
+
   
 private:
   /// Input matrix
   const Matrix& _D;
   /// Number of clusters
-  const int _l;
+  const int _lT;
   /// Cluster assignment
-  StlIntVector _mapping;
+  StlIntVector _zT;
+  /// Number of clusters
+  const int _lC;
+  /// Cluster assignment
+  StlIntVector _zC;
 };
 
 #endif // CLUSTER_H

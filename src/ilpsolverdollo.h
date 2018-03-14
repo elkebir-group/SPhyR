@@ -55,9 +55,11 @@ protected:
   ///
   /// @param D Input matrix
   /// @param k Maximum number of losses
+  /// @param m Number of taxa
   /// @param n Number of characters
   IlpSolverDollo(const Matrix& D,
                  int k,
+                 int m,
                  int n);
   
   /// Initialize variables
@@ -85,6 +87,8 @@ protected:
   const Matrix& _D;
   /// Maximum number of losses
   const int _k;
+  /// Number of taxa
+  const int _m;
   /// Number of characters
   const int _n;
   /// Cplex environment

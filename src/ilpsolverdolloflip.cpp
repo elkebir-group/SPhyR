@@ -19,10 +19,11 @@ IlpSolverDolloFlip::IlpSolverDolloFlip(const Matrix& D,
 
 IlpSolverDolloFlip::IlpSolverDolloFlip(const Matrix& D,
                                        int k,
+                                       int m,
                                        int n,
                                        double alpha,
                                        double beta)
-  : IlpSolverDollo(D, k, n)
+  : IlpSolverDollo(D, k, m, n)
   , _alpha(alpha)
   , _beta(beta)
 {
@@ -44,8 +45,8 @@ void IlpSolverDolloFlip::initObjective()
   const double log_1_minus_alpha = log(1 - _alpha);
   const double log_beta = log(_beta);
   const double log_1_minus_beta = log(1 - _beta);
-  const double logg_beta = log_beta - log_1_minus_beta;
-  const double logg_alpha = log_alpha - log_1_minus_alpha;
+//  const double logg_beta = log_beta - log_1_minus_beta;
+//  const double logg_alpha = log_alpha - log_1_minus_alpha;
   
   IloExpr obj(_env);
   IloExpr x(_env);   // 0 (input) to 1 (output) FN

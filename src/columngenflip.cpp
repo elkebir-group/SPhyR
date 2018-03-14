@@ -21,12 +21,13 @@ ColumnGenFlip::ColumnGenFlip(const Matrix& B,
 }
 
 ColumnGenFlip::ColumnGenFlip(const Matrix& B,
+                             int m,
                              int n,
                              int k,
                              bool lazy,
                              double alpha,
                              double beta)
-  : ColumnGen(B, n, k, lazy)
+  : ColumnGen(B, m, n, k, lazy)
   , _alpha(alpha)
   , _beta(beta)
 {
@@ -38,8 +39,6 @@ void ColumnGenFlip::initFixedEntriesConstraints()
 
 void ColumnGenFlip::initObjective()
 {
-  const int m = _B.getNrTaxa();
-  
   const double log_alpha = log(_alpha);
   const double log_1_minus_alpha = log(1 - _alpha);
   const double log_beta = log(_beta);
@@ -47,7 +46,7 @@ void ColumnGenFlip::initObjective()
   
   IloExpr x(_env);
   IloExpr y(_env);
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -93,13 +92,13 @@ void ColumnGenFlip::initObjective()
   
   IloExpr lossSum(_env);
   double unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
-  for (int p = 0; p < m; ++p)
+  for (int p = 0; p < _m; ++p)
   {
     for (int c = 0; c < _n; ++c)
     {
       for (int i = 2; i <= _k + 1; ++i)
       {
-        lossSum += _A[p][c][i] * pow(1./(m * _n), _k + 2 - i);// (unit / (m * _n));
+        lossSum += _A[p][c][i] * pow(1./(_m * _n), _k + 2 - i);// (unit / (m * _n));
       }
     }
   }

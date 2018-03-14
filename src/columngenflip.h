@@ -27,6 +27,7 @@ public:
   
 protected:
   ColumnGenFlip(const Matrix& B,
+                int m,
                 int n,
                 int k,
                 bool lazy,

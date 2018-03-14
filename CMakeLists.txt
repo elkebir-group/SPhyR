@@ -50,8 +50,8 @@ set (kDPFC_src
   src/utils.cpp
   src/ilpsolverdollo.cpp
   src/ilpsolverdolloflip.cpp
-  src/ilpsolverdolloflipcluster.cpp
-  src/ilpsolverdolloflipclustered.cpp
+#  src/ilpsolverdolloflipcluster.cpp
+#  src/ilpsolverdolloflipclustered.cpp
   src/coordinateascent.cpp
   src/dolloheuristic.cpp
   src/columngenflipclustered.cpp
@@ -65,8 +65,8 @@ set (kDPFC_hdr
   src/utils.h
   src/ilpsolverdollo.h
   src/ilpsolverdolloflip.h
-  src/ilpsolverdolloflipcluster.h
-  src/ilpsolverdolloflipclustered.h
+#  src/ilpsolverdolloflipcluster.h
+#  src/ilpsolverdolloflipclustered.h
   src/coordinateascent.h
   src/dollocallback.h
   src/dolloheuristic.h

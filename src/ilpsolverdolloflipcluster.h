@@ -19,12 +19,14 @@ public:
   /// @param k Maximum number of losses
   /// @param alpha False negative rate
   /// @param beta False positive rate
-  /// @param l Number of SNV clusters
+  /// @param lC Number of SNV (characters) clusters
+  /// @param lT Number of cell (taxa) clusters
   IlpSolverDolloFlipCluster(const Matrix& D,
                             int k,
                             double alpha,
                             double beta,
-                            int l);
+                            int lC,
+                            int lT);
   
   /// Write solution
   ///
@@ -62,8 +64,10 @@ protected:
   virtual void processSolution();
   
 protected:
-  /// Number of SNV clusters
-  const double _l;
+  /// Number of SNV (character) clusters
+  const double _lC;
+  /// Number of cell (taxa) clusters
+  const double _lT;
   /// Best-case likelihoods
   StlDoubleVector _bestCaseLikelihoods;
   /// Worst-case likelihoods

@@ -38,11 +38,13 @@ protected:
   ///
   /// @param D Input matrix
   /// @param k Maximum number of losses
+  /// @param m Number of taxa
   /// @param n Number of characters
   /// @param alpha False negative rate
   /// @param beta False positive rate
   IlpSolverDolloFlip(const Matrix& D,
                      int k,
+                     int m,
                      int n,
                      double alpha,
                      double beta);

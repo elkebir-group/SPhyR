@@ -81,7 +81,8 @@ Matrix Matrix::simplifyRows(StlIntVector& mapping) const
       }
       if (duplicateMapping.count(vec_p) == 0)
       {
-        duplicateMapping[vec_p].first = duplicateMapping.size() - 1;
+        int size = duplicateMapping.size();
+        duplicateMapping[vec_p].first = size;
       }
       duplicateMapping[vec_p].second.insert(p);
       mapping[p] = duplicateMapping[vec_p].first;
@@ -163,7 +164,8 @@ Matrix Matrix::simplifyColumns(StlIntVector& mapping) const
       }
       if (duplicateMapping.count(vec_c) == 0)
       {
-        duplicateMapping[vec_c].first = duplicateMapping.size() - 1;
+        int size = duplicateMapping.size();
+        duplicateMapping[vec_c].first = size;
       }
       duplicateMapping[vec_c].second.insert(c);
       mapping[c] = duplicateMapping[vec_c].first;

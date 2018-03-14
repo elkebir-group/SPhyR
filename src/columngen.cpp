@@ -13,6 +13,7 @@ ColumnGen::ColumnGen(const Matrix& B,
                      int k,
                      bool lazy)
   : _B(B)
+  , _m(B.getNrTaxa())
   , _n(B.getNrCharacters())
   , _k(k)
   , _lazy(lazy)
@@ -30,10 +31,12 @@ ColumnGen::ColumnGen(const Matrix& B,
 }
 
 ColumnGen::ColumnGen(const Matrix& B,
+                     int m,
                      int n,
                      int k,
                      bool lazy)
   : _B(B)
+  , _m(m)
   , _n(n)
   , _k(k)
   , _lazy(lazy)
@@ -46,7 +49,7 @@ ColumnGen::ColumnGen(const Matrix& B,
   , _activeVariables()
   , _nrActiveVariables(0)
   , _nrConstraints(0)
-  , _solA(_B.getNrTaxa(), n)
+  , _solA(m, n)
 {
 }
 
@@ -58,6 +61,29 @@ void ColumnGen::init()
   initFixedEntriesConstraints();
   initActiveVariables();
   initObjective();
+}
+
+void ColumnGen::writeActiveVariables(std::ostream& out) const
+{
+  for (int p = 0; p < _m; ++p)
+  {
+    for (int c = 0; c < _n; ++c)
+    {
+      if (c > 0)
+      {
+        out << " ";
+      }
+      for (int i = 0; i <= _k + 1; ++i)
+      {
+        if (_activeVariables[p][c][i])
+        {
+          out << i;
+        }
+      }
+    }
+    out << std::endl;
+  }
+  out << std::endl;
 }
 
 void ColumnGen::initActiveVariables()
@@ -97,11 +123,9 @@ void ColumnGen::initActiveVariables()
 
 void ColumnGen::initObjective()
 {
-  const int m = _B.getNrTaxa();
+  double factor = 1. / (_m * _n);
   
-  double factor = 1. / (m * _n);
-  
-  for (int p = 0; p < m; ++p)
+  for (int p = 0; p < _m; ++p)
   {
     for (int c = 0; c < _n; ++c)
     {
@@ -119,9 +143,7 @@ void ColumnGen::initObjective()
 
 void ColumnGen::updateVariableBounds()
 {
-  const int m = _B.getNrTaxa();
-  
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -142,15 +164,13 @@ void ColumnGen::updateVariableBounds()
 
 void ColumnGen::initFixedColumns()
 {
-  const int m = _B.getNrTaxa();
-  
   for (int c = 0; c < _n; c++)
   {
     int nrZeros = 0;
     int nrOnes = 0;
     int nrMissing = 0;
     
-    for (int p = 0; p < m; p++)
+    for (int p = 0; p < _m; p++)
     {
       int b_pc = _B.getEntry(p, c);
       if (b_pc == 0)
@@ -169,7 +189,7 @@ void ColumnGen::initFixedColumns()
     
     if (nrOnes == 1)
     {
-      for (int p = 0; p < m; p++)
+      for (int p = 0; p < _m; p++)
       {
         if (_B.getEntry(p, c) == 1)
         {
@@ -181,16 +201,16 @@ void ColumnGen::initFixedColumns()
         }
       }
     }
-    else if (nrOnes + nrMissing == m)
+    else if (nrOnes + nrMissing == _m)
     {
-      for (int p = 0; p < m; p++)
+      for (int p = 0; p < _m; p++)
       {
         _model.add(_A[p][c][1] == 1);
       }
     }
-    else if (nrZeros + nrMissing == m)
+    else if (nrZeros + nrMissing == _m)
     {
-      for (int p = 0; p < m; p++)
+      for (int p = 0; p < _m; p++)
       {
         _model.add(_A[p][c][0] == 1);
       }
@@ -200,9 +220,7 @@ void ColumnGen::initFixedColumns()
 
 void ColumnGen::initFixedEntriesConstraints()
 {
-  const int m = _B.getNrTaxa();
-  
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -221,12 +239,10 @@ void ColumnGen::initFixedEntriesConstraints()
 
 void ColumnGen::initConstraints()
 {
-  const int m = _B.getNrTaxa();
-  
   IloExpr sum(_env);
   
   // Each entry has a unique state
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; c++)
     {
@@ -244,13 +260,11 @@ void ColumnGen::initConstraints()
 
 void ColumnGen::initVariables()
 {
-  const int m = _B.getNrTaxa();
-  
   char buf[1024];
   
-  _A = IloBoolVar3Matrix(_env, m);
-  _vars = IloBoolVarArray(_env, m * _n * (_k + 2));
-  for (int p = 0; p < m; p++)
+  _A = IloBoolVar3Matrix(_env, _m);
+  _vars = IloBoolVarArray(_env, _m * _n * (_k + 2));
+  for (int p = 0; p < _m; p++)
   {
     _A[p] = IloBoolVarMatrix(_env, _n);
     for (int c = 0; c < _n; ++c)
@@ -291,8 +305,6 @@ void ColumnGen::activate(int p, int c, int i)
 
 int ColumnGen::separate()
 {
-  const int m = _B.getNrTaxa();
-  
   IloNumArray vals = IloNumArray(_env, _vars.getSize());
   _cplex.getValues(vals, _vars);
   
@@ -314,7 +326,7 @@ int ColumnGen::separate()
           if (j_prime == j) continue;
           
           IntSet pSet;
-          for (int p = 0; p < m; p++)
+          for (int p = 0; p < _m; p++)
           {
             if (g_tol.nonZero(vals[getIndex(p, c, 1)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
             {
@@ -323,7 +335,7 @@ int ColumnGen::separate()
           }
           
           IntSet qSet;
-          for (int q = 0; q < m; q++)
+          for (int q = 0; q < _m; q++)
           {
             if (g_tol.nonZero(vals[getIndex(q, c, 0)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
             {
@@ -332,7 +344,7 @@ int ColumnGen::separate()
           }
           
           IntSet rSet;
-          for (int r = 0; r < m; r++)
+          for (int r = 0; r < _m; r++)
           {
             if (g_tol.nonZero(vals[getIndex(r, c, 1)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
             {
@@ -382,7 +394,7 @@ int ColumnGen::separate()
           if (i == i_prime) continue;
           
           IntSet pSet;
-          for (int p = 0; p < m; p++)
+          for (int p = 0; p < _m; p++)
           {
             if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, 0)]))
             {
@@ -391,7 +403,7 @@ int ColumnGen::separate()
           }
           
           IntSet qSet;
-          for (int q = 0; q < m; q++)
+          for (int q = 0; q < _m; q++)
           {
             if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, 1)]))
             {
@@ -400,7 +412,7 @@ int ColumnGen::separate()
           }
           
           IntSet rSet;
-          for (int r = 0; r < m; r++)
+          for (int r = 0; r < _m; r++)
           {
             if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, 1)]))
             {
@@ -455,7 +467,7 @@ int ColumnGen::separate()
               if (j == j_prime) continue;
               
               IntSet pSet;
-              for (int p = 0; p < m; p++)
+              for (int p = 0; p < _m; p++)
               {
                 if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
                 {
@@ -464,7 +476,7 @@ int ColumnGen::separate()
               }
               
               IntSet qSet;
-              for (int q = 0; q < m; q++)
+              for (int q = 0; q < _m; q++)
               {
                 if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
                 {
@@ -473,7 +485,7 @@ int ColumnGen::separate()
               }
               
               IntSet rSet;
-              for (int r = 0; r < m; r++)
+              for (int r = 0; r < _m; r++)
               {
                 if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
                 {
@@ -531,7 +543,7 @@ int ColumnGen::separate()
             for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
             {
               IntSet pSet;
-              for (int p = 0; p < m; p++)
+              for (int p = 0; p < _m; p++)
               {
                 if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, 0)]))
                 {
@@ -540,7 +552,7 @@ int ColumnGen::separate()
               }
               
               IntSet qSet;
-              for (int q = 0; q < m; q++)
+              for (int q = 0; q < _m; q++)
               {
                 if (g_tol.nonZero(vals[getIndex(q, c, 0)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
                 {
@@ -549,7 +561,7 @@ int ColumnGen::separate()
               }
               
               IntSet rSet;
-              for (int r = 0; r < m; r++)
+              for (int r = 0; r < _m; r++)
               {
                 if (g_tol.nonZero(vals[getIndex(r, c, i_prime)]) && g_tol.nonZero(vals[getIndex(r, d, j_prime)]))
                 {
@@ -647,9 +659,7 @@ int ColumnGen::separate()
 
 void ColumnGen::processSolution()
 {
-  const int m = _B.getNrTaxa();
-
-  for (int p = 0; p < m; p++)
+  for (int p = 0; p < _m; p++)
   {
     for (int c = 0; c < _n; ++c)
     {

@@ -20,14 +20,16 @@ public:
   /// @param k Maximum number of losses
   /// @param alpha False negative rate
   /// @param beta False positive rate
-  /// @param n Number of SNV clusters
+  /// @param lT Number of cell clusters
+  /// @param lC Number of SNV clusters
   /// @param seed Random number generator seed
   CoordinateAscent(const Matrix& D,
                    int k,
                    bool lazy,
                    double alpha,
                    double beta,
-                   int l,
+                   int lT,
+                   int lC,
                    int seed);
   
   bool solve(int timeLimit,
@@ -41,9 +43,14 @@ public:
     return _E;
   }
   
-  const StlIntVector& getZ() const
+  const StlIntVector& getZT() const
   {
-    return _z;
+    return _zT;
+  }
+  
+  const StlIntVector& getZC() const
+  {
+    return _zC;
   }
   
   double getLogLikelihood() const
@@ -59,9 +66,16 @@ private:
                 int nrThreads,
                 bool verbose);
   
-  double solveZ();
+  double solveZC();
   
-  double computeLogLikelihood(int c, int f) const;
+  double solveZT();
+  
+  double computeLogLikelihood(int p, int h,
+                              int c, int f) const;
+  
+  double computeCharacterLogLikelihood(int c, int f) const;
+  
+  double computeTaxonLogLikelihood(int p, int h) const;
   
   double computeLogLikelihood() const;
   
@@ -76,14 +90,18 @@ private:
   const double _alpha;
   /// False positive rate
   const double _beta;
+  /// Number of cell clusters
+  const int _lT;
   /// Number of SNV clusters
-  const int _l;
+  const int _lC;
   /// Random number generator seed
   const int _seed;
   /// Output matrix
   Matrix _E;
-  /// Character to cluster assignment;
-  StlIntVector _z;
+  /// Character to cell assignment
+  StlIntVector _zT;
+  /// Character to cluster assignment
+  StlIntVector _zC;
   /// Log likelihood
   double _L;
 };

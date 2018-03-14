@@ -19,14 +19,18 @@ public:
   /// @param k Maximum number of losses
   /// @param alpha False negative rate
   /// @param beta False positive rate
-  /// @param l Number of SNV clusters
-  /// @param z Cluster assignment
+  /// @param lC Number of SNV (characters) clusters
+  /// @param zC SNV (characters) cluster assignment
+  /// @param lT Number of cell (taxa) clusters
+  /// @param zT Cell (taxa) cluster assignment
   IlpSolverDolloFlipClustered(const Matrix& D,
                               int k,
                               double alpha,
                               double beta,
-                              int l,
-                              const StlIntVector& z);
+                              int lC,
+                              const StlIntVector& zC,
+                              int lT,
+                              const StlIntVector& zT);
   
   /// Initialize hot start
   ///
@@ -47,10 +51,14 @@ protected:
   virtual void initObjective();
   
 protected:
-  /// Cluster assignment
-  const StlIntVector& _z;
-  /// Number of SNV clusters
-  const double _l;
+  /// SNV (character) cluster assignment
+  const StlIntVector& _zC;
+  /// Cell (taxa) cluster assignment
+  const StlIntVector& _zT;
+  /// Number of SNV (character) clusters
+  const double _lC;
+  /// Number of cell (taxa) clusters
+  const double _lT;
   /// Best-case likelihoods
   StlDoubleVector _bestCaseLikelihoods;
   /// Worst-case likelihoods

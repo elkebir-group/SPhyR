@@ -44,6 +44,7 @@ public:
   
 protected:
   ColumnGen(const Matrix& B,
+            int m,
             int n,
             int k,
             bool lazy);
@@ -106,6 +107,8 @@ protected:
     return getIndex(triple._p, triple._c, triple._i);
   }
   
+  void writeActiveVariables(std::ostream& out) const;
+  
   typedef std::array<Triple, 6> ViolatedConstraint;
   
   typedef std::list<ViolatedConstraint> ViolatedConstraintList;
@@ -113,7 +116,9 @@ protected:
 protected:
   /// Input matrix
   const Matrix& _B;
-  ///
+  /// Number of taxa
+  const int _m;
+  /// Number of characters
   const int _n;
   /// Maximum number of losses
   const int _k;

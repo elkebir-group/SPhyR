@@ -11,11 +11,15 @@ IlpSolverDolloFlipClustered::IlpSolverDolloFlipClustered(const Matrix& D,
                                                          int k,
                                                          double alpha,
                                                          double beta,
-                                                         int l,
-                                                         const StlIntVector& z)
-  : IlpSolverDolloFlip(D, k, l, alpha, beta)
-  , _z(z)
-  , _l(l)
+                                                         int lC,
+                                                         const StlIntVector& zC,
+                                                         int lT,
+                                                         const StlIntVector& zT)
+  : IlpSolverDolloFlip(D, k, lT, lC, alpha, beta)
+  , _zC(zC)
+  , _zT(zT)
+  , _lC(lC)
+  , _lT(lT)
   , _bestCaseLikelihoods()
   , _worstCaseLikelihoods()
   , _L()
@@ -69,8 +73,8 @@ void IlpSolverDolloFlipClustered::initVariables()
     _L[c] = IloNumVar(_env, _worstCaseLikelihoods[c], _bestCaseLikelihoods[c], buf);
   }
   
-  _loss = IloBoolVarArray(_env, _l);
-  for (int f = 0; f < _l; ++f)
+  _loss = IloBoolVarArray(_env, _lC);
+  for (int f = 0; f < _lC; ++f)
   {
     snprintf(buf, 1024, "loss_%d", f);
     _loss[f] = IloBoolVar(_env, buf);
@@ -105,7 +109,7 @@ void IlpSolverDolloFlipClustered::initConstraints()
       int d_pc = _D.getEntry(p, c);
       if (d_pc == 1)
       {
-        for (int f = 0; f < _l; ++f)
+        for (int f = 0; f < _lC; ++f)
         {
           for (int i = 1; i <= _k + 1; ++i)
           {
@@ -118,7 +122,7 @@ void IlpSolverDolloFlipClustered::initConstraints()
     }
   }
   
-  for (int f = 0; f < _l; ++f)
+  for (int f = 0; f < _lC; ++f)
   {
     for (int i = 2; i <= _k + 1; ++i)
     {
@@ -135,7 +139,7 @@ void IlpSolverDolloFlipClustered::initConstraints()
   IloExpr obj(_env);
   for (int c = 0; c < n; ++c)
   {
-    const int f = _z[c];
+    const int f = _zC[c];
     for (int p = 0; p < m; p++)
     {
       int d_pc = _D.getEntry(p, c);
@@ -182,9 +186,9 @@ void IlpSolverDolloFlipClustered::initConstraints()
     obj.clear();
   }
   
-  // symmetry breaking
+  // symmetry breaking, not sure how this works!!!
   IloExpr prevSum(_env);
-  for (int f = 0; f < _l; ++f)
+  for (int f = 0; f < _lC; ++f)
   {
     for (int p = 0; p < m; p++)
     {
@@ -248,7 +252,7 @@ void IlpSolverDolloFlipClustered::initHotStart(const Matrix& E,
   const int n = _D.getNrCharacters();
   
   assert(E.getNrTaxa() == m);
-  assert(E.getNrCharacters() == _l);
+  assert(E.getNrCharacters() == _lC);
   assert(z.size() == n);
   
   IloNumVarArray startVar(_env);
@@ -257,7 +261,7 @@ void IlpSolverDolloFlipClustered::initHotStart(const Matrix& E,
   // set _E
   for (int p = 0; p < m; ++p)
   {
-    for (int f = 0; f < _l; ++f)
+    for (int f = 0; f < _lC; ++f)
     {
       for (int i = 0; i <= _k + 1; ++i)
       {
@@ -288,21 +292,17 @@ void IlpSolverDolloFlipClustered::initObjective()
     obj += _L[c];
   }
   
-  StlIntVector nrCharactersPerCluster(_l, 0);
+  StlIntVector nrCharactersPerCluster(_lC, 0);
   for (int c = 0; c < n; ++c)
   {
-    ++nrCharactersPerCluster[_z[c]];
+    ++nrCharactersPerCluster[_zC[c]];
   }
   
   // minimize number of losses
   IloExpr sum(_env);
-  for (int f = 0; f < _l; ++f)
+  for (int f = 0; f < _lC; ++f)
   {
-//    for (int i = 0; i < _k; ++i)
-//    {
-      sum += nrCharactersPerCluster[f] * _loss[f] * 1. / _l;
-//      sum += _E[p][f][j] * pow(1./(m *_l), _k + 2 - j);
-//    }
+      sum += nrCharactersPerCluster[f] * _loss[f] * 1. / _lC;
   }
   
   double unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));

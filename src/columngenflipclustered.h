@@ -22,18 +22,29 @@ public:
                          bool lazy,
                          double alpha,
                          double beta,
-                         int l,
-                         const StlIntVector& z);
+                         int lC,
+                         const StlIntVector& zC,
+                         int lT,
+                         const StlIntVector& zT);
   
 protected: 
   virtual void initObjective();
   
   virtual void initActiveVariables();
   
+  virtual void initFixedColumns()
+  {
+  }
+  
 protected:
-  const int _l;
-  /// Cluster assignment
-  const StlIntVector& _z;
+  /// SNV (character) cluster assignment
+  const StlIntVector& _zC;
+  /// Cell (taxa) cluster assignment
+  const StlIntVector& _zT;
+  /// Number of SNV (character) clusters
+  const double _lC;
+  /// Number of cell (taxa) clusters
+  const double _lT;
 };
 
 #endif // COLUMNGENFLIPCLUSTERED_H
