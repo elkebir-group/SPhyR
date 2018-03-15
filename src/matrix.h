@@ -35,6 +35,12 @@ public:
     return _n;
   }
   
+  /// Return maximum number of losses per character
+  int getMaxNrLosses() const
+  {
+    return _k;
+  }
+  
   /// Return number of ones
   int getNrOfOnes(int c) const
   {
@@ -75,6 +81,11 @@ public:
     assert(0 <= c && c < _n);
 
     _D[p][c] = i;
+    
+    if (i - 1 > _k)
+    {
+      _k = i - 1;
+    }
   }
   
   void perturb(double alpha, double beta, int seed);
@@ -102,6 +113,10 @@ public:
     const int _condition;
   };
   
+  void identifyRepeatedColumns(StlIntVector& characterMapping) const;
+  
+  void identifyRepeatedRows(StlIntVector& taxonMapping) const;
+  
   typedef std::list<Violation> ViolationList;
   
   void identifyViolations(int k,
@@ -128,6 +143,8 @@ protected:
   int _n;
   /// Input matrix
   StlIntMatrix _D;
+  /// Number of losses
+  int _k;
 
   friend std::ostream& operator<<(std::ostream& out, const Matrix& D);
   friend std::istream& operator>>(std::istream& in, Matrix& D);

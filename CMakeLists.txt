@@ -82,11 +82,15 @@ set( analyze_src
   src/analyzemain.cpp
   src/utils.cpp
   src/matrix.cpp
+  src/comparison.cpp
+  src/phylogenetictree.cpp
 )
 
 set( analyze_hdr
   src/utils.h
   src/matrix.h
+  src/comparison.h
+  src/phylogenetictree.h
 )
 
 set( perturb_src

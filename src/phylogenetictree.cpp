@@ -18,7 +18,9 @@ PhylogeneticTree::PhylogeneticTree(const Matrix& A,
   , _a(_T, StlIntVector(_A.getNrCharacters(), 0))
   , _b(_T, StlIntVector(_A.getNrCharacters(), 0))
   , _charStateLabeling(_T)
-  , _taxonToNode(_A.getNrTaxa(), lemon::INVALID)
+  , _charStateVectorLabeling(_T)
+  , _taxonToLeaf(_A.getNrTaxa(), lemon::INVALID)
+  , _leafToTaxon(_T, -1)
 {
   const int m = _A.getNrTaxa();
   const int n = _A.getNrCharacters();
@@ -120,7 +122,9 @@ bool PhylogeneticTree::reconstructTree()
         if (!found)
         {
           Node w = _T.addNode();
-          _charStateLabeling[_T.addArc(v, w)].insert(charState);
+          Arc a = _T.addArc(v, w);
+          _charStateLabeling[a].insert(charState);
+          _charStateVectorLabeling[a].push_back(charState);
           v = w;
           if (introducedChar[c])
           {
@@ -135,12 +139,15 @@ bool PhylogeneticTree::reconstructTree()
     }
     Node v_p = _T.addNode();
     _T.addArc(v, v_p);
-    _taxonToNode[p] = v_p;
+    _taxonToLeaf[p] = v_p;
+    _leafToTaxon[v_p] = p;
   }
   
   _a[_root] = StlIntVector(_A.getNrCharacters(), 0);
   _b[_root] = StlIntVector(_A.getNrCharacters(), 0);
   label(_root);
+  
+  collapseBranches();
   
   return true;
 }
@@ -231,7 +238,7 @@ void PhylogeneticTree::generateLosses(double lossRate, int k, int seed)
   
   for (int p = 0; p < m; ++p)
   {
-    Node v_p = _taxonToNode[p];
+    Node v_p = _taxonToLeaf[p];
     for (int c = 0; c < n; ++c)
     {
       _A.setEntry(p, c, _a[v_p][c]);
@@ -274,4 +281,155 @@ void PhylogeneticTree::writeDOT(std::ostream& out) const
 //  }
   
   out << "}" << std::endl;
+}
+
+void PhylogeneticTree::collapseBranches()
+{
+  bool done = false;
+  while (!done)
+  {
+    done = true;
+    for (NodeIt v(_T); v != lemon::INVALID; ++v)
+    {
+      int outDegree = lemon::countOutArcs(_T, v);
+      if (v != _root && outDegree == 1)
+      {
+        InArcIt parentArc(_T, v);
+        Node parentNode = _T.source(parentArc);
+        OutArcIt childArc(_T, v);
+        Node childNode = _T.target(childArc);
+        
+        Arc newArc = _T.addArc(parentNode, childNode);
+        _charStateLabeling[newArc].insert(_charStateLabeling[parentArc].begin(),
+                                          _charStateLabeling[parentArc].end());
+        _charStateLabeling[newArc].insert(_charStateLabeling[childArc].begin(),
+                                          _charStateLabeling[childArc].end());
+        
+        _charStateVectorLabeling[newArc].insert(_charStateVectorLabeling[newArc].end(),
+                                                _charStateVectorLabeling[parentArc].begin(),
+                                                _charStateVectorLabeling[parentArc].end());
+        
+        _T.erase(v);
+        
+        done = false;
+        break;
+      }
+    }
+  }
+}
+
+void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
+                                    TwoCharStatesSet& incomparable,
+                                    TwoCharStatesSet& clustered) const
+{
+  const int n = _A.getNrCharacters();
+  
+  ArcMatrix charStateToArc(n, ArcVector(_k + 2, lemon::INVALID));
+  for (ArcIt a(_T); a != lemon::INVALID; ++a)
+  {
+    for (const IntPair ci : _charStateLabeling[a])
+    {
+      charStateToArc[ci.first][ci.second] = a;
+    }
+  }
+  
+  for (int c = 0; c < n; ++c)
+  {
+    for (int i = 0; i <= _k + 1; ++i)
+    {
+      IntPair ci(c, i);
+      // don't distinguish between different losses
+      IntPair ci_prime = ci;
+      if (i > 2)
+        ci_prime.second = 2;
+
+      Arc a_ci = charStateToArc[c][i];
+      if (a_ci == lemon::INVALID) continue;
+      
+      for (int d = 0; d < n; ++d)
+      {
+        for (int j = 0; j <= _k + 1; ++j)
+        {
+          IntPair dj(d, j);
+          // don't distinguish between different losses
+          IntPair dj_prime = dj;
+          if (j > 2)
+            dj_prime.second = 2;
+
+          Arc a_dj = charStateToArc[d][j];
+          if (a_dj == lemon::INVALID) continue;
+          
+          if (isAncestral(a_ci, a_dj))
+          {
+            ancestral.insert(TwoCharStates(ci_prime, dj_prime));
+          }
+          else if (isClustered(a_ci, a_dj))
+          {
+            if (ci < dj)
+            {
+              clustered.insert(TwoCharStates(ci_prime, dj_prime));
+            }
+          }
+          else if (isIncomparable(a_ci, a_dj))
+          {
+            incomparable.insert(TwoCharStates(ci_prime, dj_prime));
+          }
+        }
+      }
+    }
+  }
+}
+
+PhylogeneticTree::SplitSet PhylogeneticTree::getSplitSet() const
+{
+  StlIntSet universe;
+  for (int p = 0; p < _A.getNrTaxa(); ++p)
+  {
+    universe.insert(p);
+  }
+  
+  SplitSet splitSet;
+  
+  SplitNodeMap splitMap(_T);
+  computeSplits(_root, universe, splitMap);
+  
+  for (NodeIt v(_T); v != lemon::INVALID; ++v)
+  {
+    if (v == _root) continue;
+    if (OutArcIt(_T, v) == lemon::INVALID) continue;
+    
+    splitSet.insert(splitMap[v]);
+  }
+  
+  return splitSet;
+}
+
+void PhylogeneticTree::computeSplits(Node v,
+                                     const StlIntSet& universe,
+                                     SplitNodeMap& split) const
+{
+  if (OutArcIt(_T, v) == lemon::INVALID)
+  {
+    InArcIt a(_T, v);
+
+    const int p = _leafToTaxon[v];
+
+    split[v].first.clear();
+    split[v].first.insert(p);
+    split[v].second = universe;
+    split[v].second.erase(p);
+  }
+  else
+  {
+    split[v].first.clear();
+    for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
+    {
+      Node w = _T.target(a);
+      computeSplits(w, universe, split);
+      split[v].first.insert(split[w].first.begin(), split[w].first.end());
+    }
+    std::set_difference(universe.begin(), universe.end(),
+                        split[v].first.begin(), split[v].first.end(),
+                        std::inserter(split[v].second, split[v].second.begin()));
+  }
 }

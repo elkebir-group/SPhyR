@@ -34,6 +34,20 @@ public:
     return _B;
   }
   
+  typedef std::pair<StlIntSet, StlIntSet> Split;
+  
+  typedef std::set<Split> SplitSet;
+  
+  SplitSet getSplitSet() const;
+  
+  typedef std::pair<IntPair, IntPair> TwoCharStates;
+  
+  typedef std::set<TwoCharStates> TwoCharStatesSet;
+  
+  void computePairs(TwoCharStatesSet& ancestral,
+                    TwoCharStatesSet& incomparable,
+                    TwoCharStatesSet& clustered) const;
+  
 private:
   void expand();
   
@@ -59,11 +73,48 @@ private:
   void generateLosses(Node v, int k, double lossRate, StlIntVector& allowedLosses,
                       std::mt19937& rng);
   
+  typedef Digraph::ArcMap<IntPairVector> IntPairVectorArcMap;
+  
   typedef Digraph::ArcMap<IntPairSet> IntPairSetArcMap;
   
   typedef std::vector<Node> NodeVector;
   
   typedef Digraph::NodeMap<StlIntVector> IntVectorNodeMap;
+  
+  typedef Digraph::NodeMap<Split> SplitNodeMap;
+  
+  void collapseBranches();
+  
+  void computeSplits(Node v,
+                     const StlIntSet& universe,
+                     SplitNodeMap& split) const;
+  
+  typedef std::vector<Arc> ArcVector;
+  
+  typedef std::vector<ArcVector> ArcMatrix;
+  
+  bool isClustered(Arc a_ci, Arc a_dj) const
+  {
+    return a_ci == a_dj;
+  }
+  
+  bool isAncestral(Arc a_ci, Arc a_dj) const
+  {
+    if (a_ci == a_dj) return false;
+    
+    while (a_ci != a_dj && a_dj != lemon::INVALID)
+    {
+      Node v = _T.source(a_dj);
+      a_dj = InArcIt(_T, v);
+    }
+    
+    return a_ci == a_dj;
+  }
+  
+  bool isIncomparable(Arc a_ci, Arc a_dj) const
+  {
+    return !isAncestral(a_ci, a_dj) && !isAncestral(a_dj, a_ci);
+  }
   
 private:
   /// Completed matrix
@@ -85,7 +136,11 @@ private:
   ///
   IntPairSetArcMap _charStateLabeling;
   ///
-  NodeVector _taxonToNode;
+  IntPairVectorArcMap _charStateVectorLabeling;
+  ///
+  NodeVector _taxonToLeaf;
+  ///
+  IntNodeMap _leafToTaxon;
 };
 
 #endif // PHYLOGENETICTREE_H

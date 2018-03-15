@@ -12,6 +12,7 @@ Matrix::Matrix()
   : _m(0)
   , _n(0)
   , _D()
+  , _k(0)
 {
 }
 
@@ -19,8 +20,66 @@ Matrix::Matrix(int m, int n)
   : _m(m)
   , _n(n)
   , _D(m, StlIntVector(n, 0))
+  , _k(0)
 {
 }
+
+void Matrix::identifyRepeatedColumns(StlIntVector& characterMapping) const
+{
+  characterMapping = StlIntVector(_n, -3);
+  
+  typedef std::set<int> StlIntSet;
+  typedef std::pair<int, StlIntSet> IntSetPair;
+  typedef std::map<StlIntVector, IntSetPair> StlIntVectorMap;
+  
+  StlIntVectorMap duplicateMapping;
+  
+  // identify repeated columns
+  for (int c = 0; c < _n; ++c)
+  {
+    StlIntVector vec_c(_m);
+    for (int p = 0; p < _m; ++p)
+    {
+      vec_c[p] = getEntry(p, c);
+    }
+    if (duplicateMapping.count(vec_c) == 0)
+    {
+      int size = duplicateMapping.size();
+      duplicateMapping[vec_c].first = size;
+    }
+    duplicateMapping[vec_c].second.insert(c);
+    characterMapping[c] = duplicateMapping[vec_c].first;
+  }
+}
+
+void Matrix::identifyRepeatedRows(StlIntVector& taxonMapping) const
+{
+  taxonMapping = StlIntVector(_m, -1);
+  
+  typedef std::set<int> StlIntSet;
+  typedef std::pair<int, StlIntSet> IntSetPair;
+  typedef std::map<StlIntVector, IntSetPair> StlIntVectorMap;
+  
+  StlIntVectorMap duplicateMapping;
+  
+  // identify repeated columns
+  for (int p = 0; p < _m; ++p)
+  {
+    StlIntVector vec_p(_n);
+    for (int c = 0; c < _n; ++c)
+    {
+      vec_p[c] = getEntry(p, c);
+    }
+    if (duplicateMapping.count(vec_p) == 0)
+    {
+      int size = duplicateMapping.size();
+      duplicateMapping[vec_p].first = size;
+    }
+    duplicateMapping[vec_p].second.insert(p);
+    taxonMapping[p] = duplicateMapping[vec_p].first;
+  }
+}
+
 
 Matrix Matrix::simplify(StlIntVector& characterMapping,
                         StlIntVector& taxonMapping) const
@@ -439,7 +498,8 @@ std::istream& operator>>(std::istream& in, Matrix& D)
                              + "Error: number of characters should be positive.");
   }
   D._n = n;
-
+  
+  D._k = 0;
   D._D = StlIntMatrix(m, StlIntVector(n, 0));
   for (int p = 0; p < m; ++p)
   {
@@ -456,6 +516,10 @@ std::istream& operator>>(std::istream& in, Matrix& D)
     {
       int i = atoi(s[c].c_str());
       D._D[p][c] = i;
+      if (i - 1 > D._k)
+      {
+        D._k = i - 1;
+      }
     }
   }
   

@@ -28,9 +28,11 @@ typedef std::vector<bool> StlBoolVector;
 typedef std::vector<double> StlDoubleVector;
 typedef std::vector<int> StlIntVector;
 typedef std::vector<StlIntVector> StlIntMatrix;
+typedef std::set<int> StlIntSet;
 typedef std::vector<std::string> StringVector;
 typedef std::pair<int, int> IntPair;
 typedef std::set<IntPair> IntPairSet;
+typedef std::vector<IntPair> IntPairVector;
 
 std::istream& getline(std::istream& is, std::string& t);
 

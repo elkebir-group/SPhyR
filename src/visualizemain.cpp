@@ -13,11 +13,11 @@
 
 int main(int argc, char** argv)
 {
-  std::string filename;
-  int k = 1;
+  std::string filename, charLabelsFilename, taxonLabelsFilename;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("k", "Maximum number of losses per SNV", k, true)
+  ap.refOption("c", "Character labels", charLabelsFilename, false)
+    .refOption("t", "Taxon labels", taxonLabelsFilename, false)
     .other("input", "Input file");
   ap.parse();
   
@@ -39,6 +39,7 @@ int main(int argc, char** argv)
   inE >> E;
   inE.close();
   
+  int k = E.getMaxNrLosses();
   PhylogeneticTree T(E, k);
   if (!T.reconstructTree())
   {
