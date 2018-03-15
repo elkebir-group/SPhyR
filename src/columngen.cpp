@@ -358,12 +358,15 @@ int ColumnGen::separate()
             {
               for (int r : rSet)
               {
+                activate(p, c, 1);
+                activate(p, d, j_prime);
                 activate(q, c, 0);
-                if (j_prime != 1)
-                {
-                  activate(p, d, j_prime);
-                }
+//                if (j_prime != 1)
+//                {
+//                  activate(p, d, j_prime);
+//                }
                 activate(q, d, j);
+                activate(r, c, 1);
                 activate(r, d, j);
                 
                 ViolatedConstraint constraint;
@@ -428,11 +431,13 @@ int ColumnGen::separate()
               {
                 activate(p, c, i);
                 activate(p, d, 0);
-                if (i_prime != 1)
-                {
+//                if (i_prime != 1)
+//                {
                   activate(q, c, i_prime);
-                }
+//                }
+                activate(q, d, 1);
                 activate(r, c, i);
+                activate(r, d, 1);
                 
                 ViolatedConstraint constraint;
                 constraint[0] = Triple(p, c, i);
@@ -500,14 +505,14 @@ int ColumnGen::separate()
                   for (int r : rSet)
                   {
                     activate(p, c, i);
-                    if (j_prime != 1)
-                    {
+//                    if (j_prime != 1)
+//                    {
                       activate(p, d, j_prime);
-                    }
-                    if (i_prime != 1)
-                    {
+//                    }
+//                    if (i_prime != 1)
+//                    {
                       activate(q, c, i_prime);
-                    }
+//                    }
                     activate(r, c, i);
                     activate(r, d, j);
                     
@@ -575,24 +580,24 @@ int ColumnGen::separate()
                 {
                   for (int r : rSet)
                   {
-                    if (i != 1)
-                    {
+//                    if (i != 1)
+//                    {
                       activate(p, c, i);
-                    }
+//                    }
                     activate(p, d, 0);
                     activate(q, c, 0);
-                    if (j != 1)
-                    {
+//                    if (j != 1)
+//                    {
                       activate(q, d, j);
-                    }
-                    if (i_prime != 1)
-                    {
+//                    }
+//                    if (i_prime != 1)
+//                    {
                       activate(r, c, i_prime);
-                    }
-                    if (j_prime != 1)
-                    {
+//                    }
+//                    if (j_prime != 1)
+//                    {
                       activate(r, d, j_prime);
-                    }
+//                    }
                     
                     ViolatedConstraint constraint;
                     constraint[0] = Triple(p, c, i);

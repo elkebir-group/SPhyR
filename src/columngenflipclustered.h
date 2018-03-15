@@ -27,6 +27,8 @@ public:
                          int lT,
                          const StlIntVector& zT);
   
+  void initHotStart(const Matrix& E);
+  
 protected: 
   virtual void initObjective();
   

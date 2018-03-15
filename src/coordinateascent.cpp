@@ -51,7 +51,10 @@ double CoordinateAscent::solveE(int timeLimit,
   ColumnGenFlipClustered solvePhylogeny(_D, _k, _lazy, _alpha, _beta,
                                         _lC, _zC, _lT, _zT);
   solvePhylogeny.init();
-//  solvePhylogeny.initHotStart(_E, _z);
+  if (g_tol.nonZero(_L))
+  {
+    solvePhylogeny.initHotStart(_E);
+  }
   solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads, verbose);
   
   _E = solvePhylogeny.getSolA();
@@ -233,6 +236,9 @@ bool CoordinateAscent::solve(int timeLimit,
                              bool verbose,
                              int nrRestarts)
 {
+  // MEK: limit maximum number of iterations in one restart
+  const int maxIterations = 100;
+  
   Matrix bestA;
   double bestLikelihood = -std::numeric_limits<double>::max();
   StlIntVector bestZT, bestZC;
@@ -243,7 +249,7 @@ bool CoordinateAscent::solve(int timeLimit,
     
     double delta = 1;
     int iteration = 1;
-    while (g_tol.nonZero(delta))
+    while (g_tol.nonZero(delta) && iteration <= maxIterations)
     {
       double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
       std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
@@ -253,6 +259,7 @@ bool CoordinateAscent::solve(int timeLimit,
       std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;
       double L = solveZC();
       std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- zC step -- log likelihood " << L << std::endl;
+//      std::cout << _E << std::endl;
       std::cerr << std::endl;
       
       delta = L - _L;

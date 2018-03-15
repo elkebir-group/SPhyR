@@ -66,6 +66,12 @@ void ColumnGenFlipClustered::initActiveVariables()
       {
         _activeVariables[h][f][0] = true;
         ++_nrActiveVariables;
+
+        for (int i = 2; i <= _k + 1; ++i)
+        {
+          _activeVariables[h][f][i] = true;
+          ++_nrActiveVariables;
+        }
       }
       else
       {
@@ -75,6 +81,35 @@ void ColumnGenFlipClustered::initActiveVariables()
     }
   }
   updateVariableBounds();
+}
+
+void ColumnGenFlipClustered::initHotStart(const Matrix& E)
+{
+  IloNumVarArray startVar(_env);
+  IloNumArray startVal(_env);
+  
+  for (int h = 0; h < _lT; ++h)
+  {
+    for (int f = 0; f < _lC; ++f)
+    {
+      for (int i = 0; i <= _k + 1; ++i)
+      {
+        startVar.add(_A[h][f][i]);
+        startVal.add(i == E.getEntry(h, f) ? 1 : 0);
+        
+        if (E.getEntry(h, f) == i && !_activeVariables[h][f][i])
+        {
+          _activeVariables[h][f][i] = true;
+          _A[h][f][i].setUB(1);
+          ++_nrActiveVariables;
+        }
+      }
+    }
+  }
+  
+  _cplex.addMIPStart(startVar, startVal);
+  startVar.end();
+  startVal.end();
 }
 
 void ColumnGenFlipClustered::initObjective()

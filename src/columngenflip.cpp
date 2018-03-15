@@ -118,11 +118,14 @@ void ColumnGenFlip::activate(int p, int c, int i)
       _A[p][c][1].setUB(1);
       ++_nrActiveVariables;
     }
-    if (_k >= 1 && !_activeVariables[p][c][2])
+    for (int j = 2; j <= _k + 1; ++j)
     {
-      _activeVariables[p][c][2] = true;
-      _A[p][c][2].setUB(1);
-      ++_nrActiveVariables;
+      if (_k >= 1 && !_activeVariables[p][c][j])
+      {
+        _activeVariables[p][c][j] = true;
+        _A[p][c][j].setUB(1);
+        ++_nrActiveVariables;
+      }
     }
   }
   else if (i == 1)
@@ -133,20 +136,14 @@ void ColumnGenFlip::activate(int p, int c, int i)
       _A[p][c][0].setUB(1);
       ++_nrActiveVariables;
     }
-    if (_k >= 1 && !_activeVariables[p][c][2])
+    for (int j = 2; j <= _k + 1; ++j)
     {
-      _activeVariables[p][c][2] = true;
-      _A[p][c][2].setUB(1);
-      ++_nrActiveVariables;
-    }
-  }
-  else if (i < _k + 1)
-  {
-    if (!_activeVariables[p][c][i + 1])
-    {
-      _activeVariables[p][c][i + 1] = true;
-      _A[p][c][i + 1].setUB(1);
-      ++_nrActiveVariables;
+      if (!_activeVariables[p][c][j])
+      {
+        _activeVariables[p][c][j] = true;
+        _A[p][c][j].setUB(1);
+        ++_nrActiveVariables;
+      }
     }
   }
 }
