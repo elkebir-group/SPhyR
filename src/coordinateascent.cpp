@@ -249,11 +249,13 @@ bool CoordinateAscent::solve(int timeLimit,
     
     double delta = 1;
     int iteration = 1;
+    _L = -std::numeric_limits<double>::max();
     while (g_tol.nonZero(delta) && iteration <= maxIterations)
     {
       double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
       std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
 //      std::cout << _E << std::endl;
+      assert(!g_tol.less(LLL, _L));
       
       double LL = solveZT();
       std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;
