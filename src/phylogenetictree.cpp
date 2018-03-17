@@ -7,244 +7,33 @@
 
 #include "phylogenetictree.h"
 
-PhylogeneticTree::PhylogeneticTree(const Matrix& A,
-                                   int k)
-  : _A(A)
-  , _B(A)
-  , _k(k)
-  , _Bprime(_A.getNrTaxa(), _A.getNrCharacters() * (k + 1))
-  , _T()
+PhylogeneticTree::PhylogeneticTree()
+  : _T()
   , _root(_T.addNode())
-  , _a(_T, StlIntVector(_A.getNrCharacters(), 0))
-  , _b(_T, StlIntVector(_A.getNrCharacters(), 0))
+  , _b(_T)
   , _charStateLabeling(_T)
   , _charStateVectorLabeling(_T)
-  , _taxonToLeaf(_A.getNrTaxa(), lemon::INVALID)
+  , _taxonToLeaf()
   , _leafToTaxon(_T, -1)
 {
-  const int m = _A.getNrTaxa();
-  const int n = _A.getNrCharacters();
-  for (int p = 0; p < m; ++p)
-  {
-    for (int c = 0; c < n; ++c)
-    {
-      int a_pc = _A.getEntry(p, c);
-      if (a_pc >= 2)
-      {
-        _B.setEntry(p, c, 0);
-      }
-    }
-  }
-  
-  expand();
 }
 
-void PhylogeneticTree::expand()
+PhylogeneticTree* PhylogeneticTree::parse(const std::string& filename)
 {
-  const int m = _A.getNrTaxa();
-  const int n = _A.getNrCharacters();
+  PhylogeneticTree* pTree = NULL;
   
-  for (int p = 0; p < m; ++p)
+  std::ifstream inT(filename.c_str());
+  if (!inT.good())
   {
-    for (int c = 0; c < n; ++c)
-    {
-      int a_pc = _A.getEntry(p, c);
-      if (a_pc == 1 || a_pc >= 2)
-      {
-        _Bprime.setEntry(p, getExpandedCharacter(c, 1), 1);
-      }
-      if (a_pc >= 2)
-      {
-        _Bprime.setEntry(p, getExpandedCharacter(c, a_pc), 1);
-      }
-    }
+    std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
+    return NULL;
   }
   
-//  for (int p = 0; p < m; ++p)
-//  {
-//    for (int d = 0; d < _Bprime.getNrCharacters(); ++d)
-//    {
-//      std::cerr << _Bprime.getEntry(p, d) << " ";
-//    }
-//    std::cerr << std::endl;
-//  }
-}
-
-bool PhylogeneticTree::reconstructTree()
-{
-  typedef std::vector<IntPair> IntPairVector;
+  pTree = new PhylogeneticTree();
+  inT >> *pTree;
+  inT.close();
   
-  const int m = _Bprime.getNrTaxa();
-  const int n = _Bprime.getNrCharacters();
-  
-  StlBoolVector introducedChar(n, false);
-  
-  // 1. sort columns of B by number of 1s
-  IntPairVector columns(n, IntPair(-1, -1));
-  for (int c = 0; c < n; ++c)
-  {
-    int nr1s = 0;
-    for (int p = 0; p < m; ++p)
-    {
-      if (_Bprime.getEntry(p, c) == 1)
-      {
-        ++nr1s;
-      }
-    }
-    columns[c] = IntPair(nr1s, c);
-  }
-  std::sort(columns.begin(), columns.end(), std::greater<IntPair>());
-  
-  for (int p = 0; p < m; ++p)
-  {
-    Node v = _root;
-    for (const IntPair& pair : columns)
-    {
-      int c = pair.second;
-
-      IntPair charState;
-      charState.first = getOriginalCharacter(c);
-      charState.second = getOriginalState(c);
-      
-      if (_Bprime.getEntry(p, c) == 1)
-      {
-        bool found = false;
-        
-        for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
-        {
-          if (_charStateLabeling[a].count(charState) == 1)
-          {
-            found = true;
-            v = _T.target(a);
-          }
-        }
-        
-        if (!found)
-        {
-          Node w = _T.addNode();
-          Arc a = _T.addArc(v, w);
-          _charStateLabeling[a].insert(charState);
-          _charStateVectorLabeling[a].push_back(charState);
-          v = w;
-          if (introducedChar[c])
-          {
-            return false;
-          }
-          else
-          {
-            introducedChar[c] = true;
-          }
-        }
-      }
-    }
-    Node v_p = _T.addNode();
-    _T.addArc(v, v_p);
-    _taxonToLeaf[p] = v_p;
-    _leafToTaxon[v_p] = p;
-  }
-  
-  _a[_root] = StlIntVector(_A.getNrCharacters(), 0);
-  _b[_root] = StlIntVector(_A.getNrCharacters(), 0);
-  label(_root);
-  
-  collapseBranches();
-  
-  return true;
-}
-
-void PhylogeneticTree::label(Node v)
-{
-  for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
-  {
-    Node w = _T.target(a);
-    _a[w] = _a[v];
-    _b[w] = _b[v];
-    
-    for (const IntPair& ci : _charStateLabeling[a])
-    {
-      _a[w][ci.first] = ci.second;
-      if (ci.second >= 2)
-      {
-        _b[w][ci.first] = 0;
-      }
-      else
-      {
-        assert(ci.second == 1);
-        _b[w][ci.first] = 1;
-      }
-    }
-    
-    label(w);
-  }
-}
-
-void PhylogeneticTree::generateLosses(Node v,
-                                      int k,
-                                      double lossRate,
-                                      StlIntVector& allowedLosses,
-                                      std::mt19937& rng)
-{
-  std::uniform_real_distribution<> unif(0., 1.);
-  const int n = _A.getNrCharacters();
-  
-  for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
-  {
-    Node w = _T.target(a);
-
-    double r = unif(rng);
-    if (r <= lossRate)
-    {
-      // pick a character to lose
-      StlIntVector characters;
-      for (int c = 0; c < n; ++c)
-      {
-        if (_a[w][c] == 1
-            && _charStateLabeling[a].count(IntPair(c, 1)) == 0
-            && allowedLosses[c] > 0)
-        {
-          characters.push_back(c);
-        }
-      }
-      if (!characters.empty())
-      {
-        std::uniform_int_distribution<> unif_int(0, characters.size() - 1);
-        int c = characters[unif_int(rng)];
-        
-        _charStateLabeling[a].insert(IntPair(c, k - allowedLosses[c] + 2));
-        --allowedLosses[c];
-      }
-    }
-  }
-  
-  label(v);
-  
-  for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
-  {
-    Node w = _T.target(a);
-    
-    generateLosses(w, k, lossRate, allowedLosses, rng);
-  }
-}
-
-void PhylogeneticTree::generateLosses(double lossRate, int k, int seed)
-{
-  StlIntVector allowedLosses(_A.getNrCharacters(), k);
-  std::mt19937 rng(seed);
-  generateLosses(_root, k, lossRate, allowedLosses, rng);
-  
-  // Update E and B
-  const int m = _Bprime.getNrTaxa();
-  const int n = _Bprime.getNrCharacters();
-  
-  for (int p = 0; p < m; ++p)
-  {
-    Node v_p = _taxonToLeaf[p];
-    for (int c = 0; c < n; ++c)
-    {
-      _A.setEntry(p, c, _a[v_p][c]);
-      _B.setEntry(p, c, _b[v_p][c]);
-    }
-  }
+  return pTree;
 }
 
 void PhylogeneticTree::writeDOT(std::ostream& out) const
@@ -253,7 +42,14 @@ void PhylogeneticTree::writeDOT(std::ostream& out) const
   
   for (NodeIt v(_T); v != lemon::INVALID; ++v)
   {
-    out << "\t" << _T.id(v) << " [label=\"\"]" << std::endl;
+    if (OutArcIt(_T, v) == lemon::INVALID)
+    {
+      out << "\t" << _T.id(v) << " [label=\"" << _leafToTaxon[v] << "\"]" << std::endl;
+    }
+    else
+    {
+      out << "\t" << _T.id(v) << " [label=\"\"]" << std::endl;
+    }
   }
   
   for (ArcIt a(_T); a != lemon::INVALID; ++a)
@@ -273,13 +69,7 @@ void PhylogeneticTree::writeDOT(std::ostream& out) const
     }
     out << "\"]" << std::endl;
   }
-  
-//  for (int p = 0; p < m; ++p)
-//  {
-//    Node v = _taxonToNode[p];
-//    out << "\t" << _T.id(v) << " -> " << "taxon_" << p << std::endl;
-//  }
-  
+
   out << "}" << std::endl;
 }
 
@@ -322,57 +112,58 @@ void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
                                     TwoCharStatesSet& incomparable,
                                     TwoCharStatesSet& clustered) const
 {
-  const int n = _A.getNrCharacters();
+  const int n = _b[_root].size();
   
-  ArcMatrix charStateToArc(n, ArcVector(_k + 2, lemon::INVALID));
+  typedef std::vector<Arc> ArcVector;
+  typedef std::vector<ArcVector> ArcMatrix;
+  typedef std::vector<ArcMatrix> Arc3Matrix;
+  
+  const int nrStates = 2;
+  
+  Arc3Matrix charStateToArc(n, ArcMatrix(nrStates, ArcVector()));
   for (ArcIt a(_T); a != lemon::INVALID; ++a)
   {
-    for (const IntPair ci : _charStateLabeling[a])
+    for (IntPair ci : _charStateLabeling[a])
     {
-      charStateToArc[ci.first][ci.second] = a;
+      if (ci.second >= 2)
+        ci.second = 0;
+      charStateToArc[ci.first][ci.second].push_back(a);
     }
   }
   
   for (int c = 0; c < n; ++c)
   {
-    for (int i = 0; i <= _k + 1; ++i)
+    for (int i = 0; i < nrStates; ++i)
     {
       IntPair ci(c, i);
-      // don't distinguish between different losses
-      IntPair ci_prime = ci;
-      if (i > 2)
-        ci_prime.second = 2;
 
-      Arc a_ci = charStateToArc[c][i];
-      if (a_ci == lemon::INVALID) continue;
-      
-      for (int d = 0; d < n; ++d)
+      for (Arc a_ci : charStateToArc[c][i])
       {
-        for (int j = 0; j <= _k + 1; ++j)
+        for (int d = 0; d < n; ++d)
         {
-          IntPair dj(d, j);
-          // don't distinguish between different losses
-          IntPair dj_prime = dj;
-          if (j > 2)
-            dj_prime.second = 2;
+          for (int j = 0; j < nrStates; ++j)
+          {
+            IntPair dj(d, j);
+            if (ci == dj) continue;
 
-          Arc a_dj = charStateToArc[d][j];
-          if (a_dj == lemon::INVALID) continue;
-          
-          if (isAncestral(a_ci, a_dj))
-          {
-            ancestral.insert(TwoCharStates(ci_prime, dj_prime));
-          }
-          else if (isClustered(a_ci, a_dj))
-          {
-            if (ci < dj)
+            for (Arc a_dj : charStateToArc[d][j])
             {
-              clustered.insert(TwoCharStates(ci_prime, dj_prime));
+              if (isAncestral(a_ci, a_dj))
+              {
+                ancestral.insert(TwoCharStates(ci, dj));
+              }
+              else if (isClustered(a_ci, a_dj))
+              {
+                if (ci < dj)
+                {
+                  clustered.insert(TwoCharStates(ci, dj));
+                }
+              }
+              else if (isIncomparable(a_ci, a_dj))
+              {
+                incomparable.insert(TwoCharStates(ci, dj));
+              }
             }
-          }
-          else if (isIncomparable(a_ci, a_dj))
-          {
-            incomparable.insert(TwoCharStates(ci_prime, dj_prime));
           }
         }
       }
@@ -382,8 +173,9 @@ void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
 
 PhylogeneticTree::SplitSet PhylogeneticTree::getSplitSet() const
 {
+  const int m = _taxonToLeaf.size();
   StlIntSet universe;
-  for (int p = 0; p < _A.getNrTaxa(); ++p)
+  for (int p = 0; p < m; ++p)
   {
     universe.insert(p);
   }
@@ -432,4 +224,229 @@ void PhylogeneticTree::computeSplits(Node v,
                         split[v].first.begin(), split[v].first.end(),
                         std::inserter(split[v].second, split[v].second.begin()));
   }
+}
+
+Matrix PhylogeneticTree::getMatrix() const
+{
+  const int m = _taxonToLeaf.size();
+  const int n = _b[_root].size();
+  
+  Matrix B(m, n);
+  for (int p = 0; p < m; ++p)
+  {
+    Node v_p = _taxonToLeaf[p];
+    for (int c = 0; c < n; ++c)
+    {
+      B.setEntry(p, c, _b[v_p][c]);
+    }
+  }
+  
+  return B;
+}
+
+int PhylogeneticTree::getParallelEvolutionCount() const
+{
+  const int n = _b[_root].size();
+  StlIntVector parallelEvolution(n, 0);
+  
+  for (ArcIt a(_T); a != lemon::INVALID; ++a)
+  {
+    for (const IntPair& ci : _charStateLabeling[a])
+    {
+      if (ci.second == 1)
+      {
+        ++parallelEvolution[ci.first];
+      }
+    }
+  }
+  
+  int res = 0;
+  for (int c = 0; c < n; ++c)
+  {
+    if (parallelEvolution[c] > 1)
+      ++res;
+  }
+  
+  return res;
+}
+
+int PhylogeneticTree::getBackMutationCount() const
+{
+  const int n = _b[_root].size();
+  StlIntVector backMutation(n, 0);
+  
+  for (ArcIt a(_T); a != lemon::INVALID; ++a)
+  {
+    for (const IntPair& ci : _charStateLabeling[a])
+    {
+      if (ci.second == 0 || ci.second >= 2)
+      {
+        ++backMutation[ci.first];
+      }
+    }
+  }
+  
+  int res = 0;
+  for (int c = 0; c < n; ++c)
+  {
+    if (backMutation[c] > 0)
+      ++res;
+  }
+  
+  return res;
+}
+
+std::ostream& operator<<(std::ostream& out, const PhylogeneticTree& T)
+{
+  const int nrNodes = lemon::countNodes(T._T);
+  out << nrNodes << " #nodes" << std::endl;
+  
+  IntNodeMap nodeToIndex(T._T, -1);
+  NodeVector indexToNode;
+  for (NodeIt v(T._T); v != lemon::INVALID; ++v)
+  {
+    nodeToIndex[v] = indexToNode.size();
+    indexToNode.push_back(v);
+  }
+  
+  bool first = true;
+  for (NodeIt v(T._T); v != lemon::INVALID; ++v)
+  {
+    if (first)
+      first = false;
+    else
+      out << " ";
+    
+    if (v == T._root)
+    {
+      out << "-1";
+    }
+    else
+    {
+      Node u = T._T.source(InArcIt(T._T, v));
+      out << nodeToIndex[u];
+    }
+  }
+  out << std::endl;
+  
+  for (NodeIt v(T._T); v != lemon::INVALID; ++v)
+  {
+    if (OutArcIt(T._T, v) == lemon::INVALID)
+    {
+      out << T._leafToTaxon[v];
+    }
+    else
+    {
+      out << "v" << T._T.id(v);
+    }
+    
+    const StlIntVector& b_v = T._b[v];
+    const int n = b_v.size();
+    for (int c = 0; c < n; ++c)
+    {
+      out << " " << b_v[c];
+    }
+    out << std::endl;
+  }
+  
+  return out;
+}
+
+std::istream& operator>>(std::istream& in, PhylogeneticTree& T)
+{
+  g_lineNumber = 0;
+  
+  std::string line;
+  getline(in, line);
+  
+  std::stringstream ss(line);
+  
+  int nrNodes = -1;
+  ss >> nrNodes;
+  
+  if (nrNodes < 0)
+  {
+    throw std::runtime_error(getLineNumber()
+                             + "Error: number of nodes should be positive.");
+  }
+  
+  IntNodeMap nodeToIndex(T._T, -1);
+  NodeVector indexToNode(nrNodes, lemon::INVALID);
+  T._T.clear();
+  for (int nodeIndex = 0; nodeIndex < nrNodes; ++nodeIndex)
+  {
+    Node v = T._T.addNode();
+    nodeToIndex[v] = nodeIndex;
+    indexToNode[nodeIndex] = v;
+  }
+  
+  getline(in, line);
+  ss.clear();
+  ss.str(line);
+
+  StlIntVector pi(nrNodes, -2);
+  for (int nodeIndex = 0; nodeIndex < nrNodes; ++nodeIndex)
+  {
+    ss >> pi[nodeIndex];
+    
+    Node child = indexToNode[nodeIndex];
+    if (pi[nodeIndex] != -1)
+    {
+      Node parent = indexToNode[pi[nodeIndex]];
+      T._T.addArc(parent, child);
+    }
+    else
+    {
+      T._root = indexToNode[nodeIndex];
+    }
+  }
+  
+  // identify leaves
+  int nrLeaves = 0;
+  for (int nodeIndex = 0; nodeIndex < nrNodes; ++nodeIndex)
+  {
+    Node v = indexToNode[nodeIndex];
+    if (OutArcIt(T._T, v) == lemon::INVALID)
+    {
+      ++nrLeaves;
+    }
+  }
+  
+  T._taxonToLeaf = NodeVector(nrLeaves, lemon::INVALID);
+  for (int nodeIndex = 0; nodeIndex < nrNodes; ++nodeIndex)
+  {
+    getline(in, line);
+    ss.clear();
+    ss.str(line);
+    
+    Node v = indexToNode[nodeIndex];
+    if (OutArcIt(T._T, v) == lemon::INVALID)
+    {
+      int p = -1;
+      ss >> p;
+      if (p < 0 || p >= nrLeaves)
+      {
+        throw std::runtime_error(getLineNumber()
+                                 + "Error: invalid taxon index.");
+      }
+      T._leafToTaxon[v] = p;
+      T._taxonToLeaf[p] = v;
+    }
+    
+    std::vector<std::string> s;
+    boost::split(s, line, boost::is_any_of(" "));
+    T._b[v] = StlIntVector(s.size() - 1, 0);
+    for (int idx = 1; idx < s.size(); ++idx)
+    {
+      int val = boost::lexical_cast<int>(s[idx]);
+      if (val != 0 && val != 1)
+      {
+        throw std::runtime_error(getLineNumber()
+                                 + "Error: invalid state.");
+      }
+      T._b[v][idx-1] = val;
+    }
+  }
+  
+  return in;
 }

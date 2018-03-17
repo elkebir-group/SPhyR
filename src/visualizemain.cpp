@@ -7,17 +7,18 @@
 
 #include "utils.h"
 #include "matrix.h"
-#include "phylogenetictree.h"
+#include "dollophylogenetictree.h"
 #include <lemon/arg_parser.h>
 #include <fstream>
 
 int main(int argc, char** argv)
 {
   std::string filename, charLabelsFilename, taxonLabelsFilename;
-  
+  bool tree = false;
   lemon::ArgParser ap(argc, argv);
   ap.refOption("c", "Character labels", charLabelsFilename, false)
     .refOption("t", "Taxon labels", taxonLabelsFilename, false)
+    .refOption("T", "Use tree instead of matrix", tree)
     .other("input", "Input file");
   ap.parse();
   
@@ -26,27 +27,31 @@ int main(int argc, char** argv)
     std::cerr << "Error: missing input file" << std::endl;
     return 1;
   }
-  
-  std::ifstream inE(ap.files()[0]);
-  if (!inE.good())
+
+  if (tree)
   {
-    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
-              << std::endl;
-    return 1;
+    PhylogeneticTree* pTree = PhylogeneticTree::parse(ap.files()[0]);
+    if (pTree)
+    {
+      pTree->writeDOT(std::cout);
+    }
+    else
+    {
+      return 1;
+    }
   }
-  
-  Matrix E;
-  inE >> E;
-  inE.close();
-  
-  int k = E.getMaxNrLosses();
-  PhylogeneticTree T(E, k);
-  if (!T.reconstructTree())
+  else
   {
-    std::cerr << "Error: provided matrix is not a k-Dollo completion for k = " << k << std::endl;
-    return 1;
+    DolloPhylogeneticTree* pTree = DolloPhylogeneticTree::parse(ap.files()[0]);
+    if (pTree)
+    {
+      pTree->writeDOT(std::cout);
+    }
+    else
+    {
+      return 1;
+    }
   }
-  T.writeDOT(std::cout);
-  
+    
   return 0;
 }

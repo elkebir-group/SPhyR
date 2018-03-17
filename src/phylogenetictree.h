@@ -15,24 +15,11 @@
 class PhylogeneticTree
 {
 public:
-  PhylogeneticTree(const Matrix& A,
-                   int k);
+  PhylogeneticTree();
   
-  bool reconstructTree();
+  static PhylogeneticTree* parse(const std::string& filename);
   
   void writeDOT(std::ostream& out) const;
-  
-  void generateLosses(double lossRate, int k, int seed);
-  
-  const Matrix& getA() const
-  {
-    return _A;
-  }
-  
-  const Matrix& getB() const
-  {
-    return _B;
-  }
   
   typedef std::pair<StlIntSet, StlIntSet> Split;
   
@@ -48,31 +35,13 @@ public:
                     TwoCharStatesSet& incomparable,
                     TwoCharStatesSet& clustered) const;
   
-private:
-  void expand();
+  int getParallelEvolutionCount() const;
   
-  void label(Node v);
+  int getBackMutationCount() const;
   
-  int getOriginalCharacter(int d) const
-  {
-    return d / (_k + 1);
-  }
+  Matrix getMatrix() const;
   
-  int getOriginalState(int d) const
-  {
-    return (d % (_k + 1)) + 1;
-  }
-  
-  int getExpandedCharacter(int c, int i) const
-  {
-    assert(1 <= i && i <= _k + 1);
-    
-    return c * (_k + 1) + i - 1;
-  }
-  
-  void generateLosses(Node v, int k, double lossRate, StlIntVector& allowedLosses,
-                      std::mt19937& rng);
-  
+protected:
   typedef Digraph::ArcMap<IntPairVector> IntPairVectorArcMap;
   
   typedef Digraph::ArcMap<IntPairSet> IntPairSetArcMap;
@@ -88,10 +57,6 @@ private:
   void computeSplits(Node v,
                      const StlIntSet& universe,
                      SplitNodeMap& split) const;
-  
-  typedef std::vector<Arc> ArcVector;
-  
-  typedef std::vector<ArcVector> ArcMatrix;
   
   bool isClustered(Arc a_ci, Arc a_dj) const
   {
@@ -116,31 +81,27 @@ private:
     return !isAncestral(a_ci, a_dj) && !isAncestral(a_dj, a_ci);
   }
   
-private:
-  /// Completed matrix
-  Matrix _A;
-  /// k-Dollo matrix
-  Matrix _B;
-  /// Maximum number of losses
-  int _k;
-  /// Binary expansion of _A
-  Matrix _Bprime;
+protected:
   /// Phylogenetic tree
   Digraph _T;
   /// Root
   Node _root;
   /// Node label (state vectors)
-  IntVectorNodeMap _a;
-  /// Node label (state vectors)
   IntVectorNodeMap _b;
-  ///
+  /// Character state arc labeling (unordered)
   IntPairSetArcMap _charStateLabeling;
-  ///
+  /// Character state arc labeling (ordered)
   IntPairVectorArcMap _charStateVectorLabeling;
-  ///
+  /// Taxon index to leaf mapping
   NodeVector _taxonToLeaf;
-  ///
+  /// Leaf to taxon index mapping
   IntNodeMap _leafToTaxon;
+  
+  friend std::ostream& operator<<(std::ostream& out, const PhylogeneticTree& T);
+  friend std::istream& operator>>(std::istream& in, PhylogeneticTree& T);
 };
+
+std::ostream& operator<<(std::ostream& out, const PhylogeneticTree& T);
+std::istream& operator>>(std::istream& in, PhylogeneticTree& T);
 
 #endif // PHYLOGENETICTREE_H

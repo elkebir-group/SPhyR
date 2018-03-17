@@ -24,6 +24,78 @@ Matrix::Matrix(int m, int n)
 {
 }
 
+Matrix* Matrix::parse(const std::string& filename)
+{
+  Matrix* pMatrix = NULL;
+  
+  std::ifstream inA(filename.c_str());
+  if (!inA.good())
+  {
+    std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
+    return NULL;
+  }
+  pMatrix = new Matrix();
+  inA >> *pMatrix;
+  inA.close();
+  
+  return pMatrix;
+}
+
+double Matrix::getLogLikelihood(const Matrix& inferredMatrix,
+                                double alpha,
+                                double beta) const
+{
+  if (_m != inferredMatrix._m || _n != inferredMatrix._n)
+  {
+    return -std::numeric_limits<double>::max();
+  }
+  else
+  {
+    const double log_alpha = log(alpha);
+    const double log_1_minus_alpha = log(1 - alpha);
+    const double log_beta = log(beta);
+    const double log_1_minus_beta = log(1 - beta);
+    
+    double res = 0;
+    for (int p = 0; p < _m; ++p)
+    {
+      for (int c = 0; c < _n; ++c)
+      {
+        int b_pc = inferredMatrix.getEntry(p, c);
+        assert(b_pc >= 0);
+
+        int d_pc = getEntry(p, c);
+        if (d_pc == 1)
+        {
+          if (b_pc == 1)
+          {
+            res += log_1_minus_alpha;
+          }
+          else
+          {
+            res += log_alpha;
+          }
+        }
+        else
+        {
+          // loss (>= 2) or normal (0)
+          assert(d_pc == 0 || d_pc >= 2);
+          if (b_pc == 1)
+          {
+            res += log_beta;
+          }
+          else
+          {
+            res += log_1_minus_beta;
+          }
+        }
+      }
+    }
+    
+    return res;
+  }
+}
+
 void Matrix::identifyRepeatedColumns(StlIntVector& characterMapping) const
 {
   characterMapping = StlIntVector(_n, -3);
@@ -86,6 +158,27 @@ Matrix Matrix::simplify(StlIntVector& characterMapping,
 {
   Matrix newB = simplifyColumns(characterMapping);
   newB = newB.simplifyRows(taxonMapping);
+  
+//  StlIntMatrix invCharMapping(newB.getNrCharacters());
+//  for (int c = 0; c < _n; ++c)
+//  {
+//    invCharMapping[characterMapping[c]].push_back(c);
+//  }
+//
+//  StlIntMatrix invTaxonMapping(newB.getNrTaxa());
+//  for (int p = 0; p < _m; ++p)
+//  {
+//    invTaxonMapping[taxonMapping[p]]
+//  }
+  
+//  multiplicities = StlIntMatrix(_m, StlIntVector(_n, 0));
+//  for (int p = 0; p < _m; ++p)
+//  {
+//    for (int c = 0; c < _n; ++c)
+//    {
+//
+//    }
+//  }
   
   return newB;
 }

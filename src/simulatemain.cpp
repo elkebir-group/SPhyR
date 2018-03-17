@@ -6,7 +6,7 @@
  */
 
 #include <lemon/arg_parser.h>
-#include "phylogenetictree.h"
+#include "dollophylogenetictree.h"
 #include <fstream>
 
 int main(int argc, char** argv)
@@ -44,8 +44,8 @@ int main(int argc, char** argv)
   inB >> inputB;
   inB.close();
   
-  PhylogeneticTree phyloT(inputB, 0);
-  if (!phyloT.reconstructTree())
+  DolloPhylogeneticTree phyloT(inputB);
+  if (inputB.getMaxNrLosses() != 0 || !phyloT.reconstructTree())
   {
     std::cerr << "Error: provided matrix is not a perfect phylogeny matrix" << std::endl;
     return 1;

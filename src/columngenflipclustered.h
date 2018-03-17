@@ -18,6 +18,8 @@ public:
   /// @param B Input matrix
   /// @param k Maximum number of losses
   ColumnGenFlipClustered(const Matrix& B,
+                         const StlIntMatrix& multiplicities,
+                         double baseL,
                          int k,
                          bool lazy,
                          double alpha,
@@ -39,6 +41,8 @@ protected:
   }
   
 protected:
+  const StlIntMatrix& _multiplicities;
+  const double _baseL;
   /// SNV (character) cluster assignment
   const StlIntVector& _zC;
   /// Cell (taxa) cluster assignment

@@ -8,6 +8,8 @@
 #include "columngenflipclustered.h"
 
 ColumnGenFlipClustered::ColumnGenFlipClustered(const Matrix& B,
+                                               const StlIntMatrix& multiplicities,
+                                               double baseL,
                                                int k,
                                                bool lazy,
                                                double alpha,
@@ -17,6 +19,8 @@ ColumnGenFlipClustered::ColumnGenFlipClustered(const Matrix& B,
                                                int lT,
                                                const StlIntVector& zT)
   : ColumnGenFlip(B, lT, lC, k, lazy, alpha, beta)
+  , _multiplicities(multiplicities)
+  , _baseL(baseL)
   , _zC(zC)
   , _zT(zT)
   , _lC(lC)
@@ -41,8 +45,8 @@ void ColumnGenFlipClustered::initActiveVariables()
   {
     for (int f = 0; f < _lC; f++)
     {
-      int count0 = 0;
-      int count1 = 0;
+      int count0 = 0; // negative
+      int count1 = 0; // positive
       for (int p = 0; p < m; p++)
       {
         if (_zT[p] != h) continue;
@@ -131,21 +135,23 @@ void ColumnGenFlipClustered::initObjective()
       int d_pc = _B.getEntry(p, c);
       assert(d_pc == 0 || d_pc == 1 || d_pc == -1);
       
+      const int mult = _multiplicities[p][c];
+      
       if (d_pc == 0)
       {
         for (int j = 0; j <= _k + 1; ++j)
         {
           if (j == 0)
           {
-            _obj += log_1_minus_alpha * _A[h][f][j];
+            _obj += mult * log_1_minus_beta * _A[h][f][j];
           }
           else if (j == 1)
           {
-            _obj += log_beta * _A[h][f][j];
+            _obj += mult * log_beta * _A[h][f][j];
           }
           else
           {
-            _obj += log_1_minus_alpha * _A[h][f][j];
+            _obj += mult * log_1_minus_beta * _A[h][f][j];
           }
         }
       }
@@ -155,15 +161,15 @@ void ColumnGenFlipClustered::initObjective()
         {
           if (j == 0)
           {
-            _obj += log_alpha * _A[h][f][j];
+            _obj += mult * log_alpha * _A[h][f][j];
           }
           else if (j == 1)
           {
-            _obj += log_1_minus_beta * _A[h][f][j];
+            _obj += mult * log_1_minus_alpha * _A[h][f][j];
           }
           else
           {
-            _obj += log_alpha * _A[h][f][j];
+            _obj += mult * log_alpha * _A[h][f][j];
           }
         }
       }
@@ -184,6 +190,7 @@ void ColumnGenFlipClustered::initObjective()
     }
   }
   
+  _obj += _baseL;
   _obj += lossSum * unit;
   _obj *= 1000;
   _model.add(IloMaximize(_env, _obj));

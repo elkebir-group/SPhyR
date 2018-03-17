@@ -9,27 +9,21 @@
 #include <fstream>
 #include "matrix.h"
 #include "comparison.h"
-
-bool parse(const std::string& filename,
-           Matrix& A)
-{
-  std::ifstream inA(filename.c_str());
-  if (!inA.good())
-  {
-    std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
-    return false;
-  }
-  inA >> A;
-  inA.close();
-  
-  return true;
-}
+#include "dollophylogenetictree.h"
 
 int main(int argc, char** argv)
 {
+  double alpha = 1e-3;
+  double beta = 0.3;
+  bool tree = false;
+  
   lemon::ArgParser ap(argc, argv);
-  ap.other("inferred", "Inferred solution file")
-    .other("true", "True solution file");
+  ap.refOption("a", "False positive rate (default: 1e-3)", alpha)
+    .refOption("b", "False negative rate (default: 0.3)", beta)
+    .refOption("T", "Use tree instead of matrix", tree)
+    .other("inferred", "Inferred solution file")
+    .other("true", "True solution file")
+    .other("input", "Input matrix");
   
   ap.parse();
   
@@ -39,13 +33,25 @@ int main(int argc, char** argv)
     return 1;
   }
   
-  Matrix inferredA;
-  if (!parse(ap.files()[0], inferredA))
+  PhylogeneticTree* pInferredT = NULL;
+  if (tree)
+  {
+    pInferredT = PhylogeneticTree::parse(ap.files()[0]);
+  }
+  else
+  {
+    pInferredT = DolloPhylogeneticTree::parse(ap.files()[0]);
+  }
+  
+  if (!pInferredT)
+  {
     return 1;
+  }
   
   if (ap.files().size() == 1)
   {
     Matrix::ViolationList list;
+    Matrix inferredA = pInferredT->getMatrix();
     inferredA.identifyViolations(inferredA.getMaxNrLosses(), list);
     
     IntPairSet violationEntries;
@@ -93,28 +99,21 @@ int main(int argc, char** argv)
       }
     }
   }
-  else
+  else if (ap.files().size() == 3)
   {
-    Matrix trueA;
-    if (!parse(ap.files()[1], trueA))
-      return 1;
-    
-    PhylogeneticTree inferredT(inferredA, inferredA.getMaxNrLosses());
-    if (!inferredT.reconstructTree())
+    PhylogeneticTree* pTrueT = DolloPhylogeneticTree::parse(ap.files()[1]);
+    if (!pTrueT)
     {
-      std::cerr << "Error: provided matrix '" << ap.files()[0] << "' is not a k-Dollo completion for k = " << inferredA.getMaxNrLosses() << std::endl;
       return 1;
     }
     
-    PhylogeneticTree trueT(trueA, trueA.getMaxNrLosses());
-    if (!trueT.reconstructTree())
+    Matrix* pInput = Matrix::parse(ap.files()[2]);
+    if (!pInput)
     {
-      std::cerr << "Error: provided matrix '" << ap.files()[1] << "' is not a k-Dollo completion for k = " << trueA.getMaxNrLosses() << std::endl;
       return 1;
     }
     
-    Comparison compare(trueA, inferredA, trueT, inferredT);
-    compare.compare();
+    Comparison compare(*pTrueT, *pInferredT);
     
     double ancestralRecall, incomparableRecall, clusteredRecall;
     compare.recallCharStatePairs(ancestralRecall, incomparableRecall, clusteredRecall);
@@ -125,7 +124,11 @@ int main(int argc, char** argv)
     double charactersRI, charactersRecall, charactersPrecision;
     compare.getCharactersClusteringMetrics(charactersRI, charactersRecall, charactersPrecision);
     
-    // 1. filename (inferred)
+    Matrix trueA = pTrueT->getMatrix();
+    Matrix inferredA = pInferredT->getMatrix();
+
+    double logLikelihood = pInput->getLogLikelihood(inferredA, alpha, beta);
+    
     // 2. inferredK
     // 3. trueK
     // 4. RF
@@ -139,8 +142,12 @@ int main(int argc, char** argv)
     // 12. character Rand index
     // 13. character recall
     // 14. character precision
-    std::cout << ap.files()[0] << ","
-              << inferredA.getMaxNrLosses() << ","
+    // 15. likelihood
+    // 16. back mutation count (inferred)
+    // 17. parallel evolution count (inferred)
+    // 16. back mutation count (true)
+    // 17. parallel evolution count (true)
+    std::cout << inferredA.getMaxNrLosses() << ","
               << trueA.getMaxNrLosses() << ","
               << compare.getRF() << ","
               << compare.getNormalizedRF() << ","
@@ -152,11 +159,14 @@ int main(int argc, char** argv)
               << taxaPrecision << ","
               << charactersRI << ","
               << charactersRecall << ","
-              << charactersPrecision
+              << charactersPrecision << ","
+              << logLikelihood << ","
+              << pInferredT->getBackMutationCount() << ","
+              << pInferredT->getParallelEvolutionCount() << ","
+              << pTrueT->getBackMutationCount() << ","
+              << pTrueT->getParallelEvolutionCount()
               << std::endl;
   }
-  
-  
   
   return 0;
 }

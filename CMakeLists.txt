@@ -84,6 +84,7 @@ set( analyze_src
   src/matrix.cpp
   src/comparison.cpp
   src/phylogenetictree.cpp
+  src/dollophylogenetictree.cpp
 )
 
 set( analyze_hdr
@@ -91,6 +92,7 @@ set( analyze_hdr
   src/matrix.h
   src/comparison.h
   src/phylogenetictree.h
+  src/dollophylogenetictree.h
 )
 
 set( perturb_src
@@ -104,29 +106,26 @@ set( perturb_hdr
   src/matrix.h
 )
 
-set( visualize_hdr
-  src/utils.h
-  src/matrix.h
-  src/phylogenetictree.h
-)
-
 set( visualize_src
   src/visualizemain.cpp
   src/utils.cpp
   src/matrix.cpp
   src/phylogenetictree.cpp
+  src/dollophylogenetictree.cpp
 )
 
 set( visualize_hdr
   src/utils.h
   src/matrix.h
   src/phylogenetictree.h
+  src/dollophylogenetictree.h
 )
 
 set( simulate_hdr
   src/utils.h
   src/matrix.h
   src/phylogenetictree.h
+  src/dollophylogenetictree.h
 )
 
 set( simulate_src
@@ -134,6 +133,7 @@ set( simulate_src
   src/utils.cpp
   src/matrix.cpp
   src/phylogenetictree.cpp
+  src/dollophylogenetictree.cpp
 )
 
 if(NOT CMAKE_BUILD_TYPE)

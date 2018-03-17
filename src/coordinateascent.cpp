@@ -12,10 +12,13 @@
 #include "cluster.h"
 
 CoordinateAscent::CoordinateAscent(const Matrix& D,
+                                   const StlIntVector& characterMapping,
+                                   const StlIntVector& taxonMapping,
                                    int k,
                                    bool lazy,
                                    double alpha,
                                    double beta,
+                                   double gamma,
                                    int lT,
                                    int lC,
                                    int seed)
@@ -24,6 +27,7 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
   , _lazy(lazy)
   , _alpha(alpha)
   , _beta(beta)
+  , _gamma(gamma)
   , _lT(lT)
   , _lC(lC)
   , _seed(seed)
@@ -31,7 +35,85 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
   , _zT(_D.getNrTaxa(), 0)
   , _zC(_D.getNrCharacters(), 0)
   , _L(0)
+  , _baseL(0)
 {
+  // Determine base likelihood based on fixed entries
+  const double log_1_minus_alpha = log(1 - _alpha);
+  const double log_1_minus_beta = log(1 - _beta);
+  
+  const int n = characterMapping.size();
+  const int m = taxonMapping.size();
+  int nrCorrectCharacters = 0;
+  for (int c = 0; c < n; ++c)
+  {
+    if (characterMapping[c] == -1)
+    {
+      // all zeros (entire column is a TN)
+      _baseL += log_1_minus_beta * m;
+      ++nrCorrectCharacters;
+    }
+    else if (characterMapping[c] == -2)
+    {
+      // all ones (entire column is a TP)
+      _baseL += log_1_minus_alpha * m;
+      ++nrCorrectCharacters;
+    }
+    else if (characterMapping[c] <= -4)
+    {
+      // single one (TP) and m - 1 zeros (TN)
+      _baseL += log_1_minus_beta * (m - 1) + log_1_minus_alpha;
+      ++nrCorrectCharacters;
+    }
+  }
+  
+  int nrCorrectTaxa = 0;
+  for (int p = 0; p < m; ++p)
+  {
+    if (taxonMapping[p] == -1)
+    {
+      // all zeros row
+      // avoid double counting, hence n - nrCorrectCharacters
+      _baseL += log_1_minus_beta * (n - nrCorrectCharacters);
+      ++nrCorrectTaxa;
+    }
+  }
+  
+  std::cerr << "Number of fixed characters = " << nrCorrectCharacters << std::endl;
+  std::cerr << "Number of fixed taxa = " << nrCorrectTaxa << std::endl;
+  std::cerr << "Base log likelihood = " << _baseL << std::endl;
+  
+  const int mm = _D.getNrTaxa();
+  const int nn = _D.getNrCharacters();
+  
+  StlIntMatrix invCharMapping(nn);
+  for (int c = 0; c < n; ++c)
+  {
+    if (characterMapping[c] >= 0)
+    {
+      invCharMapping[characterMapping[c]].push_back(c);
+    }
+  }
+  
+  StlIntMatrix invTaxonMapping(mm);
+  for (int p = 0; p < m; ++p)
+  {
+    if (taxonMapping[p] >= 0)
+    {
+      invTaxonMapping[taxonMapping[p]].push_back(p);
+    }
+  }
+  
+  _multiplicities = StlIntMatrix(_D.getNrTaxa(),
+                                 StlIntVector(_D.getNrCharacters()));
+  for (int pp = 0; pp < mm; ++pp)
+  {
+    const int nrTaxa = invTaxonMapping[pp].size();
+    for (int cc = 0; cc < nn; ++cc)
+    {
+      const int nrCharacters = invCharMapping[cc].size();
+      _multiplicities[pp][cc] = nrTaxa * nrCharacters;
+    }
+  }
 }
 
 void CoordinateAscent::initZ(int seed)
@@ -48,7 +130,8 @@ double CoordinateAscent::solveE(int timeLimit,
                                 bool verbose)
 {
 //  IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
-  ColumnGenFlipClustered solvePhylogeny(_D, _k, _lazy, _alpha, _beta,
+  ColumnGenFlipClustered solvePhylogeny(_D, _multiplicities, _baseL,
+                                        _k, _lazy, _alpha, _beta,
                                         _lC, _zC, _lT, _zT);
   solvePhylogeny.init();
   if (g_tol.nonZero(_L))
@@ -118,42 +201,38 @@ double CoordinateAscent::computeLogLikelihood(int p, int h,
   const double log_beta = log(_beta);
   const double log_1_minus_beta = log(1 - _beta);
   
-  double L = 0;
   int d_pc = _D.getEntry(p, c);
-  int e_hf = _E.getEntry(h, f);
+  int a_hf = _E.getEntry(h, f);
   assert(d_pc == 0 || d_pc == 1 || d_pc == -1);
   
-  if (d_pc == 0)
+  int mult = _multiplicities[p][c];
+  
+  if (d_pc == 1)
   {
-    if (e_hf == 0)
+    if (a_hf == 1)
     {
-      L += log_1_minus_alpha;
-    }
-    else if (e_hf == 1)
-    {
-      L += log_beta;
+      return mult * log_1_minus_alpha;
     }
     else
     {
-      L += log_1_minus_alpha;
+      return mult * log_alpha;
     }
   }
-  else if (d_pc == 1)
+  else if (d_pc == 0)
   {
-    if (e_hf == 0)
+    if (a_hf == 1)
     {
-      L += log_alpha;
-    }
-    else if (e_hf == 1)
-    {
-      L += log_1_minus_beta;
+      return mult * log_beta;
     }
     else
     {
-      L += log_alpha;
+      return mult * log_1_minus_beta;
     }
   }
-  return L;
+  else
+  {
+    return 0;
+  }
 }
 
 double CoordinateAscent::computeLogLikelihood() const
@@ -161,7 +240,7 @@ double CoordinateAscent::computeLogLikelihood() const
   const int m = _D.getNrTaxa();
   const int n = _D.getNrCharacters();
   
-  double L = 0;
+  double L = _baseL;
   
   for (int p = 0; p < m; ++p)
   {
@@ -173,6 +252,22 @@ double CoordinateAscent::computeLogLikelihood() const
     }
   }
   
+//  const double log_gamma = log(_gamma);
+//  for (int f = 0; f < _lC; ++f)
+//  {
+//    for (int i = 2; i <= _k + 1; ++i)
+//    {
+//      for (int h = 0; h < _lT; ++h)
+//      {
+//        if (_E.getEntry(h, f) == i)
+//        {
+//          L += log_gamma;
+//          break;
+//        }
+//      }
+//    }
+//  }
+  
   return L;
 }
 
@@ -180,7 +275,7 @@ double CoordinateAscent::solveZC()
 {
   const int n = _D.getNrCharacters();
   
-  double L = 0;
+  double L = _baseL;
   for (int c = 0; c < n; ++c)
   {
     double maxL_c = -std::numeric_limits<double>::max();
@@ -207,7 +302,7 @@ double CoordinateAscent::solveZT()
 {
   const int m = _D.getNrTaxa();
   
-  double L = 0;
+  double L = _baseL;
   for (int p = 0; p < m; ++p)
   {
     double maxL_p = -std::numeric_limits<double>::max();

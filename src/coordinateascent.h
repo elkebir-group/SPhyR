@@ -20,14 +20,18 @@ public:
   /// @param k Maximum number of losses
   /// @param alpha False negative rate
   /// @param beta False positive rate
+  /// @param gamma Loss rate
   /// @param lT Number of cell clusters
   /// @param lC Number of SNV clusters
   /// @param seed Random number generator seed
   CoordinateAscent(const Matrix& D,
+                   const StlIntVector& characterMapping,
+                   const StlIntVector& taxonMapping,
                    int k,
                    bool lazy,
                    double alpha,
                    double beta,
+                   double gamma,
                    int lT,
                    int lC,
                    int seed);
@@ -90,6 +94,8 @@ private:
   const double _alpha;
   /// False positive rate
   const double _beta;
+  /// Loss rate
+  const double _gamma;
   /// Number of cell clusters
   const int _lT;
   /// Number of SNV clusters
@@ -104,6 +110,10 @@ private:
   StlIntVector _zC;
   /// Log likelihood
   double _L;
+  /// Number of correct characters
+  double _baseL;
+  /// Multiplicative matrix
+  StlIntMatrix _multiplicities;
 };
 
 #endif // COORDINATEASCENT_H

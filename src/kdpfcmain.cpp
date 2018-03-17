@@ -17,6 +17,7 @@ int main(int argc, char** argv)
   int k = 1;
   double alpha = 1e-3;
   double beta = 0.3;
+  double gamma = 0.2;
   int lC = 10;
   int lT = 10;
   bool exact = false;
@@ -32,6 +33,7 @@ int main(int argc, char** argv)
   ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
+    .refOption("c", "Loss rate (default: 0.2)", gamma)
     .refOption("lC", "Number of SNV clusters (default: 10)", lC)
     .refOption("lT", "Number of cell clusters (default: 10)", lT)
     .refOption("exact", "Exact algorithm", exact)
@@ -66,7 +68,7 @@ int main(int argc, char** argv)
   inD.close();
 
   StlIntVector characterMapping, taxonMapping;
-  D = D.simplify(characterMapping, taxonMapping);
+  Matrix simpleD = D.simplify(characterMapping, taxonMapping);
   
 //  if (exact)
 //  {
@@ -89,7 +91,10 @@ int main(int argc, char** argv)
 //  }
 //  else
   {
-    CoordinateAscent ca(D, k, lazy, alpha, beta, lT, lC, seed);
+    CoordinateAscent ca(simpleD,
+                        characterMapping,
+                        taxonMapping,
+                        k, lazy, alpha, beta, gamma, lT, lC, seed);
     ca.solve(-1, memoryLimit, nrThreads, verbose, restarts);
     Matrix bestA = ca.getE();
 //    std::cout << bestA << std::endl;
@@ -101,6 +106,8 @@ int main(int argc, char** argv)
 //    std::cout << bestA << std::endl;
     
     std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
+    
+    assert(!g_tol.different(ca.getLogLikelihood(), D.getLogLikelihood(bestA, alpha, beta)));    
     
     if (outputFilename.empty())
     {

@@ -14,27 +14,15 @@
 class Comparison
 {
 public:
-  Comparison(const Matrix& trueA,
-             const Matrix& inferredA,
-             const PhylogeneticTree& trueT,
+  Comparison(const PhylogeneticTree& trueT,
              const PhylogeneticTree& inferredT);
-  
-  void compare();
-  
-  int getTrueK() const
-  {
-    return _trueA.getMaxNrLosses();
-  }
-  
-  int getInferredK() const
-  {
-    return _inferredA.getMaxNrLosses();
-  }
   
   int getRF() const
   {
     return _symDiffSplits.size();
   }
+  
+  double getLogLikelihood(double alpha, double beta) const;
   
   double getNormalizedRF() const
   {
@@ -52,10 +40,6 @@ public:
                             double& clusteredRecall) const;
   
 private:
-  /// True matrix
-  const Matrix& _trueA;
-  /// Inferred matrix
-  const Matrix& _inferredA;
   /// True phylogenetic tree
   const PhylogeneticTree& _trueT;
   /// Inferred phylogenetic tree

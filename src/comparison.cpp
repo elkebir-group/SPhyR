@@ -8,33 +8,20 @@
 #include "comparison.h"
 #include "phylogenetictree.h"
 
-Comparison::Comparison(const Matrix& trueA,
-                       const Matrix& inferredA,
-                       const PhylogeneticTree& trueT,
+Comparison::Comparison(const PhylogeneticTree& trueT,
                        const PhylogeneticTree& inferredT)
-  : _trueA(trueA)
-  , _inferredA(inferredA)
-  , _trueT(trueT)
+  : _trueT(trueT)
   , _inferredT(inferredT)
   , _trueSplits()
   , _inferredSplits()
   , _symDiffSplits()
 {
-}
-
-void Comparison::compare()
-{
-  // 1. compute RF distance
   _trueSplits = _trueT.getSplitSet();
   _inferredSplits = _inferredT.getSplitSet();
   
   std::set_symmetric_difference(_trueSplits.begin(), _trueSplits.end(),
                                 _inferredSplits.begin(), _inferredSplits.end(),
                                 std::inserter(_symDiffSplits, _symDiffSplits.begin()));
-  
-  // 2. compute true clustering and inferred clustering
-  
-  // 3.
 }
 
 void Comparison::recallCharStatePairs(double& ancestralRecall,
@@ -73,12 +60,15 @@ void Comparison::getCharactersClusteringMetrics(double& RI,
                                                 double& recall,
                                                 double& precision) const
 {
-  assert(_trueA.getNrCharacters() == _inferredA.getNrCharacters());
-  const int n = _trueA.getNrCharacters();
+  Matrix trueB = _trueT.getMatrix();
+  Matrix inferredB = _inferredT.getMatrix();
+
+  assert(trueB.getNrCharacters() == inferredB.getNrCharacters());
+  const int n = inferredB.getNrCharacters();
   
   StlIntVector trueCharacterClustering, inferredCharacterClustering;
-  _trueA.identifyRepeatedColumns(trueCharacterClustering);
-  _inferredA.identifyRepeatedColumns(inferredCharacterClustering);
+  trueB.identifyRepeatedColumns(trueCharacterClustering);
+  inferredB.identifyRepeatedColumns(inferredCharacterClustering);
   
   IntPairSet TP, TN;
   IntPairSet P, N;
@@ -116,12 +106,15 @@ void Comparison::getTaxaClusteringMetrics(double& RI,
                                           double& recall,
                                           double& precision) const
 {
-  assert(_trueA.getNrTaxa() == _inferredA.getNrTaxa());
-  const int m = _trueA.getNrTaxa();
+  Matrix trueB = _trueT.getMatrix();
+  Matrix inferredB = _inferredT.getMatrix();
+  
+  assert(trueB.getNrCharacters() == inferredB.getNrCharacters());
+  const int m = trueB.getNrTaxa();
   
   StlIntVector trueTaxaClustering, inferredTaxaClustering;
-  _trueA.identifyRepeatedRows(trueTaxaClustering);
-  _inferredA.identifyRepeatedRows(inferredTaxaClustering);
+  trueB.identifyRepeatedRows(trueTaxaClustering);
+  inferredB.identifyRepeatedRows(inferredTaxaClustering);
   
   IntPairSet TP, TN;
   IntPairSet P, N;

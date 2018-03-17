@@ -23,6 +23,11 @@ public:
   /// Default constructor
   Matrix();
   
+  /// Construct matrix from file
+  ///
+  /// @param filename Filename
+  static Matrix* parse(const std::string& filename);
+  
   /// Return number of taxa
   int getNrTaxa() const
   {
@@ -135,6 +140,10 @@ public:
   Matrix expandColumns(const StlIntVector& characterMapping) const;
   
   Matrix expandRows(const StlIntVector& taxonMapping) const;
+  
+  double getLogLikelihood(const Matrix& trueMatrix,
+                          double alpha,
+                          double beta) const;
   
 protected:
   /// Number of taxa
