@@ -202,6 +202,11 @@ void DolloPhylogeneticTree::generateLosses(Node v,
   for (OutArcIt a(_T, v); a != lemon::INVALID; ++a)
   {
     Node w = _T.target(a);
+    if (OutArcIt(_T, w) == lemon::INVALID)
+    {
+      // no losses on leaves
+      continue;
+    }
 
     double r = unif(rng);
     if (r <= lossRate)
