@@ -208,25 +208,22 @@ void DolloPhylogeneticTree::generateLosses(Node v,
       continue;
     }
 
-    double r = unif(rng);
-    if (r <= lossRate)
+    // pick a character to lose
+    StlIntVector characters;
+    for (int c = 0; c < n; ++c)
     {
-      // pick a character to lose
-      StlIntVector characters;
-      for (int c = 0; c < n; ++c)
+      if (_a[w][c] == 1
+          && _charStateLabeling[a].count(IntPair(c, 1)) == 0
+          && allowedLosses[c] > 0)
       {
-        if (_a[w][c] == 1
-            && _charStateLabeling[a].count(IntPair(c, 1)) == 0
-            && allowedLosses[c] > 0)
-        {
-          characters.push_back(c);
-        }
+        characters.push_back(c);
       }
-      if (!characters.empty())
+    }
+    for (int c : characters)
+    {
+      double r = unif(rng);
+      if (r <= lossRate)
       {
-        std::uniform_int_distribution<> unif_int(0, characters.size() - 1);
-        int c = characters[unif_int(rng)];
-        
         _charStateLabeling[a].insert(IntPair(c, k - allowedLosses[c] + 2));
         --allowedLosses[c];
       }

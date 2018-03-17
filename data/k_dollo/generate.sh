@@ -5,15 +5,15 @@ then
     exit 1
 fi
 
-for n in {25,50,75,100,250,500}
+for n in {25,50,100,250}
 do
-    for m in {50,100,150,200}
+    for m in {50,100}
     do
 	for s in {1..5}
 	do
 	    for loss in {0.1,0.2,0.4}
 	    do
-		for k in {1,2,3}
+		for k in {1,2}
 		do
 		    for seed in {1,2,3}
 		    do

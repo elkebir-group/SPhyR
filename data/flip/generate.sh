@@ -7,7 +7,7 @@ fi
 
 m=50
 alpha=0.001
-for n in {50,100}
+for n in {25,50,100}
 do
     for s in {1..5}
     do
@@ -15,7 +15,7 @@ do
         do
             for k in {1,2}
             do
-                for loss in {0.2,0.4}
+                for loss in {0.1,0.2,0.4}
                 do
                     for beta in {0.1,0.2,0.3}
                     do
