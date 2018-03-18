@@ -20,11 +20,11 @@ int main(int argc, char** argv)
   int nrThreads = 1;
   int timeLimit = -1;
   bool verbose = false;
-  bool columnGeneration = false;
+  bool noColumnGeneration = false;
   bool lazy = true;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("c", "Enable column generation", columnGeneration)
+  ap.refOption("c", "Disable column generation", noColumnGeneration)
     .refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
   StlIntVector chacterMapping, taxonMapping;
   D = D.simplify(chacterMapping, taxonMapping);
   
-  if (columnGeneration)
+  if (!noColumnGeneration)
   {
     ColumnGen solver(D, k, lazy);
     solver.init();

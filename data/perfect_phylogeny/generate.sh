@@ -13,7 +13,7 @@ for n in {25,50,75,100,250,500}
 do
     for m in {50,100,150,200}
     do
-	for s in {1..5}
+	for s in {1..20}
 	do
 	    filename=m${m}_n${n}_s${s}.txt
 	    echo "$m # cells" > $filename

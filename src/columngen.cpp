@@ -282,7 +282,8 @@ void ColumnGen::initVariables()
 
 void ColumnGen::activate(int p, int c, int i)
 {
-  assert(_B.getEntry(p, c) == 0);
+  if (_B.getEntry(p, c)) return;
+  
   if (i == 0 && _k >= 1)
   {
     if (!_activeVariables[p][c][2])
