@@ -137,6 +137,21 @@ bool DolloPhylogeneticTree::reconstructTree()
           v = w;
           if (introducedChar[c])
           {
+#ifdef DEBUG
+            for (int cc = 0; cc < _Bprime.getNrCharacters(); ++cc)
+            {
+              std::cout << getOriginalCharacter(cc) << "," << getOriginalState(cc) << " ";
+            }
+            std::cout << std::endl;
+            for (int pp = 0; pp <= p; ++pp)
+            {
+              for (int cc = 0; cc < _Bprime.getNrCharacters(); ++cc)
+              {
+                std::cout << _Bprime.getEntry(pp, cc) << "  ";
+              }
+              std::cout << std::endl;
+            }
+#endif
             return false;
           }
           else

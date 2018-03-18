@@ -28,15 +28,23 @@ Matrix* Matrix::parse(const std::string& filename)
 {
   Matrix* pMatrix = NULL;
   
-  std::ifstream inA(filename.c_str());
-  if (!inA.good())
+  if (filename == "-")
   {
-    std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
-    return NULL;
+    pMatrix = new Matrix();
+    std::cin >> *pMatrix;
   }
-  pMatrix = new Matrix();
-  inA >> *pMatrix;
-  inA.close();
+  else
+  {
+    std::ifstream inA(filename.c_str());
+    if (!inA.good())
+    {
+      std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
+      return NULL;
+    }
+    pMatrix = new Matrix();
+    inA >> *pMatrix;
+    inA.close();
+  }
   
   return pMatrix;
 }
@@ -158,27 +166,6 @@ Matrix Matrix::simplify(StlIntVector& characterMapping,
 {
   Matrix newB = simplifyColumns(characterMapping);
   newB = newB.simplifyRows(taxonMapping);
-  
-//  StlIntMatrix invCharMapping(newB.getNrCharacters());
-//  for (int c = 0; c < _n; ++c)
-//  {
-//    invCharMapping[characterMapping[c]].push_back(c);
-//  }
-//
-//  StlIntMatrix invTaxonMapping(newB.getNrTaxa());
-//  for (int p = 0; p < _m; ++p)
-//  {
-//    invTaxonMapping[taxonMapping[p]]
-//  }
-  
-//  multiplicities = StlIntMatrix(_m, StlIntVector(_n, 0));
-//  for (int p = 0; p < _m; ++p)
-//  {
-//    for (int c = 0; c < _n; ++c)
-//    {
-//
-//    }
-//  }
   
   return newB;
 }
@@ -468,56 +455,6 @@ void Matrix::identifyViolations(int k,
           for (int d = c + 1; d < _n; ++d)
           {
             // condition 1
-            for (int j = 2; j <= k + 1; ++j)
-            {
-              for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
-              {
-                if (j_prime == j) continue;
-                
-                if (_D[p][c] == 1 && _D[q][c] == 0 && _D[r][c] == 1
-                    && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
-                {
-                  violationList.push_back(Violation(c, d, p, q, r, 1));
-                }
-              }
-            }
-
-            // condition 2
-            for (int i = 2; i <= k + 1; ++i)
-            {
-              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
-              {
-                if (i == i_prime) continue;
-                
-                if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
-                    && _D[p][d] == 0 && _D[q][d] == 1 && _D[r][d] == 1)
-                {
-                  violationList.push_back(Violation(c, d, p, q, r, 2));
-                }
-              }
-            }
-  
-            // condition 3
-            for (int i = 2; i <= k + 1; ++i)
-            {
-              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
-              {
-                if (i == i_prime) continue;
-                for (int j = 2; j <= k + 1; ++j)
-                {
-                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
-                  {
-                    if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
-                        && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
-                    {
-                      violationList.push_back(Violation(c, d, p, q, r, 3));
-                    }
-                  }
-                }
-              }
-            }
-            
-            // condition 4
             for (int i = 1; i <= k + 1; ++i)
             {
               for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
@@ -528,6 +465,68 @@ void Matrix::identifyViolations(int k,
                   {
                     if (_D[p][c] == i && _D[q][c] == 0 && _D[r][c] == i_prime
                         && _D[p][d] == 0 && _D[q][d] == j && _D[r][d] == j_prime)
+                    {
+                      violationList.push_back(Violation(c, d, p, q, r, 1));
+                    }
+                  }
+                }
+              }
+            }
+            
+            // condition 2
+            for (int i = 1; i <= k + 1; ++i)
+            {
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
+              {
+                for (int j = 2; j <= k + 1; ++j)
+                {
+                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
+                  {
+                    if (j_prime == j) continue;
+                
+                    if (_D[p][c] == i && _D[q][c] == 0 && _D[r][c] == i_prime
+                        && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
+                    {
+                      violationList.push_back(Violation(c, d, p, q, r, 2));
+                    }
+                  }
+                }
+              }
+            }
+  
+            // condition 3
+            for (int i = 2; i <= k + 1; ++i)
+            {
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
+              {
+                if (i_prime == i) continue;
+                for (int j = 1; j <= k + 1; ++j)
+                {
+                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
+                  {
+                    if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
+                        && _D[p][d] == 0 && _D[q][d] == j && _D[r][d] == j_prime)
+                    {
+                      violationList.push_back(Violation(c, d, p, q, r, 3));
+                    }
+                  }
+                }
+              }
+            }
+            
+            // condition 4
+            for (int i = 2; i <= k + 1; ++i)
+            {
+              for (int i_prime = 1; i_prime <= k + 1; ++i_prime)
+              {
+                if (i_prime == i) continue;
+                for (int j = 2; j <= k + 1; ++j)
+                {
+                  for (int j_prime = 1; j_prime <= k + 1; ++j_prime)
+                  {
+                    if (j_prime == j) continue;
+                    if (_D[p][c] == i && _D[q][c] == i_prime && _D[r][c] == i
+                        && _D[p][d] == j_prime && _D[q][d] == j && _D[r][d] == j)
                     {
                       violationList.push_back(Violation(c, d, p, q, r, 4));
                     }

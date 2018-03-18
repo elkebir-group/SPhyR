@@ -319,226 +319,6 @@ int ColumnGen::separate()
     for (int d = c + 1; d < _n; ++d)
     {
       // condition 1
-      for (int j = 2; j <= _k + 1; ++j)
-      {
-        for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
-        {
-          if (j_prime == j) continue;
-          
-          IntSet pSet;
-          for (int p = 0; p < _m; p++)
-          {
-            if (g_tol.nonZero(vals[getIndex(p, c, 1)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
-            {
-              pSet.insert(p);
-            }
-          }
-          
-          IntSet qSet;
-          for (int q = 0; q < _m; q++)
-          {
-            if (g_tol.nonZero(vals[getIndex(q, c, 0)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
-            {
-              qSet.insert(q);
-            }
-          }
-          
-          IntSet rSet;
-          for (int r = 0; r < _m; r++)
-          {
-            if (g_tol.nonZero(vals[getIndex(r, c, 1)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
-            {
-              rSet.insert(r);
-            }
-          }
-          
-          for (int p : pSet)
-          {
-            for (int q : qSet)
-            {
-              for (int r : rSet)
-              {
-                activate(p, c, 1);
-                activate(p, d, j_prime);
-                activate(q, c, 0);
-//                if (j_prime != 1)
-//                {
-//                  activate(p, d, j_prime);
-//                }
-                activate(q, d, j);
-                activate(r, c, 1);
-                activate(r, d, j);
-                
-                ViolatedConstraint constraint;
-                constraint[0] = Triple(p, c, 1);
-                constraint[1] = Triple(p, d, j_prime);
-                constraint[2] = Triple(q, c, 0);
-                constraint[3] = Triple(q, d, j);
-                constraint[4] = Triple(r, c, 1);
-                constraint[5] = Triple(r, d, j);
-                constraints.push_back(constraint);
-                
-//                constraints.add(_vars[getIndex(p, c, 1)] + _vars[getIndex(p, d, j_prime)] +
-//                               _vars[getIndex(q, c, 0)] + _vars[getIndex(q, d, j)] +
-//                               _vars[getIndex(r, c, 1)] + _vars[getIndex(r, d, j)] <= 5);
-                
-                res = true;
-              }
-            }
-          }
-        }
-      }
-      
-      // condition 2
-      for (int i = 2; i <= _k + 1; ++i)
-      {
-        for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
-        {
-          if (i == i_prime) continue;
-          
-          IntSet pSet;
-          for (int p = 0; p < _m; p++)
-          {
-            if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, 0)]))
-            {
-              pSet.insert(p);
-            }
-          }
-          
-          IntSet qSet;
-          for (int q = 0; q < _m; q++)
-          {
-            if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, 1)]))
-            {
-              qSet.insert(q);
-            }
-          }
-          
-          IntSet rSet;
-          for (int r = 0; r < _m; r++)
-          {
-            if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, 1)]))
-            {
-              rSet.insert(r);
-            }
-          }
-          
-          for (int p : pSet)
-          {
-            for (int q : qSet)
-            {
-              for (int r : rSet)
-              {
-                activate(p, c, i);
-                activate(p, d, 0);
-//                if (i_prime != 1)
-//                {
-                  activate(q, c, i_prime);
-//                }
-                activate(q, d, 1);
-                activate(r, c, i);
-                activate(r, d, 1);
-                
-                ViolatedConstraint constraint;
-                constraint[0] = Triple(p, c, i);
-                constraint[1] = Triple(p, d, 0);
-                constraint[2] = Triple(q, c, i_prime);
-                constraint[3] = Triple(q, d, 1);
-                constraint[4] = Triple(r, c, i);
-                constraint[5] = Triple(r, d, 1);
-                constraints.push_back(constraint);
-                
-//                constraints.add(_vars[getIndex(p, c, i)] + _vars[getIndex(p, d, 0)] +
-//                                 _vars[getIndex(q, c, i_prime)] + _vars[getIndex(q, d, 1)] +
-//                                 _vars[getIndex(r, c, i)] + _vars[getIndex(r, d, 1)] <= 5);
-                
-                res = true;
-              }
-            }
-          }
-        }
-      }
-      
-      // condition 3
-      for (int i = 2; i <= _k + 1; ++i)
-      {
-        for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
-        {
-          if (i == i_prime) continue;
-          for (int j = 2; j <= _k + 1; ++j)
-          {
-            for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
-            {
-              if (j == j_prime) continue;
-              
-              IntSet pSet;
-              for (int p = 0; p < _m; p++)
-              {
-                if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
-                {
-                  pSet.insert(p);
-                }
-              }
-              
-              IntSet qSet;
-              for (int q = 0; q < _m; q++)
-              {
-                if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
-                {
-                  qSet.insert(q);
-                }
-              }
-              
-              IntSet rSet;
-              for (int r = 0; r < _m; r++)
-              {
-                if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
-                {
-                  rSet.insert(r);
-                }
-              }
-              
-              for (int p : pSet)
-              {
-                for (int q : qSet)
-                {
-                  for (int r : rSet)
-                  {
-                    activate(p, c, i);
-//                    if (j_prime != 1)
-//                    {
-                      activate(p, d, j_prime);
-//                    }
-//                    if (i_prime != 1)
-//                    {
-                      activate(q, c, i_prime);
-//                    }
-                    activate(r, c, i);
-                    activate(r, d, j);
-                    
-                    ViolatedConstraint constraint;
-                    constraint[0] = Triple(p, c, i);
-                    constraint[1] = Triple(p, d, j_prime);
-                    constraint[2] = Triple(q, c, i_prime);
-                    constraint[3] = Triple(q, d, j);
-                    constraint[4] = Triple(r, c, i);
-                    constraint[5] = Triple(r, d, j);
-                    constraints.push_back(constraint);
-                    
-//                    constraints.add(_vars[getIndex(p, c, i)] + _vars[getIndex(p, d, j_prime)] +
-//                                    _vars[getIndex(q, c, i_prime)] + _vars[getIndex(q, d, j)] +
-//                                    _vars[getIndex(r, c, i)] + _vars[getIndex(r, d, j)] <= 5);
-                    
-                    res = true;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      
-      // condition 4
       for (int i = 1; i <= _k + 1; ++i)
       {
         for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
@@ -580,24 +360,12 @@ int ColumnGen::separate()
                 {
                   for (int r : rSet)
                   {
-//                    if (i != 1)
-//                    {
-                      activate(p, c, i);
-//                    }
+                    activate(p, c, i);
                     activate(p, d, 0);
                     activate(q, c, 0);
-//                    if (j != 1)
-//                    {
-                      activate(q, d, j);
-//                    }
-//                    if (i_prime != 1)
-//                    {
-                      activate(r, c, i_prime);
-//                    }
-//                    if (j_prime != 1)
-//                    {
-                      activate(r, d, j_prime);
-//                    }
+                    activate(q, d, j);
+                    activate(r, c, i_prime);
+                    activate(r, d, j_prime);
                     
                     ViolatedConstraint constraint;
                     constraint[0] = Triple(p, c, i);
@@ -607,12 +375,207 @@ int ColumnGen::separate()
                     constraint[4] = Triple(r, c, i_prime);
                     constraint[5] = Triple(r, d, j_prime);
                     constraints.push_back(constraint);
-                
-//                    constraints.add(_vars[getIndex(p, c, i)] + _vars[getIndex(p, d, 0)] +
-//                                             _vars[getIndex(q, c, 0)] + _vars[getIndex(q, d, j)] +
-//                                             _vars[getIndex(r, c, i_prime)] + _vars[getIndex(r, d, j_prime)] <= 5);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // condition 2
+      for (int i = 1; i <= _k + 1; ++i)
+      {
+        for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
+        {
+          for (int j = 2; j <= _k + 1; ++j)
+          {
+            for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
+            {
+              if (j_prime == j) continue;
+          
+              IntSet pSet;
+              for (int p = 0; p < _m; p++)
+              {
+                if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
+                {
+                  pSet.insert(p);
+                }
+              }
+              
+              IntSet qSet;
+              for (int q = 0; q < _m; q++)
+              {
+                if (g_tol.nonZero(vals[getIndex(q, c, 0)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
+                {
+                  qSet.insert(q);
+                }
+              }
+              
+              IntSet rSet;
+              for (int r = 0; r < _m; r++)
+              {
+                if (g_tol.nonZero(vals[getIndex(r, c, i_prime)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
+                {
+                  rSet.insert(r);
+                }
+              }
+              
+              for (int p : pSet)
+              {
+                for (int q : qSet)
+                {
+                  for (int r : rSet)
+                  {
+                    activate(p, c, i);
+                    activate(p, d, j_prime);
+                    activate(q, c, 0);
+                    activate(q, d, j);
+                    activate(r, c, i_prime);
+                    activate(r, d, j);
                     
-                    res = true;
+                    ViolatedConstraint constraint;
+                    constraint[0] = Triple(p, c, i);
+                    constraint[1] = Triple(p, d, j_prime);
+                    constraint[2] = Triple(q, c, 0);
+                    constraint[3] = Triple(q, d, j);
+                    constraint[4] = Triple(r, c, i_prime);
+                    constraint[5] = Triple(r, d, j);
+                    constraints.push_back(constraint);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // condition 3
+      for (int i = 2; i <= _k + 1; ++i)
+      {
+        for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
+        {
+          if (i_prime == i) continue;
+          for (int j = 1; j <= _k + 1; ++j)
+          {
+            for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
+            {
+              IntSet pSet;
+              for (int p = 0; p < _m; p++)
+              {
+                if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, 0)]))
+                {
+                  pSet.insert(p);
+                }
+              }
+              
+              IntSet qSet;
+              for (int q = 0; q < _m; q++)
+              {
+                if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
+                {
+                  qSet.insert(q);
+                }
+              }
+              
+              IntSet rSet;
+              for (int r = 0; r < _m; r++)
+              {
+                if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, j_prime)]))
+                {
+                  rSet.insert(r);
+                }
+              }
+              
+              for (int p : pSet)
+              {
+                for (int q : qSet)
+                {
+                  for (int r : rSet)
+                  {
+                    activate(p, c, i);
+                    activate(p, d, 0);
+                    activate(q, c, i_prime);
+                    activate(q, d, j);
+                    activate(r, c, i);
+                    activate(r, d, j_prime);
+                    
+                    ViolatedConstraint constraint;
+                    constraint[0] = Triple(p, c, i);
+                    constraint[1] = Triple(p, d, 0);
+                    constraint[2] = Triple(q, c, i_prime);
+                    constraint[3] = Triple(q, d, j);
+                    constraint[4] = Triple(r, c, i);
+                    constraint[5] = Triple(r, d, j_prime);
+                    constraints.push_back(constraint);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // condition 4
+      for (int i = 2; i <= _k + 1; ++i)
+      {
+        for (int i_prime = 1; i_prime <= _k + 1; ++i_prime)
+        {
+          if (i_prime == i) continue;
+          for (int j = 2; j <= _k + 1; ++j)
+          {
+            for (int j_prime = 1; j_prime <= _k + 1; ++j_prime)
+            {
+              if (j_prime == j) continue;
+              
+              IntSet pSet;
+              for (int p = 0; p < _m; p++)
+              {
+                if (g_tol.nonZero(vals[getIndex(p, c, i)]) && g_tol.nonZero(vals[getIndex(p, d, j_prime)]))
+                {
+                  pSet.insert(p);
+                }
+              }
+              
+              IntSet qSet;
+              for (int q = 0; q < _m; q++)
+              {
+                if (g_tol.nonZero(vals[getIndex(q, c, i_prime)]) && g_tol.nonZero(vals[getIndex(q, d, j)]))
+                {
+                  qSet.insert(q);
+                }
+              }
+              
+              IntSet rSet;
+              for (int r = 0; r < _m; r++)
+              {
+                if (g_tol.nonZero(vals[getIndex(r, c, i)]) && g_tol.nonZero(vals[getIndex(r, d, j)]))
+                {
+                  rSet.insert(r);
+                }
+              }
+              
+              for (int p : pSet)
+              {
+                for (int q : qSet)
+                {
+                  for (int r : rSet)
+                  {
+                    activate(p, c, i);
+                    activate(p, d, j_prime);
+                    activate(q, c, i_prime);
+                    activate(q, d, j);
+                    activate(r, c, i);
+                    activate(r, d, j);
+                    
+                    ViolatedConstraint constraint;
+                    constraint[0] = Triple(p, c, i);
+                    constraint[1] = Triple(p, d, j_prime);
+                    constraint[2] = Triple(q, c, i_prime);
+                    constraint[3] = Triple(q, d, j);
+                    constraint[4] = Triple(r, c, i);
+                    constraint[5] = Triple(r, d, j);
+                    constraints.push_back(constraint);
                   }
                 }
               }

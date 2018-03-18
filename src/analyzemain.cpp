@@ -33,26 +33,15 @@ int main(int argc, char** argv)
     return 1;
   }
   
-  PhylogeneticTree* pInferredT = NULL;
-  if (tree)
-  {
-    pInferredT = PhylogeneticTree::parse(ap.files()[0]);
-  }
-  else
-  {
-    pInferredT = DolloPhylogeneticTree::parse(ap.files()[0]);
-  }
-  
-  if (!pInferredT)
-  {
-    return 1;
-  }
-  
   if (ap.files().size() == 1)
   {
     Matrix::ViolationList list;
-    Matrix inferredA = pInferredT->getMatrix();
-    inferredA.identifyViolations(inferredA.getMaxNrLosses(), list);
+    Matrix* pInferredA = Matrix::parse(ap.files()[0]);
+    if (!pInferredA)
+    {
+      return 1;
+    }
+    pInferredA->identifyViolations(pInferredA->getMaxNrLosses(), list);
     
     IntPairSet violationEntries;
     for (const Matrix::Violation& violation : list)
@@ -61,14 +50,14 @@ int main(int argc, char** argv)
                 << " ; " << "p = " << violation._p << " ; q = " << violation._q
                 << " ; r = " << violation._r << " ; c = " << violation._c
                 << " ; d = " << violation._d << std::endl;
-      std::cout << inferredA.getEntry(violation._p, violation._c)
-                << " " << inferredA.getEntry(violation._p, violation._d)
+      std::cout << pInferredA->getEntry(violation._p, violation._c)
+                << " " << pInferredA->getEntry(violation._p, violation._d)
                 << std::endl;
-      std::cout << inferredA.getEntry(violation._q, violation._c)
-                << " " << inferredA.getEntry(violation._q, violation._d)
+      std::cout << pInferredA->getEntry(violation._q, violation._c)
+                << " " << pInferredA->getEntry(violation._q, violation._d)
                 << std::endl;
-      std::cout << inferredA.getEntry(violation._r, violation._c)
-                << " " << inferredA.getEntry(violation._r, violation._d)
+      std::cout << pInferredA->getEntry(violation._r, violation._c)
+                << " " << pInferredA->getEntry(violation._r, violation._d)
                 << std::endl;
       std::cout << std::endl;
       violationEntries.insert(IntPair(violation._p, violation._c));
@@ -81,14 +70,14 @@ int main(int argc, char** argv)
     
     std::cout << "Total number of violations: " << list.size() << std::endl;
     std::cout << "Violated entries: " << violationEntries.size()
-              << " / " << inferredA.getNrTaxa() * inferredA.getNrCharacters()
+              << " / " << pInferredA->getNrTaxa() * pInferredA->getNrCharacters()
               << " = " << (double) violationEntries.size() /
-                (inferredA.getNrTaxa() * inferredA.getNrCharacters())
+                (pInferredA->getNrTaxa() * pInferredA->getNrCharacters())
               << std::endl;
     
-    for (int c = 0; c < inferredA.getNrCharacters(); ++c)
+    for (int c = 0; c < pInferredA->getNrCharacters(); ++c)
     {
-      int ones_c = inferredA.getNrOfOnes(c);
+      int ones_c = pInferredA->getNrOfOnes(c);
       if (ones_c == 0)
       {
         std::cout << "Character " << c << " has no 1s" << std::endl;
@@ -101,6 +90,21 @@ int main(int argc, char** argv)
   }
   else if (ap.files().size() == 3)
   {
+    PhylogeneticTree* pInferredT = NULL;
+    if (tree)
+    {
+      pInferredT = PhylogeneticTree::parse(ap.files()[0]);
+    }
+    else
+    {
+      pInferredT = DolloPhylogeneticTree::parse(ap.files()[0]);
+    }
+    
+    if (!pInferredT)
+    {
+      return 1;
+    }
+    
     PhylogeneticTree* pTrueT = DolloPhylogeneticTree::parse(ap.files()[1]);
     if (!pTrueT)
     {

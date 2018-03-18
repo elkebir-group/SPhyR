@@ -22,16 +22,24 @@ PhylogeneticTree* PhylogeneticTree::parse(const std::string& filename)
 {
   PhylogeneticTree* pTree = NULL;
   
-  std::ifstream inT(filename.c_str());
-  if (!inT.good())
+  if (filename == "-")
   {
-    std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
-    return NULL;
+    pTree = new PhylogeneticTree();
+    std::cin >> *pTree;
   }
-  
-  pTree = new PhylogeneticTree();
-  inT >> *pTree;
-  inT.close();
+  else
+  {
+    std::ifstream inT(filename.c_str());
+    if (!inT.good())
+    {
+      std::cerr << "Error: could not open '" << filename << "' for reading" << std::endl;
+      return NULL;
+    }
+    
+    pTree = new PhylogeneticTree();
+    inT >> *pTree;
+    inT.close();
+  }
   
   return pTree;
 }
