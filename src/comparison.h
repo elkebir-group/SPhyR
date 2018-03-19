@@ -39,6 +39,10 @@ public:
                             double& incomparableRecall,
                             double& clusteredRecall) const;
   
+  void computeLossPrecisionAndRecall(double& precision,
+                                     double& recall,
+                                     double& lossF1) const;
+  
 private:
   /// True phylogenetic tree
   const PhylogeneticTree& _trueT;

@@ -27,7 +27,6 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
   , _lazy(lazy)
   , _alpha(alpha)
   , _beta(beta)
-  , _gamma(gamma)
   , _lT(std::min(lT, D.getNrTaxa()))
   , _lC(std::min(lC, D.getNrCharacters()))
   , _seed(seed)
@@ -36,6 +35,7 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
   , _zC(_D.getNrCharacters(), 0)
   , _L(0)
   , _baseL(0)
+  , _restart(0)
 {
   // Determine base likelihood based on fixed entries
   const double log_1_minus_alpha = log(1 - _alpha);
@@ -134,7 +134,7 @@ double CoordinateAscent::solveE(int timeLimit,
                                         _k, _lazy, _alpha, _beta,
                                         _lC, _zC, _lT, _zT);
   solvePhylogeny.init();
-  if (g_tol.nonZero(_L))
+  if (_restart > 1)
   {
     solvePhylogeny.initHotStart(_E);
   }
@@ -338,9 +338,9 @@ bool CoordinateAscent::solve(int timeLimit,
   double bestLikelihood = -std::numeric_limits<double>::max();
   StlIntVector bestZT, bestZC;
   
-  for (int restartCount = 1; restartCount <= nrRestarts; ++restartCount)
+  for (_restart = 1; _restart <= nrRestarts; ++_restart)
   {
-    initZ(_seed + restartCount - 1);
+    initZ(_seed + _restart - 1);
     
     double delta = 1;
     int iteration = 1;
@@ -348,14 +348,14 @@ bool CoordinateAscent::solve(int timeLimit,
     while (g_tol.nonZero(delta) && iteration <= maxIterations)
     {
       double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
-      std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
+      std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
 //      std::cout << _E << std::endl;
       assert(!g_tol.less(LLL, _L));
       
       double LL = solveZT();
-      std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;
+      std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;
       double L = solveZC();
-      std::cerr << "Restart " << restartCount << " -- iteration " << iteration << " -- zC step -- log likelihood " << L << std::endl;
+      std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zC step -- log likelihood " << L << std::endl;
 //      std::cout << _E << std::endl;
       std::cerr << std::endl;
       

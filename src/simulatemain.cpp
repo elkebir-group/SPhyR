@@ -63,20 +63,20 @@ int main(int argc, char** argv)
   if (!filenameA.empty())
   {
     std::ofstream outA(filenameA.c_str());
-    outA << phyloT.getA();
+    outA << phyloT.getMatrixA();
     outA.close();
   }
 
   if (!filenameB.empty())
   {
     std::ofstream outB(filenameB.c_str());
-    outB << phyloT.getB();
+    outB << phyloT.getMatrixB();
     outB.close();
   }
   
   if (filenameDOT.empty() && filenameA.empty() && filenameB.empty())
   {
-    std::cout << phyloT.getB();
+    std::cout << phyloT.getMatrixB();
   }
   
   return 0;

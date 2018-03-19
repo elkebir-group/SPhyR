@@ -16,11 +16,13 @@ int main(int argc, char** argv)
   double alpha = 1e-3;
   double beta = 0.3;
   bool tree = false;
+  bool header = false;
   
   lemon::ArgParser ap(argc, argv);
   ap.refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
     .refOption("T", "Use tree instead of matrix", tree)
+    .refOption("H", "Print header", header)
     .other("inferred", "Inferred solution file")
     .other("true", "True solution file")
     .other("input", "Input matrix");
@@ -111,8 +113,8 @@ int main(int argc, char** argv)
       return 1;
     }
     
-    Matrix* pInput = Matrix::parse(ap.files()[2]);
-    if (!pInput)
+    Matrix* pInputB = Matrix::parse(ap.files()[2]);
+    if (!pInputB)
     {
       return 1;
     }
@@ -128,13 +130,20 @@ int main(int argc, char** argv)
     double charactersRI, charactersRecall, charactersPrecision;
     compare.getCharactersClusteringMetrics(charactersRI, charactersRecall, charactersPrecision);
     
-    Matrix trueA = pTrueT->getMatrix();
-    Matrix inferredA = pInferredT->getMatrix();
+    Matrix trueB = pTrueT->getMatrixB();
+    Matrix inferredB = pInferredT->getMatrixB();
 
-    double logLikelihood = pInput->getLogLikelihood(inferredA, alpha, beta);
+    double logLikelihood = pInputB->getLogLikelihood(inferredB, alpha, beta);
+    double lossPrecision = 0;
+    double lossRecall = 0;
+    double lossF1 = 0;
+    compare.computeLossPrecisionAndRecall(lossPrecision, lossRecall, lossF1);
     
-    // 2. inferredK
-    // 3. trueK
+    if (header)
+    {
+      std::cout << "RF,norm_RF,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,output_matrix_acc,input_matrix_acc,output_FN,input_FN,output_FP,input_FP,loss_recall,loss_precision,loss_F1,flip01,flip10" << std::endl;
+    }
+    
     // 4. RF
     // 5. normalized RF
     // 6. ancestral pairs recall
@@ -151,9 +160,13 @@ int main(int argc, char** argv)
     // 17. parallel evolution count (inferred)
     // 16. back mutation count (true)
     // 17. parallel evolution count (true)
-    std::cout << inferredA.getMaxNrLosses() << ","
-              << trueA.getMaxNrLosses() << ","
-              << compare.getRF() << ","
+    // 19. output matrix accuracy
+    // 20. input matrix accuracy
+    // 21. output matrix fraction of incorrect 0s
+    // 22. input matrix fraction of incorrect 0s
+    // 23. output matrix fraction of incorrect 1s
+    // 24. input matrix fraction of incorrect 1s
+    std::cout << compare.getRF() << ","
               << compare.getNormalizedRF() << ","
               << ancestralRecall << ","
               << incomparableRecall << ","
@@ -168,7 +181,18 @@ int main(int argc, char** argv)
               << pInferredT->getBackMutationCount() << ","
               << pInferredT->getParallelEvolutionCount() << ","
               << pTrueT->getBackMutationCount() << ","
-              << pTrueT->getParallelEvolutionCount()
+              << pTrueT->getParallelEvolutionCount() << ","
+              << inferredB.getFracIdentical(trueB) << ","
+              << pInputB->getFracIdentical(trueB) << ","
+              << inferredB.getFracIncorrect0(trueB) << ","
+              << pInputB->getFracIncorrect0(trueB) << ","
+              << inferredB.getFracIncorrect1(trueB) << ","
+              << pInputB->getFracIncorrect1(trueB) << ","
+              << lossRecall << ","
+              << lossPrecision << ","
+              << lossF1 << ","
+              << inferredB.getNrFlip01(*pInputB) << ","
+              << inferredB.getNrFlip10(*pInputB)
               << std::endl;
   }
   

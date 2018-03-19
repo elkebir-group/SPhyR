@@ -128,7 +128,7 @@ void ColumnGenFlip::activate(int p, int c, int i)
       }
     }
   }
-  else if (i == 1)
+  else if (i == 1 && g_tol.nonZero(_alpha))
   {
     if (!_activeVariables[p][c][0])
     {

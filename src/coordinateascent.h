@@ -94,8 +94,6 @@ private:
   const double _alpha;
   /// False positive rate
   const double _beta;
-  /// Loss rate
-  const double _gamma;
   /// Number of cell clusters
   const int _lT;
   /// Number of SNV clusters
@@ -114,6 +112,8 @@ private:
   double _baseL;
   /// Multiplicative matrix
   StlIntMatrix _multiplicities;
+  /// Restart count
+  int _restart;
 };
 
 #endif // COORDINATEASCENT_H

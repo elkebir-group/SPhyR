@@ -23,14 +23,9 @@ public:
   
   void generateLosses(double lossRate, int k, int seed);
   
-  const Matrix& getA() const
+  virtual Matrix getMatrixA() const
   {
     return _A;
-  }
-  
-  const Matrix& getB() const
-  {
-    return _B;
   }
   
 private:

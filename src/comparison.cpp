@@ -24,6 +24,53 @@ Comparison::Comparison(const PhylogeneticTree& trueT,
                                 std::inserter(_symDiffSplits, _symDiffSplits.begin()));
 }
 
+void Comparison::computeLossPrecisionAndRecall(double& precision,
+                                               double& recall,
+                                               double& lossF1) const
+{
+  Matrix trueA = _trueT.getMatrixA();
+  Matrix inferredA = _inferredT.getMatrixA();
+  
+  assert(trueA.getNrTaxa() == inferredA.getNrTaxa());
+  const int m = inferredA.getNrTaxa();
+  
+  assert(trueA.getNrCharacters() == inferredA.getNrCharacters());
+  const int n = inferredA.getNrCharacters();
+  
+  int correctlyInferredLosses = 0;
+  int inferredLosses = 0;
+  int trueLosses = 0;
+  
+  for (int p = 0; p < m; ++p)
+  {
+    for (int c = 0; c < n; ++c)
+    {
+      bool trueLoss = trueA.getEntry(p, c) >= 2;
+      if (trueLoss)
+      {
+        ++trueLosses;
+      }
+      bool inferredLoss = inferredA.getEntry(p, c) >= 2;
+      if (inferredLoss)
+      {
+        ++inferredLosses;
+      }
+      if (trueLoss && inferredLoss)
+      {
+        ++correctlyInferredLosses;
+      }
+    }
+  }
+  
+  recall = correctlyInferredLosses;
+  recall /= trueLosses;
+   
+  precision = correctlyInferredLosses;
+  precision /= inferredLosses;
+  
+  lossF1 = 2* (precision * recall) / (precision + recall);
+}
+
 void Comparison::recallCharStatePairs(double& ancestralRecall,
                                       double& incomparableRecall,
                                       double& clusteredRecall) const
@@ -60,8 +107,8 @@ void Comparison::getCharactersClusteringMetrics(double& RI,
                                                 double& recall,
                                                 double& precision) const
 {
-  Matrix trueB = _trueT.getMatrix();
-  Matrix inferredB = _inferredT.getMatrix();
+  Matrix trueB = _trueT.getMatrixB();
+  Matrix inferredB = _inferredT.getMatrixB();
 
   assert(trueB.getNrCharacters() == inferredB.getNrCharacters());
   const int n = inferredB.getNrCharacters();
@@ -106,8 +153,8 @@ void Comparison::getTaxaClusteringMetrics(double& RI,
                                           double& recall,
                                           double& precision) const
 {
-  Matrix trueB = _trueT.getMatrix();
-  Matrix inferredB = _inferredT.getMatrix();
+  Matrix trueB = _trueT.getMatrixB();
+  Matrix inferredB = _inferredT.getMatrixB();
   
   assert(trueB.getNrCharacters() == inferredB.getNrCharacters());
   const int m = trueB.getNrTaxa();

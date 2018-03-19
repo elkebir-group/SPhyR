@@ -39,7 +39,12 @@ public:
   
   int getBackMutationCount() const;
   
-  Matrix getMatrix() const;
+  Matrix getMatrixB() const;
+  
+  virtual Matrix getMatrixA() const
+  {
+    return getMatrixB();
+  }
   
 protected:
   typedef Digraph::ArcMap<IntPairVector> IntPairVectorArcMap;

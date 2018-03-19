@@ -234,7 +234,7 @@ void PhylogeneticTree::computeSplits(Node v,
   }
 }
 
-Matrix PhylogeneticTree::getMatrix() const
+Matrix PhylogeneticTree::getMatrixB() const
 {
   const int m = _taxonToLeaf.size();
   const int n = _b[_root].size();
@@ -453,6 +453,22 @@ std::istream& operator>>(std::istream& in, PhylogeneticTree& T)
                                  + "Error: invalid state.");
       }
       T._b[v][idx-1] = val;
+    }
+  }
+  
+  for (ArcIt a(T._T); a != lemon::INVALID; ++a)
+  {
+    Node u = T._T.source(a);
+    Node v = T._T.target(a);
+    
+    assert(T._b[u].size() == T._b[v].size());
+    for (int c = 0; c < T._b[v].size(); ++c)
+    {
+      if (T._b[u][c] != T._b[v][c])
+      {
+        T._charStateLabeling[a].insert(IntPair(c, T._b[v][c]));
+        T._charStateVectorLabeling[a].push_back(IntPair(c, T._b[v][c]));
+      }
     }
   }
   
