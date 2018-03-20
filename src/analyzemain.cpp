@@ -139,9 +139,15 @@ int main(int argc, char** argv)
     double lossF1 = 0;
     compare.computeLossPrecisionAndRecall(lossPrecision, lossRecall, lossF1);
     
+    int flip01_correct, flip10_correct, flip01_incorrect, flip10_incorrect;
+    compare.computeFlips(*pInputB, flip01_correct, flip01_incorrect, flip10_correct, flip10_incorrect);
+    
+    int TN, FN, FP, TP;
+    inferredB.inferConfusionMatrix(trueB, TN, FN, FP, TP);
+    
     if (header)
     {
-      std::cout << "RF,norm_RF,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,output_matrix_acc,input_matrix_acc,output_FN,input_FN,output_FP,input_FP,loss_recall,loss_precision,loss_F1,flip01,flip10" << std::endl;
+      std::cout << "RF,norm_RF,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,loss_recall,loss_precision,loss_F1,flip01_correct,flip01_incorrect,flip10_correct,flip10_incorrect,TN,FN,FP,TP" << std::endl;
     }
     
     // 4. RF
@@ -182,17 +188,17 @@ int main(int argc, char** argv)
               << pInferredT->getParallelEvolutionCount() << ","
               << pTrueT->getBackMutationCount() << ","
               << pTrueT->getParallelEvolutionCount() << ","
-              << inferredB.getFracIdentical(trueB) << ","
-              << pInputB->getFracIdentical(trueB) << ","
-              << inferredB.getFracIncorrect0(trueB) << ","
-              << pInputB->getFracIncorrect0(trueB) << ","
-              << inferredB.getFracIncorrect1(trueB) << ","
-              << pInputB->getFracIncorrect1(trueB) << ","
               << lossRecall << ","
               << lossPrecision << ","
               << lossF1 << ","
-              << inferredB.getNrFlip01(*pInputB) << ","
-              << inferredB.getNrFlip10(*pInputB)
+              << flip01_correct << ","
+              << flip01_incorrect << ","
+              << flip10_correct << ","
+              << flip10_incorrect << ","
+              << TN << ","
+              << FN << ","
+              << FP << ","
+              << TP
               << std::endl;
   }
   

@@ -28,117 +28,54 @@ public:
   /// @param filename Filename
   static Matrix* parse(const std::string& filename);
   
-  /// Return fraction of identical entries
+  /// Infer confusion matrix
   ///
-  /// @param other Matrix
-  double getFracIdentical(const Matrix& other) const
+  /// @param trueMatrix The true solution
+  /// @param TN True negative
+  /// @param FN False negative
+  /// @param FP False positive
+  /// @param TP True positive
+  void inferConfusionMatrix(const Matrix& trueMatrix,
+                            int& TN, int& FN, int& FP, int& TP) const
   {
-    if (other._m != _m || other._n != _n)
-    {
-      return 0;
-    }
+    assert(trueMatrix._m == _m);
+    assert(trueMatrix._n == _n);
     
-    double res = 0;
+    TN = FN = FP = TP = 0;
     for (int p = 0; p < _m; ++p)
     {
       for (int c = 0; c < _n; ++c)
       {
-        if (getEntry(p, c) == other.getEntry(p, c))
-          res += 1;
-      }
-    }
-    
-    return res / (_m * _n);
-  }
-  
-  int getNrFlip01(const Matrix& inputMatrix) const
-  {
-    if (inputMatrix._m != _m || inputMatrix._n != _n)
-    {
-      return -1;
-    }
-    
-    int res = 0;
-    for (int p = 0; p < _m; ++p)
-    {
-      for (int c = 0; c < _n; ++c)
-      {
-        if (inputMatrix.getEntry(p, c) == 0 && getEntry(p, c) == 1)
-          res += 1;
-      }
-    }
-    
-    return res;
-  }
-  
-  int getNrFlip10(const Matrix& inputMatrix) const
-  {
-    if (inputMatrix._m != _m || inputMatrix._n != _n)
-    {
-      return -1;
-    }
-    
-    int res = 0;
-    for (int p = 0; p < _m; ++p)
-    {
-      for (int c = 0; c < _n; ++c)
-      {
-        if (inputMatrix.getEntry(p, c) == 1 && getEntry(p, c) == 0)
-          res += 1;
-      }
-    }
-    
-    return res;
-  }
-  
-  double getFracIncorrect0(const Matrix& other) const
-  {
-    if (other._m != _m || other._n != _n)
-    {
-      return 1;
-    }
-    
-    double res = 0;
-    int tot = 0;
-    for (int p = 0; p < _m; ++p)
-    {
-      for (int c = 0; c < _n; ++c)
-      {
-        if (other.getEntry(p, c) == 1)
+        if (getEntry(p, c) == 0)
         {
-          ++tot;
-          if (getEntry(p, c) == 0)
-            res += 1;
+          // negative
+          if (trueMatrix.getEntry(p, c) == 0)
+          {
+            // true negative
+            ++TN;
+          }
+          else
+          {
+            // false negative
+            ++FN;
+          }
+        }
+        else
+        {
+          // positive
+          if (trueMatrix.getEntry(p, c) == 0)
+          {
+            // false positive
+            ++FP;
+          }
+          else
+          {
+            // true positive
+            ++TP;
+          }
         }
       }
     }
-    
-    return res / tot;
-  }
-  
-  double getFracIncorrect1(const Matrix& other) const
-  {
-    if (other._m != _m || other._n != _n)
-    {
-      return 1;
-    }
-    
-    double res = 0;
-    int tot = 0;
-    for (int p = 0; p < _m; ++p)
-    {
-      for (int c = 0; c < _n; ++c)
-      {
-        if (other.getEntry(p, c) == 0)
-        {
-          ++tot;
-          if (getEntry(p, c) == 1)
-            res += 1;
-        }
-      }
-    }
-    
-    return res / tot;
   }
   
   /// Return number of taxa

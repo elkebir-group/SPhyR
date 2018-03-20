@@ -24,6 +24,59 @@ Comparison::Comparison(const PhylogeneticTree& trueT,
                                 std::inserter(_symDiffSplits, _symDiffSplits.begin()));
 }
 
+void Comparison::computeFlips(const Matrix& input,
+                              int& flip01_correct, int& flip01_incorrect,
+                              int& flip10_correct, int& flip10_incorrect) const
+{
+  Matrix trueB = _trueT.getMatrixB();
+  Matrix inferredB = _inferredT.getMatrixB();
+  
+  assert(trueB.getNrTaxa() == inferredB.getNrTaxa());
+  const int m = inferredB.getNrTaxa();
+  
+  assert(trueB.getNrCharacters() == inferredB.getNrCharacters());
+  const int n = inferredB.getNrCharacters();
+  
+  assert(m == input.getNrTaxa());
+  assert(n == input.getNrCharacters());
+  
+  flip01_correct = flip10_correct = flip01_incorrect = flip10_incorrect = 0;
+  for (int p = 0; p < m; ++p)
+  {
+    for (int c = 0; c < n; ++c)
+    {
+      int input_pc = input.getEntry(p, c);
+      int output_pc = inferredB.getEntry(p, c);
+      int true_pc = trueB.getEntry(p, c);
+      if (input_pc != output_pc)
+      {
+        if (output_pc == true_pc)
+        {
+          if (output_pc == 1)
+          {
+            ++flip01_correct;
+          }
+          else
+          {
+            ++flip10_correct;
+          }
+        }
+        else
+        {
+          if (output_pc == 1)
+          {
+            ++flip01_incorrect;
+          }
+          else
+          {
+            ++flip10_incorrect;
+          }
+        }
+      }
+    }
+  }
+}
+
 void Comparison::computeLossPrecisionAndRecall(double& precision,
                                                double& recall,
                                                double& lossF1) const

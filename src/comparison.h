@@ -43,6 +43,10 @@ public:
                                      double& recall,
                                      double& lossF1) const;
   
+  void computeFlips(const Matrix& input,
+                    int& flip01_correct, int& flip01_incorrect,
+                    int& flip10_correct, int& flip10_incorrect) const;
+  
 private:
   /// True phylogenetic tree
   const PhylogeneticTree& _trueT;

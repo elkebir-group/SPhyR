@@ -255,7 +255,27 @@ void ColumnGen::initConstraints()
     }
   }
   
+  IloExpr prevSum(_env);
+  for (int c = 0; c < _n; c++)
+  {
+    for (int i = 2; i <= _k + 1; ++i)
+    {
+      for (int p = 0; p < _m; p++)
+      {
+        sum += _A[p][c][i];
+      }
+      if (i > 2)
+      {
+        _model.add(prevSum >= sum);
+      }
+      
+      std::swap(prevSum, sum);
+      sum.clear();
+    }
+  }
+  
   sum.end();
+  prevSum.end();
 }
 
 void ColumnGen::initVariables()
