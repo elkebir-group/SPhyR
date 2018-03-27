@@ -37,7 +37,8 @@ public:
   
   void recallCharStatePairs(double& ancestralRecall,
                             double& incomparableRecall,
-                            double& clusteredRecall) const;
+                            double& clusteredRecall,
+                            bool ignoreLoss) const;
   
   void computeLossPrecisionAndRecall(double& precision,
                                      double& recall,

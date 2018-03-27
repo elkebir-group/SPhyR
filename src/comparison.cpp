@@ -126,17 +126,20 @@ void Comparison::computeLossPrecisionAndRecall(double& precision,
 
 void Comparison::recallCharStatePairs(double& ancestralRecall,
                                       double& incomparableRecall,
-                                      double& clusteredRecall) const
+                                      double& clusteredRecall,
+                                      bool ignoreLoss) const
 {
   PhylogeneticTree::TwoCharStatesSet trueAncestralSet, trueIncomparableSet, trueClusteredSet;
   _trueT.computePairs(trueAncestralSet,
                       trueIncomparableSet,
-                      trueClusteredSet);
+                      trueClusteredSet,
+                      ignoreLoss);
   
   PhylogeneticTree::TwoCharStatesSet inferredAncestralSet, inferredIncomparableSet, inferredClusteredSet;
   _inferredT.computePairs(inferredAncestralSet,
                           inferredIncomparableSet,
-                          inferredClusteredSet);
+                          inferredClusteredSet,
+                          ignoreLoss);
   
   PhylogeneticTree::TwoCharStatesSet commonAncestralSet, commonIncomparableSet, commonClusteredSet;
   std::set_intersection(trueAncestralSet.begin(), trueAncestralSet.end(),

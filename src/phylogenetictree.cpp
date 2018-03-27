@@ -118,7 +118,8 @@ void PhylogeneticTree::collapseBranches()
 
 void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
                                     TwoCharStatesSet& incomparable,
-                                    TwoCharStatesSet& clustered) const
+                                    TwoCharStatesSet& clustered,
+                                    bool ignoreLoss) const
 {
   const int n = _b[_root].size();
   
@@ -134,8 +135,17 @@ void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
     for (IntPair ci : _charStateLabeling[a])
     {
       if (ci.second >= 2)
-        ci.second = 0;
-      charStateToArc[ci.first][ci.second].push_back(a);
+      {
+        if (!ignoreLoss)
+        {
+          ci.second = 0;
+          charStateToArc[ci.first][ci.second].push_back(a);
+        }
+      }
+      else
+      {
+        charStateToArc[ci.first][ci.second].push_back(a);
+      }
     }
   }
   
@@ -169,7 +179,10 @@ void PhylogeneticTree::computePairs(TwoCharStatesSet& ancestral,
               }
               else if (isIncomparable(a_ci, a_dj))
               {
-                incomparable.insert(TwoCharStates(ci, dj));
+                if (ci < dj)
+                {
+                  incomparable.insert(TwoCharStates(ci, dj));
+                }
               }
             }
           }

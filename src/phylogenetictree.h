@@ -33,7 +33,8 @@ public:
   
   void computePairs(TwoCharStatesSet& ancestral,
                     TwoCharStatesSet& incomparable,
-                    TwoCharStatesSet& clustered) const;
+                    TwoCharStatesSet& clustered,
+                    bool ignoreLoss) const;
   
   int getParallelEvolutionCount() const;
   

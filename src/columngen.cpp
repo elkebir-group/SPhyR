@@ -334,7 +334,6 @@ int ColumnGen::separate()
   std::set<IntPair> activationSet;
   typedef std::set<int> IntSet;
   
-  bool res = false;
   for (int c = 0; c < _n; ++c)
   {
     for (int d = c + 1; d < _n; ++d)

@@ -121,8 +121,11 @@ int main(int argc, char** argv)
     
     Comparison compare(*pTrueT, *pInferredT);
     
+    double ancestralLossRecall, incomparableLossRecall, clusteredLossRecall;
+    compare.recallCharStatePairs(ancestralLossRecall, incomparableLossRecall, clusteredLossRecall, false);
+    
     double ancestralRecall, incomparableRecall, clusteredRecall;
-    compare.recallCharStatePairs(ancestralRecall, incomparableRecall, clusteredRecall);
+    compare.recallCharStatePairs(ancestralRecall, incomparableRecall, clusteredRecall, true);
     
     double taxaRI, taxaRecall, taxaPrecision;
     compare.getTaxaClusteringMetrics(taxaRI, taxaRecall, taxaPrecision);
@@ -145,9 +148,12 @@ int main(int argc, char** argv)
     int TN, FN, FP, TP;
     inferredB.inferConfusionMatrix(trueB, TN, FN, FP, TP);
     
+    int inTN, inFN, inFP, inTP;
+    pInputB->inferConfusionMatrix(trueB, inTN, inFN, inFP, inTP);
+    
     if (header)
     {
-      std::cout << "RF,norm_RF,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,loss_recall,loss_precision,loss_F1,flip01_correct,flip01_incorrect,flip10_correct,flip10_incorrect,TN,FN,FP,TP" << std::endl;
+      std::cout << "RF,norm_RF,anc_loss_recall,inc_loss_recall,cls_loss_recall,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,loss_recall,loss_precision,loss_F1,flip01_correct,flip01_incorrect,flip10_correct,flip10_incorrect,TN,FN,FP,TP,ones,zeros,inTN,inFN,inFP,inTP" << std::endl;
     }
     
     // 4. RF
@@ -174,6 +180,9 @@ int main(int argc, char** argv)
     // 24. input matrix fraction of incorrect 1s
     std::cout << compare.getRF() << ","
               << compare.getNormalizedRF() << ","
+              << ancestralLossRecall << ","
+              << incomparableLossRecall << ","
+              << clusteredLossRecall << ","
               << ancestralRecall << ","
               << incomparableRecall << ","
               << clusteredRecall << ","
@@ -198,7 +207,13 @@ int main(int argc, char** argv)
               << TN << ","
               << FN << ","
               << FP << ","
-              << TP
+              << TP << ","
+              << pInputB->getCount(1) << ","
+              << pInputB->getCount(0) << ","
+              << inTN << ","
+              << inFN << ","
+              << inFP << ","
+              << inTP << ","
               << std::endl;
   }
   

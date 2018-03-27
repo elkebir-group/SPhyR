@@ -66,7 +66,7 @@ void ColumnGenFlipClustered::initActiveVariables()
         }
       }
       
-      if (g_tol.nonZero(_alpha))
+//      if (g_tol.nonZero(_alpha))
       {
         if (log_1_minus_beta * count0 + log_alpha * count1 > log_beta * count0 + log_1_minus_alpha * count1)
         {
@@ -85,25 +85,25 @@ void ColumnGenFlipClustered::initActiveVariables()
           ++_nrActiveVariables;
         }
       }
-      else
-      {
-        if (count1 > 0)
-        {
-          _activeVariables[h][f][1] = true;
-          ++_nrActiveVariables;
-        }
-        else
-        {
-          _activeVariables[h][f][0] = true;
-          ++_nrActiveVariables;
-          
-          for (int i = 2; i <= _k + 1; ++i)
-          {
-            _activeVariables[h][f][i] = true;
-            ++_nrActiveVariables;
-          }
-        }
-      }
+//      else
+//      {
+//        if (count1 > 0)
+//        {
+//          _activeVariables[h][f][1] = true;
+//          ++_nrActiveVariables;
+//        }
+//        else
+//        {
+//          _activeVariables[h][f][0] = true;
+//          ++_nrActiveVariables;
+//
+//          for (int i = 2; i <= _k + 1; ++i)
+//          {
+//            _activeVariables[h][f][i] = true;
+//            ++_nrActiveVariables;
+//          }
+//        }
+//      }
     }
   }
   updateVariableBounds();
@@ -177,7 +177,7 @@ void ColumnGenFlipClustered::initObjective()
           }
         }
       }
-      else if (d_pc == 1 && g_tol.nonZero(_alpha))
+      else if (d_pc == 1)// && g_tol.nonZero(_alpha))
       {
         for (int j = 0; j <= _k + 1; ++j)
         {
@@ -201,10 +201,7 @@ void ColumnGenFlipClustered::initObjective()
   // TODO: minimize losses?
   IloExpr lossSum(_env);
   double unit = 0;
-  if (g_tol.nonZero(_alpha))
-    unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
-  else
-    unit = std::max(log_beta, log_1_minus_beta);
+  unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
   
   for (int h = 0; h < _lT; h++)
   {

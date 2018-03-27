@@ -113,6 +113,22 @@ public:
     return res;
   }
   
+  int getCount(int value) const
+  {
+    int count = 0;
+    for (int p = 0; p < _m; ++p)
+    {
+      for (int c = 0; c < _n; ++c)
+      {
+        if (getEntry(p, c) == value)
+        {
+          ++count;
+        }
+      }
+    }
+    return count;
+  }
+  
   /// Return input entry
   ///
   /// @param p Taxon
