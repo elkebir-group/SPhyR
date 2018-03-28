@@ -68,7 +68,8 @@ private:
   double solveE(int timeLimit,
                 int memoryLimit,
                 int nrThreads,
-                bool verbose);
+                bool verbose,
+                bool& success);
   
   double solveZC();
   

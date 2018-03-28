@@ -84,7 +84,7 @@ double Matrix::getLogLikelihood(const Matrix& inferredMatrix,
             res += log_alpha;
           }
         }
-        else
+        else if (d_pc != -1)
         {
           // loss (>= 2) or normal (0)
           assert(d_pc == 0 || d_pc >= 2);

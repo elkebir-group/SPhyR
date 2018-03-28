@@ -64,7 +64,7 @@ void PhylogeneticTree::writeDOT(std::ostream& out) const
   {
     Node u = _T.source(a);
     Node v = _T.target(a);
-
+    
     out << "\t" << _T.id(u) << " -> " << _T.id(v) << " [label=\"";
     bool first = true;
     for (const IntPair& ci : _charStateLabeling[a])
@@ -74,6 +74,75 @@ void PhylogeneticTree::writeDOT(std::ostream& out) const
       else
         out << "\\n";
       out << ci.first << "," << ci.second;
+    }
+    out << "\"]" << std::endl;
+  }
+  
+  out << "}" << std::endl;
+}
+
+void PhylogeneticTree::writeDOT(std::ostream& out,
+                                const StringVector& taxonLabel,
+                                const StringVector& characterLabel) const
+{
+  out << "digraph T {" << std::endl;
+  
+  Digraph::NodeMap<NodeVector> leavesMap(_T);
+  
+  for (NodeIt v(_T); v != lemon::INVALID; ++v)
+  {
+    if (OutArcIt(_T, v) == lemon::INVALID)
+    {
+//      out << "\t" << _T.id(v) << " [label=\"" << taxonLabel[_leafToTaxon[v]] << "\"]" << std::endl;
+      Node u = _T.source(InArcIt(_T, v));
+      leavesMap[u].push_back(v);
+    }
+    else
+    {
+      out << "\t" << _T.id(v) << " [label=\"\"]" << std::endl;
+    }
+  }
+  
+  for (NodeIt v(_T); v != lemon::INVALID; ++v)
+  {
+    if (!leavesMap[v].empty())
+    {
+      Node w = leavesMap[v].front();
+      out << "\t" << _T.id(v) << " -> " << _T.id(w) << std::endl;
+      out << "\t" << _T.id(w) << " [label=\"";
+      
+      for (Node ww : leavesMap[v])
+      {
+        if (ww != w)
+          out << "\\n";
+        out << taxonLabel[_leafToTaxon[ww]];
+      }
+      out << "\"]" << std::endl;
+    }
+  }
+  
+  for (ArcIt a(_T); a != lemon::INVALID; ++a)
+  {
+    Node u = _T.source(a);
+    Node v = _T.target(a);
+    
+    if (OutArcIt(_T, v) == lemon::INVALID)
+      continue;
+
+    out << "\t" << _T.id(u) << " -> " << _T.id(v) << " [label=\"";
+    bool first = true;
+    for (const IntPair& ci : _charStateLabeling[a])
+    {
+      if (first)
+        first = false;
+      else
+        out << "\\n";
+      
+      if (ci.second == 0 || ci.second >= 2)
+      {
+        out << "-";
+      }
+      out << characterLabel[ci.first];
     }
     out << "\"]" << std::endl;
   }

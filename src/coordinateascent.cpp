@@ -127,7 +127,8 @@ void CoordinateAscent::initZ(int seed)
 double CoordinateAscent::solveE(int timeLimit,
                                 int memoryLimit,
                                 int nrThreads,
-                                bool verbose)
+                                bool verbose,
+                                bool& success)
 {
 //  IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
   ColumnGenFlipClustered solvePhylogeny(_D, _multiplicities, _baseL,
@@ -138,7 +139,7 @@ double CoordinateAscent::solveE(int timeLimit,
   {
     solvePhylogeny.initHotStart(_E);
   }
-  solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads, verbose);
+  success = solvePhylogeny.solve(timeLimit, memoryLimit, nrThreads, verbose);
   
   _E = solvePhylogeny.getSolA();
 #ifdef DEBUG
@@ -334,33 +335,36 @@ bool CoordinateAscent::solve(int timeLimit,
   // MEK: limit maximum number of iterations in one restart
   const int maxIterations = 100;
   
-  Matrix bestA;
-  double bestLikelihood = -std::numeric_limits<double>::max();
-  StlIntVector bestZT, bestZC;
+  Matrix bestA(_D.getNrTaxa(), _E.getNrCharacters());
+  double bestLikelihood = computeLogLikelihood();
+  _L = bestLikelihood;
+  StlIntVector bestZT = _zT, bestZC = _zC;
   
-  for (_restart = 1; _restart <= nrRestarts; ++_restart)
+  bool timeLeft = true;
+  for (_restart = 1; _restart <= nrRestarts && timeLeft; ++_restart)
   {
     initZ(_seed + _restart - 1);
     
     double delta = 1;
     int iteration = 1;
-    _L = -std::numeric_limits<double>::max();
-    while (g_tol.nonZero(delta) && iteration <= maxIterations)
+    double L = -std::numeric_limits<double>::max();
+    while (g_tol.nonZero(delta) && iteration <= maxIterations && timeLeft)
     {
-      double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose);
+      double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose, timeLeft);
       std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
 //      std::cout << _E << std::endl;
-      assert(!g_tol.less(LLL, _L));
+      assert(!g_tol.less(LLL, L));
       
       double LL = solveZT();
       std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;
-      double L = solveZC();
-      std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zC step -- log likelihood " << L << std::endl;
+      double newL = solveZC();
+      std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zC step -- log likelihood " << newL << std::endl;
 //      std::cout << _E << std::endl;
       std::cerr << std::endl;
       
-      delta = L - _L;
-      _L = L;
+      delta = newL - L;
+      _L = newL;
+      L = newL;
       ++iteration;
     }
     

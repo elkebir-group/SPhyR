@@ -20,7 +20,7 @@ int main(int argc, char** argv)
   double gamma = 0.2;
   int lC = 10;
   int lT = 10;
-  bool exact = false;
+//  bool exact = false;
   int seed = 0;
   int memoryLimit = -1;
   int nrThreads = 1;
@@ -36,10 +36,10 @@ int main(int argc, char** argv)
     .refOption("c", "Loss rate (default: 0.2)", gamma)
     .refOption("lC", "Number of SNV clusters (default: 10)", lC)
     .refOption("lT", "Number of cell clusters (default: 10)", lT)
-    .refOption("exact", "Exact algorithm", exact)
+//    .refOption("exact", "Exact algorithm", exact)
     .refOption("N", "Number of restarts (default: 1)", restarts)
     .refOption("s", "Random number generator seed (default: 0)", seed)
-    .refOption("T", "Time limit in seconds (default: -1, unlimited). Only used with -exact.", timeLimit)
+    .refOption("T", "Time limit in seconds (default: -1, unlimited).", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
     .refOption("v", "Verbose output", verbose)
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
                         characterMapping,
                         taxonMapping,
                         k, lazy, alpha, beta, gamma, lT, lC, seed);
-    ca.solve(-1, memoryLimit, nrThreads, verbose, restarts);
+    ca.solve(timeLimit, memoryLimit, nrThreads, verbose, restarts);
     Matrix bestA = ca.getE();
 //    std::cout << bestA << std::endl;
     bestA = bestA.expandColumns(ca.getZC());

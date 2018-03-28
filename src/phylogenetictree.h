@@ -21,6 +21,10 @@ public:
   
   void writeDOT(std::ostream& out) const;
   
+  void writeDOT(std::ostream& out,
+                const StringVector& taxonLabel,
+                const StringVector& characterLabel) const;
+  
   typedef std::pair<StlIntSet, StlIntSet> Split;
   
   typedef std::set<Split> SplitSet;

@@ -11,6 +11,21 @@
 #include <lemon/arg_parser.h>
 #include <fstream>
 
+StringVector parseLabels(const std::string& filename)
+{
+  StringVector labels;
+  
+  std::ifstream inFile(filename.c_str());
+  while (inFile.good())
+  {
+    std::string label;
+    getline(inFile, label);
+    labels.push_back(label);
+  }
+  
+  return labels;
+}
+
 int main(int argc, char** argv)
 {
   std::string filename, charLabelsFilename, taxonLabelsFilename;
@@ -28,12 +43,22 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  StringVector characterLabels = parseLabels(charLabelsFilename);
+  StringVector taxonLabels = parseLabels(taxonLabelsFilename);
+
   if (tree)
   {
     PhylogeneticTree* pTree = PhylogeneticTree::parse(ap.files()[0]);
     if (pTree)
     {
-      pTree->writeDOT(std::cout);
+      if (characterLabels.empty() || taxonLabels.empty())
+      {
+        pTree->writeDOT(std::cout);
+      }
+      else
+      {
+        pTree->writeDOT(std::cout, taxonLabels, characterLabels);
+      }
     }
     else
     {
@@ -45,7 +70,14 @@ int main(int argc, char** argv)
     DolloPhylogeneticTree* pTree = DolloPhylogeneticTree::parse(ap.files()[0]);
     if (pTree)
     {
-      pTree->writeDOT(std::cout);
+      if (characterLabels.empty() || taxonLabels.empty())
+      {
+        pTree->writeDOT(std::cout);
+      }
+      else
+      {
+        pTree->writeDOT(std::cout, taxonLabels, characterLabels);
+      }
     }
     else
     {

@@ -695,7 +695,7 @@ bool ColumnGen::solve(int timeLimit,
   }
   if (timeLimit > 0)
   {
-    _cplex.setParam(IloCplex::TiLim, timeLimit);
+    _cplex.setParam(IloCplex::TiLim, timeLimit - g_timer.realTime());
   }
   if (memoryLimit > 0)
   {
