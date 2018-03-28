@@ -353,7 +353,7 @@ bool CoordinateAscent::solve(int timeLimit,
       double LLL = solveE(timeLimit, memoryLimit, nrThreads, verbose, timeLeft);
       std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- E step -- log likelihood " << LLL << std::endl;
 //      std::cout << _E << std::endl;
-      assert(!g_tol.less(LLL, L));
+      assert(!timeLeft || !g_tol.less(LLL, L));
       
       double LL = solveZT();
       std::cerr << "Restart " << _restart << " -- iteration " << iteration << " -- zT step -- log likelihood " << LL << std::endl;

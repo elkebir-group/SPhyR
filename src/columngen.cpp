@@ -695,7 +695,10 @@ bool ColumnGen::solve(int timeLimit,
   }
   if (timeLimit > 0)
   {
-    _cplex.setParam(IloCplex::TiLim, timeLimit - g_timer.realTime());
+    int t = timeLimit - g_timer.realTime();
+    if (t < 0)
+      return false;
+    _cplex.setParam(IloCplex::TiLim, t);
   }
   if (memoryLimit > 0)
   {
@@ -724,7 +727,7 @@ bool ColumnGen::solve(int timeLimit,
     }
     
     _cplex.solve();
-    if (_cplex.getStatus() != IloAlgorithm::Optimal)
+    if (_cplex.getStatus() != IloAlgorithm::Optimal || _cplex.getCplexStatus() == IloCplex::AbortTimeLim)
     {
       res = false;
       break;
