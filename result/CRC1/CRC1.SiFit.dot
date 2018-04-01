@@ -1,0 +1,621 @@
+digraph T {
+	353 [label=""]
+	349 [label=""]
+	348 [label=""]
+	347 [label=""]
+	346 [label=""]
+	344 [label=""]
+	342 [label=""]
+	339 [label=""]
+	338 [label=""]
+	337 [label=""]
+	336 [label=""]
+	333 [label=""]
+	332 [label=""]
+	330 [label=""]
+	328 [label=""]
+	326 [label=""]
+	324 [label=""]
+	321 [label=""]
+	318 [label=""]
+	312 [label=""]
+	308 [label=""]
+	307 [label=""]
+	303 [label=""]
+	302 [label=""]
+	301 [label=""]
+	300 [label=""]
+	298 [label=""]
+	296 [label=""]
+	293 [label=""]
+	290 [label=""]
+	287 [label=""]
+	285 [label=""]
+	283 [label=""]
+	281 [label=""]
+	279 [label=""]
+	277 [label=""]
+	275 [label=""]
+	273 [label=""]
+	270 [label=""]
+	265 [label=""]
+	260 [label=""]
+	259 [label=""]
+	258 [label=""]
+	256 [label=""]
+	254 [label=""]
+	252 [label=""]
+	250 [label=""]
+	246 [label=""]
+	245 [label=""]
+	244 [label=""]
+	243 [label=""]
+	242 [label=""]
+	240 [label=""]
+	239 [label=""]
+	238 [label=""]
+	231 [label=""]
+	230 [label=""]
+	229 [label=""]
+	228 [label=""]
+	227 [label=""]
+	224 [label=""]
+	221 [label=""]
+	216 [label=""]
+	214 [label=""]
+	213 [label=""]
+	211 [label=""]
+	209 [label=""]
+	208 [label=""]
+	207 [label=""]
+	206 [label=""]
+	205 [label=""]
+	203 [label=""]
+	202 [label=""]
+	198 [label=""]
+	197 [label=""]
+	195 [label=""]
+	194 [label=""]
+	193 [label=""]
+	189 [label=""]
+	188 [label=""]
+	186 [label=""]
+	184 [label=""]
+	181 [label=""]
+	177 [label=""]
+	175 [label=""]
+	172 [label=""]
+	171 [label=""]
+	170 [label=""]
+	169 [label=""]
+	167 [label=""]
+	166 [label=""]
+	165 [label=""]
+	164 [label=""]
+	162 [label=""]
+	161 [label=""]
+	159 [label=""]
+	157 [label=""]
+	156 [label=""]
+	155 [label=""]
+	154 [label=""]
+	153 [label=""]
+	152 [label=""]
+	151 [label=""]
+	147 [label=""]
+	145 [label=""]
+	143 [label=""]
+	142 [label=""]
+	141 [label=""]
+	140 [label=""]
+	139 [label=""]
+	138 [label=""]
+	134 [label=""]
+	133 [label=""]
+	130 [label=""]
+	126 [label=""]
+	125 [label=""]
+	123 [label=""]
+	119 [label=""]
+	117 [label=""]
+	116 [label=""]
+	114 [label=""]
+	111 [label=""]
+	108 [label=""]
+	106 [label=""]
+	102 [label=""]
+	101 [label=""]
+	100 [label=""]
+	99 [label=""]
+	94 [label=""]
+	92 [label=""]
+	90 [label=""]
+	87 [label=""]
+	85 [label=""]
+	84 [label=""]
+	83 [label=""]
+	81 [label=""]
+	80 [label=""]
+	79 [label=""]
+	74 [label=""]
+	71 [label=""]
+	69 [label=""]
+	67 [label=""]
+	65 [label=""]
+	59 [label=""]
+	58 [label=""]
+	57 [label=""]
+	56 [label=""]
+	54 [label=""]
+	53 [label=""]
+	50 [label=""]
+	44 [label=""]
+	42 [label=""]
+	39 [label=""]
+	37 [label=""]
+	36 [label=""]
+	31 [label=""]
+	30 [label=""]
+	27 [label=""]
+	25 [label=""]
+	24 [label=""]
+	20 [label=""]
+	19 [label=""]
+	18 [label=""]
+	17 [label=""]
+	16 [label=""]
+	15 [label=""]
+	13 [label=""]
+	12 [label=""]
+	10 [label=""]
+	8 [label=""]
+	7 [label=""]
+	6 [label=""]
+	5 [label=""]
+	4 [label=""]
+	3 [label=""]
+	1 [label=""]
+	0 [label=""]
+	349 -> 351
+	351 [label="PD_19 PA_90"]
+	348 -> 354
+	354 [label="PA_50"]
+	344 -> 345
+	345 [label="PA_64"]
+	339 -> 343
+	343 [label="PA_56"]
+	338 -> 341
+	341 [label="PA_54 PA_51"]
+	336 -> 352
+	352 [label="MD_25"]
+	333 -> 335
+	335 [label="PD_40 PD_41"]
+	328 -> 331
+	331 [label="PDD_93"]
+	326 -> 329
+	329 [label="PDD_33"]
+	324 -> 327
+	327 [label="PDD_66"]
+	321 -> 323
+	323 [label="PDD_14 PDD_77"]
+	318 -> 320
+	320 [label="PDD_32"]
+	312 -> 315
+	315 [label="PD_39"]
+	308 -> 311
+	311 [label="PDD_5"]
+	307 -> 310
+	310 [label="PDD_69 PDD_12"]
+	302 -> 305
+	305 [label="PDD_22 PDD_83"]
+	301 -> 317
+	317 [label="PDD_37 PDD_15"]
+	296 -> 306
+	306 [penwidth=3,color=red,label="MA_68"]
+	293 -> 295
+	295 [label="PDD_39 PDD_68"]
+	290 -> 292
+	292 [label="PDD_70"]
+	287 -> 289
+	289 [penwidth=3,color=red,label="MA_61"]
+	285 -> 288
+	288 [penwidth=3,color=red,label="MA_73"]
+	283 -> 286
+	286 [penwidth=3,color=red,label="MA_56"]
+	281 -> 284
+	284 [penwidth=3,color=red,label="MA_74"]
+	279 -> 282
+	282 [penwidth=3,color=red,label="MA_77"]
+	277 -> 280
+	280 [penwidth=3,color=red,label="MA_76"]
+	275 -> 278
+	278 [label="PA_80"]
+	273 -> 276
+	276 [label="PA_61"]
+	270 -> 272
+	272 [label="PA_53 PA_66"]
+	265 -> 268
+	268 [penwidth=3,color=red,label="MA_65"]
+	260 -> 263
+	263 [penwidth=3,color=red,label="PA_57 MA_69"]
+	259 -> 261
+	261 [penwidth=3,color=red,label="MA_67"]
+	258 -> 314
+	314 [label="PA_77 PA_70"]
+	256 -> 257
+	257 [label="PA_87"]
+	254 -> 297
+	297 [penwidth=3,color=red,label="MA_62"]
+	252 -> 253
+	253 [penwidth=3,color=red,label="MA_52"]
+	250 -> 251
+	251 [penwidth=3,color=red,label="MA_54"]
+	246 -> 248
+	248 [label="PA_89 PA_52"]
+	245 -> 255
+	255 [label="PA_78"]
+	243 -> 267
+	267 [label="MD_1 PDD_6"]
+	242 -> 264
+	264 [penwidth=3,color=red,label="MA_51"]
+	240 -> 249
+	249 [label="PA_63"]
+	239 -> 269
+	269 [label="PD_44"]
+	238 -> 241
+	241 [label="PA_62"]
+	230 -> 235
+	235 [label="PA_83 PA_88"]
+	228 -> 274
+	274 [label="PA_76"]
+	224 -> 226
+	226 [penwidth=3,color=red,label="MA_55 MA_50"]
+	221 -> 223
+	223 [label="PDD_94 PD_26"]
+	216 -> 218
+	218 [label="PD_13 PDD_52"]
+	214 -> 215
+	215 [label="PA_81"]
+	211 -> 212
+	212 [label="PD_31"]
+	209 -> 237
+	237 [label="PD_30 PA_65"]
+	208 -> 210
+	210 [label="PA_91"]
+	207 -> 233
+	233 [label="PA_74 PA_75"]
+	202 -> 204
+	204 [label="PA_85"]
+	198 -> 220
+	220 [penwidth=3,color=red,label="MA_64 MA_58"]
+	197 -> 199
+	199 [penwidth=3,color=red,label="MA_75"]
+	195 -> 201
+	201 [penwidth=3,color=red,label="MA_49 MA_66"]
+	194 -> 196
+	196 [penwidth=3,color=red,label="MD_7"]
+	189 -> 192
+	192 [label="PDD_46 PDD_91"]
+	188 -> 190
+	190 [label="PDD_53"]
+	186 -> 187
+	187 [label="PDD_40"]
+	181 -> 183
+	183 [label="PDD_59 PDD_42"]
+	177 -> 179
+	179 [label="PDD_31 PDD_76"]
+	175 -> 176
+	176 [label="MD_19"]
+	172 -> 174
+	174 [label="PDD_25"]
+	171 -> 180
+	180 [label="PDD_30"]
+	170 -> 173
+	173 [label="PDD_4"]
+	167 -> 168
+	168 [label="PDD_36"]
+	166 -> 185
+	185 [label="PDD_92"]
+	161 -> 163
+	163 [label="PDD_27"]
+	157 -> 160
+	160 [label="MD_2"]
+	156 -> 158
+	158 [label="PDD_45"]
+	154 -> 299
+	299 [label="PDD_79"]
+	152 -> 319
+	319 [label="PDD_19"]
+	147 -> 150
+	150 [label="PDD_75 PDD_50"]
+	145 -> 148
+	148 [label="PDD_13"]
+	143 -> 146
+	146 [label="PDD_88"]
+	141 -> 144
+	144 [label="PDD_56"]
+	139 -> 325
+	325 [label="PDD_11"]
+	134 -> 137
+	137 [label="MD_5 PDD_16"]
+	133 -> 135
+	135 [label="PDD_34"]
+	130 -> 132
+	132 [label="PDD_54 MD_4"]
+	126 -> 129
+	129 [label="MA_63 PDD_44"]
+	125 -> 127
+	127 [label="PD_37"]
+	123 -> 124
+	124 [label="PDD_90"]
+	119 -> 122
+	122 [label="MD_15 MD_13"]
+	117 -> 120
+	120 [label="PD_27"]
+	116 -> 118
+	118 [label="PDD_20"]
+	114 -> 115
+	115 [label="MD_9"]
+	111 -> 113
+	113 [label="PD_28 MD_6"]
+	108 -> 110
+	110 [label="PDD_28"]
+	106 -> 109
+	109 [label="PDD_82"]
+	102 -> 105
+	105 [label="MD_16 PDD_61"]
+	101 -> 107
+	107 [label="PDD_60"]
+	100 -> 103
+	103 [label="PDD_57"]
+	94 -> 97
+	97 [label="PDD_3 PDD_2"]
+	92 -> 95
+	95 [label="PD_32"]
+	90 -> 93
+	93 [label="PDD_63"]
+	87 -> 89
+	89 [label="PDD_55 PDD_18"]
+	85 -> 91
+	91 [label="PDD_49"]
+	84 -> 86
+	86 [label="PDD_64"]
+	81 -> 98
+	98 [label="PDD_51"]
+	80 -> 82
+	82 [label="MD_3"]
+	74 -> 76
+	76 [label="PDD_43 MD_22"]
+	71 -> 73
+	73 [label="PDD_86 PDD_84"]
+	69 -> 70
+	70 [label="PDD_35"]
+	67 -> 68
+	68 [label="MD_8"]
+	65 -> 66
+	66 [label="PDD_48"]
+	59 -> 64
+	64 [label="PDD_72"]
+	58 -> 61
+	61 [label="PDD_41 PDD_87"]
+	56 -> 78
+	78 [label="PDD_10 PDD_8"]
+	53 -> 55
+	55 [label="MD_23"]
+	50 -> 52
+	52 [label="PDD_47"]
+	44 -> 47
+	47 [label="PDD_24 PDD_74"]
+	42 -> 45
+	45 [label="PDD_73"]
+	39 -> 43
+	43 [label="PDD_23"]
+	37 -> 38
+	38 [label="PDD_38"]
+	36 -> 49
+	49 [label="PDD_9 PDD_85"]
+	31 -> 35
+	35 [label="PDD_58 PDD_1"]
+	30 -> 33
+	33 [label="PDD_62 PDD_89"]
+	27 -> 41
+	41 [penwidth=3,color=red,label="MA_59 MA_53"]
+	24 -> 29
+	29 [label="PDD_71 PDD_17"]
+	20 -> 23
+	23 [label="PD_38 PDD_67"]
+	19 -> 26
+	26 [penwidth=3,color=red,label="MA_57"]
+	18 -> 63
+	63 [label="MD_20 PD_16"]
+	16 -> 21
+	21 [label="MD_21"]
+	13 -> 14
+	14 [label="PDD_26"]
+	7 -> 9
+	9 [label="MD_10"]
+	6 -> 51
+	51 [label="MD_14"]
+	5 -> 11
+	11 [label="PDD_65"]
+	4 -> 291
+	291 [label="PDD_78"]
+	0 -> 2
+	2 [label="PDD_7"]
+	353 -> 224 [label="RBFOX1\nZNF521\n--TPM4\n--TCF7L2"]
+	353 -> 214 [label="--POU2AF1\n--CCNE1"]
+	348 -> 353 [label=""]
+	347 -> 349 [label=""]
+	347 -> 348 [label="TPM4"]
+	346 -> 347 [label=""]
+	346 -> 227 [label=""]
+	344 -> 346 [label=""]
+	342 -> 344 [label="--TPM4"]
+	342 -> 211 [label=""]
+	339 -> 342 [label=""]
+	337 -> 339 [label="TPM4\nPOU2AF1\nTDRP\nMYH9\nROBO2\nFAT3\nCCNE1\nTP53"]
+	337 -> 338 [label="TDRP\nMYH9\nROBO2\nFAT3\nCCNE1\nTP53"]
+	336 -> 7 [label="GATA1\nZNF521\nFAT3\nTP53"]
+	332 -> 337 [label=""]
+	332 -> 336 [label=""]
+	330 -> 333 [label=""]
+	330 -> 332 [label="TCF7L2"]
+	328 -> 330 [label="KRAS"]
+	326 -> 328 [label="APC"]
+	324 -> 326 [label=""]
+	318 -> 321 [label=""]
+	312 -> 74 [label=""]
+	308 -> 312 [label=""]
+	303 -> 308 [label=""]
+	303 -> 307 [label=""]
+	300 -> 303 [label=""]
+	300 -> 302 [label=""]
+	298 -> 301 [label=""]
+	298 -> 300 [label=""]
+	296 -> 259 [label=""]
+	290 -> 293 [label=""]
+	287 -> 193 [label=""]
+	285 -> 287 [label=""]
+	283 -> 285 [label=""]
+	281 -> 283 [label="GATA1"]
+	279 -> 281 [label="RBFOX1"]
+	277 -> 279 [label=""]
+	275 -> 277 [label="TRRAP\nEYS\nZNF521"]
+	273 -> 275 [label=""]
+	265 -> 250 [label=""]
+	259 -> 260 [label=""]
+	256 -> 258 [label=""]
+	254 -> 296 [label=""]
+	252 -> 254 [label="POU2AF1"]
+	250 -> 252 [label="TCF7L2"]
+	245 -> 256 [label=""]
+	244 -> 246 [label=""]
+	244 -> 245 [label=""]
+	242 -> 265 [label=""]
+	240 -> 244 [label=""]
+	239 -> 270 [label=""]
+	238 -> 240 [label=""]
+	231 -> 243 [label="--TRRAP\n--ZNF521\n--FAT3\n--CCNE1"]
+	231 -> 242 [label=""]
+	229 -> 231 [label="GATA1\nRBFOX1\nTRRAP\nEYS\nZNF521\n--POU2AF1\n--TCF7L2"]
+	229 -> 230 [label="--POU2AF1"]
+	228 -> 273 [label=""]
+	227 -> 228 [label=""]
+	227 -> 202 [label=""]
+	214 -> 216 [label="TRRAP\n--TPM4\n--TCF7L2\n--TDRP\n--MYH9\n--ROBO2\n--FAT3\n--TP53\n--APC"]
+	213 -> 238 [label=""]
+	213 -> 221 [label=""]
+	211 -> 213 [label=""]
+	208 -> 209 [label=""]
+	206 -> 208 [label=""]
+	206 -> 207 [label=""]
+	205 -> 239 [label=""]
+	205 -> 229 [label=""]
+	203 -> 206 [label=""]
+	203 -> 205 [label=""]
+	202 -> 203 [label=""]
+	197 -> 198 [label="--FAT3"]
+	194 -> 197 [label="--GATA1"]
+	193 -> 195 [label=""]
+	193 -> 194 [label=""]
+	188 -> 189 [label=""]
+	186 -> 188 [label=""]
+	184 -> 186 [label=""]
+	184 -> 79 [label=""]
+	175 -> 177 [label=""]
+	172 -> 175 [label=""]
+	171 -> 181 [label=""]
+	170 -> 172 [label=""]
+	169 -> 171 [label=""]
+	169 -> 170 [label=""]
+	167 -> 169 [label=""]
+	166 -> 184 [label=""]
+	165 -> 167 [label=""]
+	165 -> 166 [label=""]
+	164 -> 165 [label=""]
+	164 -> 114 [label=""]
+	162 -> 164 [label=""]
+	162 -> 123 [label=""]
+	161 -> 162 [label=""]
+	159 -> 161 [label=""]
+	159 -> 130 [label=""]
+	157 -> 159 [label=""]
+	156 -> 157 [label=""]
+	155 -> 156 [label=""]
+	155 -> 133 [label=""]
+	154 -> 298 [label=""]
+	153 -> 155 [label=""]
+	153 -> 0 [label=""]
+	152 -> 318 [label=""]
+	151 -> 154 [label=""]
+	151 -> 153 [label=""]
+	145 -> 147 [label=""]
+	143 -> 145 [label=""]
+	142 -> 152 [label=""]
+	142 -> 151 [label=""]
+	141 -> 143 [label=""]
+	140 -> 142 [label=""]
+	140 -> 141 [label=""]
+	139 -> 324 [label=""]
+	138 -> 140 [label=""]
+	138 -> 139 [label=""]
+	133 -> 134 [label=""]
+	125 -> 126 [label="TCF7L2\nAPC"]
+	123 -> 125 [label=""]
+	117 -> 119 [label=""]
+	116 -> 117 [label=""]
+	114 -> 116 [label=""]
+	108 -> 111 [label="TRRAP\nEYS\nTP53"]
+	106 -> 108 [label=""]
+	101 -> 106 [label=""]
+	100 -> 102 [label=""]
+	99 -> 101 [label=""]
+	99 -> 100 [label=""]
+	92 -> 94 [label=""]
+	90 -> 92 [label=""]
+	85 -> 90 [label=""]
+	84 -> 87 [label=""]
+	83 -> 85 [label=""]
+	83 -> 84 [label=""]
+	81 -> 99 [label=""]
+	80 -> 83 [label=""]
+	79 -> 81 [label=""]
+	79 -> 80 [label=""]
+	69 -> 71 [label=""]
+	67 -> 69 [label=""]
+	65 -> 67 [label=""]
+	59 -> 65 [label=""]
+	57 -> 59 [label=""]
+	57 -> 58 [label=""]
+	54 -> 57 [label=""]
+	54 -> 56 [label=""]
+	53 -> 54 [label=""]
+	50 -> 53 [label=""]
+	42 -> 44 [label=""]
+	39 -> 42 [label=""]
+	37 -> 39 [label=""]
+	25 -> 31 [label=""]
+	25 -> 30 [label=""]
+	19 -> 27 [label=""]
+	17 -> 25 [label=""]
+	17 -> 24 [label=""]
+	16 -> 20 [label=""]
+	15 -> 17 [label=""]
+	15 -> 16 [label=""]
+	13 -> 15 [label=""]
+	12 -> 37 [label=""]
+	12 -> 36 [label=""]
+	10 -> 13 [label=""]
+	10 -> 12 [label=""]
+	8 -> 19 [label=""]
+	8 -> 18 [label="--RBFOX1\n--TRRAP\n--TCF7L2\n--TDRP\n--MYH9\n--ROBO2\n--FAT3"]
+	7 -> 8 [label="RBFOX1\nTRRAP\nPOU2AF1\nTDRP\nMYH9\nROBO2\nCCNE1"]
+	6 -> 50 [label=""]
+	5 -> 10 [label=""]
+	4 -> 290 [label=""]
+	3 -> 6 [label=""]
+	3 -> 5 [label=""]
+	1 -> 4 [label=""]
+	1 -> 3 [label=""]
+	0 -> 1 [label=""]
+}

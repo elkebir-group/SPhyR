@@ -1,0 +1,65 @@
+digraph T {
+	185 [label=""]
+	168 [label=""]
+	164 [label=""]
+	159 [label=""]
+	157 [label=""]
+	145 [label=""]
+	135 [label=""]
+	131 [label=""]
+	129 [label=""]
+	127 [label=""]
+	125 [label=""]
+	123 [label=""]
+	120 [label=""]
+	118 [label=""]
+	113 [label=""]
+	0 [label=""]
+	185 -> 194
+	194 [label="PD_31 PA_89 PA_87 PA_56 PA_53\nPA_52 PA_50 PA_63 PA_78"]
+	168 -> 184
+	184 [penwidth=3,color=red,label="MA_59 MA_61 MD_7 MA_73 MA_69\nMA_68 MA_67 MA_66 MA_65 MA_62\nMA_57 MA_56 MA_54 MA_52 MA_51\nMA_50"]
+	164 -> 167
+	167 [penwidth=3,color=red,label="MA_75 MA_64 MA_58"]
+	159 -> 163
+	163 [penwidth=3,color=red,label="MA_76 MA_77 MA_53 MA_49"]
+	157 -> 158
+	158 [penwidth=3,color=red,label="MA_74"]
+	145 -> 155
+	155 [label="PD_44 PD_19 PA_90 PA_85 PA_62\nPA_61 PA_65 PA_64 PA_80 PA_74"]
+	135 -> 144
+	144 [label="PA_91 PA_88 PA_54 PA_51 PA_57\nPA_83 PA_81 PA_76 PA_70"]
+	131 -> 134
+	134 [label="PDD_94 MA_55 PA_75"]
+	129 -> 130
+	130 [label="PD_26"]
+	127 -> 128
+	128 [label="PA_66"]
+	125 -> 126
+	126 [label="PA_77"]
+	123 -> 124
+	124 [penwidth=3,color=blue,label="MD_20"]
+	120 -> 122
+	122 [penwidth=3,color=blue,label="MD_10 MD_1"]
+	118 -> 119
+	119 [label="PD_30"]
+	113 -> 117
+	117 [label="PDD_93 PD_41 PD_16 MA_63"]
+	0 -> 112
+	112 [label="PDD_92 PDD_91 PDD_90 PDD_9 PDD_89\nPDD_88 PDD_87 PDD_86 PDD_85 PDD_84\nPDD_83 PDD_82 PDD_8 PDD_79 PDD_78\nPDD_77 PDD_76 PDD_75 PDD_74 PDD_73\nPDD_72 PDD_71 PDD_70 PDD_7 PDD_69\nPDD_68 PDD_67 PDD_66 PDD_65 PDD_64\nPDD_63 PDD_62 PDD_61 PDD_60 PDD_6\nPDD_59 PDD_58 PDD_57 PDD_56 PDD_55\nPDD_54 PDD_53 PDD_52 PDD_51 PDD_50\nPDD_5 PDD_49 PDD_48 PDD_47 PDD_46\nPDD_45 PDD_44 PDD_43 PDD_42 PDD_41\nPDD_40 PDD_4 PDD_39 PDD_38 PDD_37\nPDD_36 PDD_35 PDD_34 PDD_33 PDD_32\nPDD_31 PDD_30 PDD_3 PDD_28 PDD_27\nPDD_26 PDD_25 PDD_24 PDD_23 PDD_22\nPDD_20 PDD_2 PDD_19 PDD_18 PDD_17\nPDD_16 PDD_15 PDD_14 PDD_13 PDD_12\nPDD_11 PDD_10 PDD_1 PD_40 PD_39\nPD_38 PD_37 PD_32 PD_28 PD_27\nPD_13 MD_13 MD_14 MD_15 MD_16\nMD_9 MD_8 MD_6 MD_5 MD_4\nMD_3 MD_25 MD_22 MD_23 MD_21\nMD_19 MD_2"]
+	164 -> 168 [label="GATA1"]
+	159 -> 164 [label="RBFOX1"]
+	157 -> 159 [label="TRRAP"]
+	145 -> 157 [label="EYS\nZNF521"]
+	145 -> 185 [label="TPM4"]
+	135 -> 145 [label="POU2AF1"]
+	131 -> 135 [label="TCF7L2"]
+	129 -> 131 [label="TDRP"]
+	127 -> 129 [label="MYH9"]
+	125 -> 127 [label="ROBO2"]
+	123 -> 125 [label="FAT3"]
+	120 -> 123 [label="CCNE1"]
+	118 -> 120 [label="TP53"]
+	113 -> 118 [label="KRAS"]
+	0 -> 113 [label="APC"]
+}

@@ -1,0 +1,43 @@
+digraph T {
+	154 [label=""]
+	149 [label=""]
+	36 [label=""]
+	33 [label=""]
+	24 [label=""]
+	23 [label=""]
+	22 [label=""]
+	18 [label=""]
+	17 [label=""]
+	8 [label=""]
+	0 [label=""]
+	154 -> 187
+	187 [penwidth=3,color=red,label="MA_54 MA_51 MA_55"]
+	149 -> 208
+	208 [label="PD_31 PA_89 PA_87 PA_56 PA_53\nPA_52 PA_50 PA_63 PA_78 PA_81\nPD_26 PA_66 PA_77"]
+	36 -> 52
+	52 [penwidth=3,color=blue,label="PD_40 MD_6 MD_5"]
+	33 -> 148
+	148 [penwidth=3,color=blue,label="MD_20 MD_10 MD_1"]
+	23 -> 199
+	199 [penwidth=3,color=red,label="MA_59 MA_61 MD_7 MA_73 MA_69\nMA_68 MA_67 MA_66 MA_65 MA_62\nMA_57 MA_56 MA_52 MA_50 MA_49"]
+	22 -> 183
+	183 [penwidth=3,color=red,label="MA_75 MA_64 MA_58 MA_76 MA_77\nMA_53 MA_74"]
+	18 -> 175
+	175 [label="PD_44 PD_19 PA_90 PA_85 PA_62\nPA_61 PA_65 PA_64 PA_80 PA_74\nPA_75"]
+	17 -> 165
+	165 [label="PA_91 PA_88 PA_54 PA_51 PA_57\nPA_83 PA_76 PA_70 PDD_94"]
+	8 -> 145
+	145 [label="PD_30 PD_41 MA_63 MD_25"]
+	0 -> 144
+	144 [label="PDD_93 PD_16 PDD_92 PDD_91 PDD_90\nPDD_9 PDD_89 PDD_88 PDD_87 PDD_86\nPDD_85 PDD_84 PDD_83 PDD_82 PDD_8\nPDD_79 PDD_78 PDD_77 PDD_76 PDD_75\nPDD_74 PDD_73 PDD_72 PDD_71 PDD_70\nPDD_7 PDD_69 PDD_68 PDD_67 PDD_66\nPDD_65 PDD_64 PDD_63 PDD_62 PDD_61\nPDD_60 PDD_6 PDD_59 PDD_58 PDD_57\nPDD_56 PDD_55 PDD_54 PDD_53 PDD_52\nPDD_51 PDD_50 PDD_5 PDD_49 PDD_48\nPDD_47 PDD_46 PDD_45 PDD_44 PDD_43\nPDD_42 PDD_41 PDD_40 PDD_4 PDD_39\nPDD_38 PDD_37 PDD_36 PDD_35 PDD_34\nPDD_33 PDD_32 PDD_31 PDD_30 PDD_3\nPDD_28 PDD_27 PDD_26 PDD_25 PDD_24\nPDD_23 PDD_22 PDD_20 PDD_2 PDD_19\nPDD_18 PDD_17 PDD_16 PDD_15 PDD_14\nPDD_13 PDD_12 PDD_11 PDD_10 PDD_1\nPD_39 PD_38 PD_37 PD_32 PD_28\nPD_27 PD_13 MD_13 MD_14 MD_15\nMD_16 MD_9 MD_8 MD_4 MD_3\nMD_22 MD_23 MD_21 MD_19 MD_2"]
+	33 -> 36 [label="--GATA1\n--KRAS\n--APC"]
+	24 -> 33 [label="--RBFOX1\n--TRRAP\n--EYS\n--ZNF521\n--TDRP\n--MYH9\n--ROBO2\n--FAT3\n--CCNE1"]
+	24 -> 154 [label="--POU2AF1"]
+	23 -> 24 [label="--TCF7L2"]
+	22 -> 23 [label="GATA1"]
+	18 -> 22 [label="RBFOX1\nTRRAP\nEYS\nZNF521"]
+	18 -> 149 [label="TPM4"]
+	17 -> 18 [label="POU2AF1"]
+	8 -> 17 [label="TDRP\nMYH9\nROBO2\nFAT3\nCCNE1\nTP53"]
+	0 -> 8 [label="TCF7L2\nKRAS\nAPC"]
+}

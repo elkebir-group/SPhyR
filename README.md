@@ -15,7 +15,7 @@ where each SNV can only be gained once but lost k times.
      * [I/O formats](#io)
      * [k-Dollo Phylogeny](#kDP)
      * [k-Dollo Phylogeny Flip and Cluster](#kDPFC)
-     * [Solution Visualization (`visualize`)](#viz)
+     * [Solution visualization (`visualize`)](#viz)
 
 <a name="compilation"></a>
 ## Compilation instructions
@@ -155,7 +155,7 @@ An example execution:
     ...
 
 <a name="viz"></a>
-### Solution Visualization (`visualize`)
+### Solution visualization (`visualize`)
 
 The `visualize` executable generates a tree in DOT format.
 
