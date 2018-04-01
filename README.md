@@ -176,4 +176,4 @@ The `visualize` executable generates a tree in DOT format.
 An example execution:
 
     $ ./visualize CRC1.A -c ../data/CRC/CRC1_SNV.labels -t ../data/CRC/CRC1_cell.labels > CRC1.dot
-    $ dot -Tpng CRC1.dot -o CRC.png
+    $ dot -Tpng CRC1.dot -o CRC1.png
