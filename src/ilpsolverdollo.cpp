@@ -7,7 +7,6 @@
 
 #include "ilpsolverdollo.h"
 #include "dollocallback.h"
-#include "dolloheuristic.h"
 #include <lemon/time_measure.h>
 
 IlpSolverDollo::IlpSolverDollo(const Matrix& D,

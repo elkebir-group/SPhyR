@@ -111,11 +111,18 @@ void PhylogeneticTree::writeDOT(std::ostream& out,
       out << "\t" << _T.id(v) << " -> " << _T.id(w) << std::endl;
       out << "\t" << _T.id(w) << " [label=\"";
       
+      int count = 0;
       for (Node ww : leavesMap[v])
       {
         if (ww != w)
-          out << "\\n";
+        {
+          if (count % 5 == 0)
+            out << "\\n";
+          else
+            out << " ";
+        }
         out << taxonLabel[_leafToTaxon[ww]];
+        ++count;
       }
       out << "\"]" << std::endl;
     }
@@ -140,7 +147,7 @@ void PhylogeneticTree::writeDOT(std::ostream& out,
       
       if (ci.second == 0 || ci.second >= 2)
       {
-        out << "-";
+        out << "--";
       }
       out << characterLabel[ci.first];
     }

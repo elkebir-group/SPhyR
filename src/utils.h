@@ -23,7 +23,6 @@
 typedef lemon::ListDigraph Digraph;
 DIGRAPH_TYPEDEFS(Digraph);
 typedef std::vector<Node> NodeVector;
-
 typedef std::vector<bool> StlBoolVector;
 typedef std::vector<double> StlDoubleVector;
 typedef std::vector<int> StlIntVector;
@@ -34,8 +33,13 @@ typedef std::pair<int, int> IntPair;
 typedef std::set<IntPair> IntPairSet;
 typedef std::vector<IntPair> IntPairVector;
 
+/// Platform independent extraction of line from input string
+///
+/// @param is Input stream
+/// @param t Output string
 std::istream& getline(std::istream& is, std::string& t);
 
+/// Return a string containing the current line number
 std::string getLineNumber();
 
 /// Tolerance for floating point comparisons
@@ -44,10 +48,7 @@ extern lemon::Tolerance<double> g_tol;
 /// Current line number
 extern int g_lineNumber;
 
+/// Global timer
 extern lemon::Timer g_timer;
-
-std::ostream& operator<<(std::ostream& out, const StlIntVector& z);
-
-std::istream& operator>>(std::istream& in, StlIntVector& z);
 
 #endif // UTILS_H

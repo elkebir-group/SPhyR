@@ -143,7 +143,9 @@ int main(int argc, char** argv)
     compare.computeLossPrecisionAndRecall(lossPrecision, lossRecall, lossF1);
     
     int flip01_correct, flip10_correct, flip01_incorrect, flip10_incorrect;
-    compare.computeFlips(*pInputB, flip01_correct, flip01_incorrect, flip10_correct, flip10_incorrect);
+    int flipx1_correct, flipx0_correct, flipx1_incorrect, flipx0_incorrect;
+    compare.computeFlips(*pInputB, flip01_correct, flip01_incorrect, flip10_correct, flip10_incorrect,
+                         flipx1_correct, flipx1_incorrect, flipx0_correct, flipx0_incorrect);
     
     int TN, FN, FP, TP;
     inferredB.inferConfusionMatrix(trueB, TN, FN, FP, TP);
@@ -153,7 +155,7 @@ int main(int argc, char** argv)
     
     if (header)
     {
-      std::cout << "RF,norm_RF,anc_loss_recall,inc_loss_recall,cls_loss_recall,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,loss_recall,loss_precision,loss_F1,flip01_correct,flip01_incorrect,flip10_correct,flip10_incorrect,TN,FN,FP,TP,ones,zeros,inTN,inFN,inFP,inTP" << std::endl;
+      std::cout << "RF,norm_RF,anc_loss_recall,inc_loss_recall,cls_loss_recall,anc_recall,inc_recall,cls_recall,taxa_RI,taxa_recall,taxa_precision,char_RI,char_recall,char_precision,L,back_mut_inf,par_evo_inf,back_mut_true,par_evo_true,loss_recall,loss_precision,loss_F1,flip01_correct,flip01_incorrect,flip10_correct,flip10_incorrect,TN,FN,FP,TP,ones,zeros,inTN,inFN,inFP,inTP,flip?1_correct,flip?1_incorrect,flip?0_correct,flip?0_incorrect" << std::endl;
     }
     
     // 4. RF
@@ -214,6 +216,10 @@ int main(int argc, char** argv)
               << inFN << ","
               << inFP << ","
               << inTP << ","
+              << flipx1_correct << ","
+              << flipx1_incorrect << ","
+              << flipx0_correct << ","
+              << flipx0_incorrect
               << std::endl;
   }
   

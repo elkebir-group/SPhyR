@@ -26,7 +26,9 @@ Comparison::Comparison(const PhylogeneticTree& trueT,
 
 void Comparison::computeFlips(const Matrix& input,
                               int& flip01_correct, int& flip01_incorrect,
-                              int& flip10_correct, int& flip10_incorrect) const
+                              int& flip10_correct, int& flip10_incorrect,
+                              int& flipx1_correct, int& flipx1_incorrect,
+                              int& flipx0_correct, int& flipx0_incorrect) const
 {
   Matrix trueB = _trueT.getMatrixB();
   Matrix inferredB = _inferredT.getMatrixB();
@@ -41,6 +43,7 @@ void Comparison::computeFlips(const Matrix& input,
   assert(n == input.getNrCharacters());
   
   flip01_correct = flip10_correct = flip01_incorrect = flip10_incorrect = 0;
+  flipx1_correct = flipx1_incorrect = flipx0_correct = flipx0_incorrect = 0;
   for (int p = 0; p < m; ++p)
   {
     for (int c = 0; c < n; ++c)
@@ -48,7 +51,32 @@ void Comparison::computeFlips(const Matrix& input,
       int input_pc = input.getEntry(p, c);
       int output_pc = inferredB.getEntry(p, c);
       int true_pc = trueB.getEntry(p, c);
-      if (input_pc != output_pc)
+      if (input_pc == -1)
+      {
+        if (output_pc == true_pc)
+        {
+          if (output_pc == 1)
+          {
+            ++flipx1_correct;
+          }
+          else
+          {
+            ++flipx0_correct;
+          }
+        }
+        else
+        {
+          if (output_pc == 1)
+          {
+            ++flipx1_incorrect;
+          }
+          else
+          {
+            ++flipx0_incorrect;
+          }
+        }
+      }
+      else if (input_pc != output_pc)
       {
         if (output_pc == true_pc)
         {

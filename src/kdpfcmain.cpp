@@ -17,27 +17,25 @@ int main(int argc, char** argv)
   int k = 1;
   double alpha = 1e-3;
   double beta = 0.3;
-  double gamma = 0.2;
-  int lC = 10;
-  int lT = 10;
-//  bool exact = false;
+  int t = 15;
+  int s = 10;
   int seed = 0;
   int memoryLimit = -1;
   int nrThreads = 1;
   int timeLimit = -1;
   bool verbose = false;
   bool lazy = true;
-  int restarts = 1;
+  int restarts = 10;
   
   lemon::ArgParser ap(argc, argv);
   ap.refOption("k", "Maximum number of losses per SNV (default: 1)", k)
     .refOption("a", "False positive rate (default: 1e-3)", alpha)
     .refOption("b", "False negative rate (default: 0.3)", beta)
-    .refOption("c", "Loss rate (default: 0.2)", gamma)
-    .refOption("lC", "Number of SNV clusters (default: 10)", lC)
-    .refOption("lT", "Number of cell clusters (default: 10)", lT)
-//    .refOption("exact", "Exact algorithm", exact)
-    .refOption("N", "Number of restarts (default: 1)", restarts)
+    .refOption("t", "Number of character clusters (default: 15)", t)
+    .synonym("lC", "t")
+    .refOption("s", "Number of taxon clusters (default: 10)", s)
+    .synonym("lT", "s")
+    .refOption("N", "Number of restarts (default: 10)", restarts)
     .refOption("s", "Random number generator seed (default: 0)", seed)
     .refOption("T", "Time limit in seconds (default: -1, unlimited).", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
@@ -70,54 +68,28 @@ int main(int argc, char** argv)
   StlIntVector characterMapping, taxonMapping;
   Matrix simpleD = D.simplify(characterMapping, taxonMapping);
   
-//  if (exact)
-//  {
-//    IlpSolverDolloFlipCluster solver(D, k, alpha, beta, l);
-//    solver.init();
-//    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
-//    {
-//      Matrix A = solver.getSolE().expand(characterMapping, taxonMapping);
-//      if (outputFilename.empty())
-//      {
-//        std::cout << A;
-//      }
-//      else
-//      {
-//        std::ofstream outE(outputFilename.c_str());
-//        outE << A;
-//        outE.close();
-//      }
-//    }
-//  }
-//  else
+  CoordinateAscent ca(simpleD,
+                      characterMapping,
+                      taxonMapping,
+                      k, lazy, alpha, beta, s, t, seed);
+  ca.solve(timeLimit, memoryLimit, nrThreads, verbose, restarts);
+  Matrix bestA = ca.getE();
+  bestA = bestA.expandColumns(ca.getZC());
+  bestA = bestA.expandRows(ca.getZT());
+  bestA = bestA.expand(characterMapping, taxonMapping);
+  
+  std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
+  
+  assert(!g_tol.different(ca.getLogLikelihood(), D.getLogLikelihood(bestA, alpha, beta)));
+  
+  if (outputFilename.empty())
   {
-    CoordinateAscent ca(simpleD,
-                        characterMapping,
-                        taxonMapping,
-                        k, lazy, alpha, beta, gamma, lT, lC, seed);
-    ca.solve(timeLimit, memoryLimit, nrThreads, verbose, restarts);
-    Matrix bestA = ca.getE();
-//    std::cout << bestA << std::endl;
-    bestA = bestA.expandColumns(ca.getZC());
-//    std::cout << bestA << std::endl;
-    bestA = bestA.expandRows(ca.getZT());
-//    std::cout << bestA << std::endl;
-    bestA = bestA.expand(characterMapping, taxonMapping);
-//    std::cout << bestA << std::endl;
-    
-    std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
-    
-    assert(!g_tol.different(ca.getLogLikelihood(), D.getLogLikelihood(bestA, alpha, beta)));    
-    
-    if (outputFilename.empty())
-    {
-      std::cout << bestA;
-    }
-    else
-    {
-      std::ofstream outFile(outputFilename.c_str());
-      outFile << bestA;
-      outFile.close();
-    }
+    std::cout << bestA;
+  }
+  else
+  {
+    std::ofstream outFile(outputFilename.c_str());
+    outFile << bestA;
+    outFile.close();
   }
 }

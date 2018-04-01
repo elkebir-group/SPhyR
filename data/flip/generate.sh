@@ -6,21 +6,12 @@ then
 fi
 
 m=50
+n=50
 alpha=0.001
-for n in {25,50,100}
+beta=0.2
+k=1
+for loss in {0.1,0.2,0.4}
 do
-    for s in {1..20}
-    do
-        for k in {1,2}
-        do
-            for loss in {0.1,0.2,0.4}
-            do
-                for beta in {0.1,0.2,0.3}
-                do
-                    filename=m${m}_n${n}_s${s}_k${k}_loss${loss}
-                    $1 -a $alpha -b $beta ../k_dollo/$filename.B ${filename}_a${alpha}_b${beta}.B
-                done
-            done
-        done
-    done
+    filename=m${m}_n${n}_s${s}_k${k}_loss${loss}
+    $1 -a $alpha -b $beta ../k_dollo/$filename.B ${filename}_a${alpha}_b${beta}.B
 done

@@ -8,7 +8,6 @@
 #include <fstream>
 #include <lemon/arg_parser.h>
 #include "matrix.h"
-#include "ilpsolverdollo.h"
 #include "phylogenetictree.h"
 #include "columngen.h"
 
@@ -20,16 +19,13 @@ int main(int argc, char** argv)
   int nrThreads = 1;
   int timeLimit = -1;
   bool verbose = false;
-  bool noColumnGeneration = false;
   bool lazy = true;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("c", "Disable column generation", noColumnGeneration)
-    .refOption("k", "Maximum number of losses per SNV (default: 1)", k)
+  ap.refOption("k", "Maximum number of losses per character (default: 1)", k)
     .refOption("T", "Time limit in seconds (default: -1, unlimited)", timeLimit)
     .refOption("t", "Number of threads (default: 1)", nrThreads)
     .refOption("M", "Memory limit in MB (default: -1, unlimited)", memoryLimit)
-//    .refOption("lazy", "Use lazy constrainst", lazy)
     .refOption("v", "Verbose output", verbose)
     .other("input", "Input file")
     .other("output", "Output file");
@@ -58,41 +54,19 @@ int main(int argc, char** argv)
   StlIntVector chacterMapping, taxonMapping;
   D = D.simplify(chacterMapping, taxonMapping);
   
-  if (!noColumnGeneration)
+  ColumnGen solver(D, k, lazy);
+  solver.init();
+  if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
   {
-    ColumnGen solver(D, k, lazy);
-    solver.init();
-    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
+    if (outputFilename.empty())
     {
-      if (outputFilename.empty())
-      {
-        std::cout << solver.getSolA().expand(chacterMapping, taxonMapping);
-      }
-      else
-      {
-        std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolA().expand(chacterMapping, taxonMapping);
-        outE.close();
-      }
+      std::cout << solver.getSolA().expand(chacterMapping, taxonMapping);
     }
-  }
-  else
-  {
-    IlpSolverDollo solver(D, k);
-    solver.init();
-    
-    if (solver.solve(timeLimit, memoryLimit, nrThreads, verbose))
+    else
     {
-      if (outputFilename.empty())
-      {
-        std::cout << solver.getSolE().expand(chacterMapping, taxonMapping);
-      }
-      else
-      {
-        std::ofstream outE(outputFilename.c_str());
-        outE << solver.getSolE().expand(chacterMapping, taxonMapping);
-        outE.close();
-      }
+      std::ofstream outE(outputFilename.c_str());
+      outE << solver.getSolA().expand(chacterMapping, taxonMapping);
+      outE.close();
     }
   }
   

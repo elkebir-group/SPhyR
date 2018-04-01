@@ -18,19 +18,18 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
                                    bool lazy,
                                    double alpha,
                                    double beta,
-                                   double gamma,
-                                   int lT,
-                                   int lC,
+                                   int s,
+                                   int t,
                                    int seed)
   : _D(D)
   , _k(k)
   , _lazy(lazy)
   , _alpha(alpha)
   , _beta(beta)
-  , _lT(std::min(lT, D.getNrTaxa()))
-  , _lC(std::min(lC, D.getNrCharacters()))
+  , _s(std::min(s, D.getNrTaxa()))
+  , _t(std::min(t, D.getNrCharacters()))
   , _seed(seed)
-  , _E(lT, lC)
+  , _E(s, t)
   , _zT(_D.getNrTaxa(), 0)
   , _zC(_D.getNrCharacters(), 0)
   , _L(0)
@@ -118,7 +117,7 @@ CoordinateAscent::CoordinateAscent(const Matrix& D,
 
 void CoordinateAscent::initZ(int seed)
 {
-  Cluster cluster(_D, _lT, _lC);
+  Cluster cluster(_D, _s, _t);
   cluster.cluster(seed);
   _zT = cluster.getTaxonMapping();
   _zC = cluster.getCharacterMapping();
@@ -133,7 +132,7 @@ double CoordinateAscent::solveE(int timeLimit,
 //  IlpSolverDolloFlipClustered solvePhylogeny(_D, _k, _alpha, _beta, _l, _z);
   ColumnGenFlipClustered solvePhylogeny(_D, _multiplicities, _baseL,
                                         _k, _lazy, _alpha, _beta,
-                                        _lC, _zC, _lT, _zT);
+                                        _t, _zC, _s, _zT);
   solvePhylogeny.init();
   if (_restart > 1)
   {
@@ -157,7 +156,7 @@ double CoordinateAscent::computeCharacterLogLikelihood(int c, int f) const
   const int n = _D.getNrCharacters();
   
   assert(0 <= c && c < n);
-  assert(0 <= f && f < _lC);
+  assert(0 <= f && f < _t);
   
   double L = 0;
   for (int p = 0; p < m; ++p)
@@ -174,7 +173,7 @@ double CoordinateAscent::computeTaxonLogLikelihood(int p, int h) const
   const int n = _D.getNrCharacters();
   
   assert(0 <= p && p < m);
-  assert(0 <= h && h < _lT);
+  assert(0 <= h && h < _s);
   
   double L = 0;
   for (int c = 0; c < n; ++c)
@@ -192,10 +191,10 @@ double CoordinateAscent::computeLogLikelihood(int p, int h,
   const int n = _D.getNrCharacters();
   
   assert(0 <= c && c < n);
-  assert(0 <= f && f < _lC);
+  assert(0 <= f && f < _t);
   
   assert(0 <= p && p < m);
-  assert(0 <= h && h < _lT);
+  assert(0 <= h && h < _s);
   
   const double log_alpha = log(_alpha);
   const double log_1_minus_alpha = log(1 - _alpha);
@@ -281,7 +280,7 @@ double CoordinateAscent::solveZC()
   {
     double maxL_c = -std::numeric_limits<double>::max();
     int max_f = -1;
-    for (int f = 0; f < _lC; ++f)
+    for (int f = 0; f < _t; ++f)
     {
       double L_cf = computeCharacterLogLikelihood(c, f);
       if (L_cf > maxL_c)
@@ -308,7 +307,7 @@ double CoordinateAscent::solveZT()
   {
     double maxL_p = -std::numeric_limits<double>::max();
     int max_h = -1;
-    for (int h = 0; h < _lT; ++h)
+    for (int h = 0; h < _s; ++h)
     {
       double L_ph = computeTaxonLogLikelihood(p, h);
       if (L_ph > maxL_p)

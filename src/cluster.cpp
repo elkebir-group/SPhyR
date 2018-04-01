@@ -12,9 +12,9 @@ Cluster::Cluster(const Matrix& D,
                  int lT,
                  int lC)
   : _D(D)
-  , _lT(lT)
+  , _s(lT)
   , _zT(D.getNrTaxa(), -1)
-  , _lC(lC)
+  , _t(lC)
   , _zC(D.getNrCharacters(), -1)
 {
 }
@@ -45,7 +45,7 @@ void Cluster::cluster(int seed)
     }
   }
   
-  auto z = std::get<1>(dkm::kmeans_lloyd(data, _lC, seed));
+  auto z = std::get<1>(dkm::kmeans_lloyd(data, _t, seed));
   for (int c = 0; c < n; ++c)
   {
     _zC[c] = z[c];
@@ -71,7 +71,7 @@ void Cluster::cluster(int seed)
     }
   }
   
-  auto z2 = std::get<1>(dkm::kmeans_lloyd(data2, _lT, seed));
+  auto z2 = std::get<1>(dkm::kmeans_lloyd(data2, _s, seed));
   for (int p = 0; p < m; ++p)
   {
     _zT[p] = z2[p];

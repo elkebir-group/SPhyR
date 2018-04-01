@@ -10,13 +10,23 @@
 
 #include "columngenflip.h"
 
+/// This class provides a column generation approach for the k-DPFC subproblem where one is given the character and taxon clusters
 class ColumnGenFlipClustered : public ColumnGenFlip
 {
 public:
   /// Constructor
   ///
   /// @param B Input matrix
-  /// @param k Maximum number of losses
+  /// @param multiplicities The number of orginal entries that each entry b_pi corresponds to
+  /// @param baseL Base log likelihood of removed characters and taxa of original input matrix
+  /// @param k Maximum number of losses per character
+  /// @param lazy Introduce constraints into the lazy constraint pool
+  /// @param alpha False positive rate
+  /// @param beta False negative rate
+  /// @param t Number of character clusters
+  /// @param zC Character cluster assignment
+  /// @param s Number of taxon clusters
+  /// @param zT Taxon cluster assignment
   ColumnGenFlipClustered(const Matrix& B,
                          const StlIntMatrix& multiplicities,
                          double baseL,
@@ -24,33 +34,38 @@ public:
                          bool lazy,
                          double alpha,
                          double beta,
-                         int lC,
+                         int t,
                          const StlIntVector& zC,
-                         int lT,
+                         int s,
                          const StlIntVector& zT);
   
   void initHotStart(const Matrix& E);
   
-protected: 
+protected:
+  /// Initialize objective function
   virtual void initObjective();
   
+  /// Initialize active variables
   virtual void initActiveVariables();
   
+  /// Initialize fixed columns (there are none!)
   virtual void initFixedColumns()
   {
   }
   
 protected:
+  /// The number of orginal entries that each entry b_pi corresponds to
   const StlIntMatrix& _multiplicities;
+  /// Base log likelihood of removed characters and taxa of original input matrix
   const double _baseL;
-  /// SNV (character) cluster assignment
-  const StlIntVector& _zC;
-  /// Cell (taxa) cluster assignment
+  /// Taxon cluster assignment
   const StlIntVector& _zT;
-  /// Number of SNV (character) clusters
-  const double _lC;
+  /// Character cluster assignment
+  const StlIntVector& _zC;
   /// Number of cell (taxa) clusters
-  const double _lT;
+  const double _s;
+  /// Number of SNV (character) clusters
+  const double _t;
 };
 
 #endif // COLUMNGENFLIPCLUSTERED_H

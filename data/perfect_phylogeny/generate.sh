@@ -9,9 +9,9 @@ fi
 
 seeds="7369 217"
 
-for n in {25,50,100,250,500}
+for n in {25,50,100}
 do
-    for m in {25,50,100,250,500}
+    for m in {25,50,100}
     do
 	for s in {1..20}
 	do

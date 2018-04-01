@@ -8,52 +8,20 @@ set (kDP_src
   src/kdpmain.cpp
   src/matrix.cpp
   src/utils.cpp
-  src/ilpsolverdollo.cpp
-  src/dolloheuristic.cpp
   src/columngen.cpp
 )
 
 set (kDP_hdr
   src/matrix.h
   src/utils.h
-  src/ilpsolverdollo.h
-  src/dollocallback.h
-  src/dolloheuristic.h
   src/columngen.h
-)
-
-set (kDPF_src
-  src/kdpfmain.cpp
-  src/matrix.cpp
-  src/utils.cpp
-  src/ilpsolverdollo.cpp
-  src/ilpsolverdolloflip.cpp
-  src/dolloheuristic.cpp
-  src/columngen.cpp
-  src/columngenflip.cpp
-)
-
-set (kDPF_hdr
-  src/matrix.h
-  src/utils.h
-  src/ilpsolverdollo.h
-  src/ilpsolverdolloflip.h
-  src/dollocallback.h
-  src/dolloheuristic.h
-  src/columngen.h
-  src/columngenflip.h
 )
 
 set (kDPFC_src
   src/kdpfcmain.cpp
   src/matrix.cpp
   src/utils.cpp
-  src/ilpsolverdollo.cpp
-  src/ilpsolverdolloflip.cpp
-#  src/ilpsolverdolloflipcluster.cpp
-#  src/ilpsolverdolloflipclustered.cpp
   src/coordinateascent.cpp
-  src/dolloheuristic.cpp
   src/columngenflipclustered.cpp
   src/columngenflip.cpp
   src/columngen.cpp
@@ -63,13 +31,7 @@ set (kDPFC_src
 set (kDPFC_hdr
   src/matrix.h
   src/utils.h
-  src/ilpsolverdollo.h
-  src/ilpsolverdolloflip.h
-#  src/ilpsolverdolloflipcluster.h
-#  src/ilpsolverdolloflipclustered.h
   src/coordinateascent.h
-  src/dollocallback.h
-  src/dolloheuristic.h
   src/cluster.h
   src/dkm/dkm.hpp
   src/dkm/dkm_utils.hpp
@@ -135,6 +97,32 @@ set( simulate_src
   src/phylogenetictree.cpp
   src/dollophylogenetictree.cpp
 )
+
+# first we can indicate the documentation build as an option and set it to ON by default
+option(BUILD_DOC "Build documentation" ON)
+
+if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
+  # check if Doxygen is installed
+  find_package(Doxygen)
+  if (DOXYGEN_FOUND)
+      # set input and output files
+      set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+      set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+      # request to configure the file
+      configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+      message("Doxygen build started")
+
+      # note the option ALL which allows to build the docs together with the application
+      add_custom_target( doc_doxygen ALL
+          COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMENT "Generating API documentation with Doxygen"
+          VERBATIM )
+  else (DOXYGEN_FOUND) 
+    message("Doxygen need to be installed to generate the doxygen documentation")
+  endif (DOXYGEN_FOUND)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug Release Profile" FORCE)
@@ -208,9 +196,6 @@ set( CommonLibs
 
 add_executable( kDP ${kDP_src} ${kDP_hdr} )
 target_link_libraries( kDP ${CommonLibs} )
-
-add_executable( kDPF ${kDPF_src} ${kDPF_hdr} )
-target_link_libraries( kDPF ${CommonLibs} )
 
 add_executable( kDPFC ${kDPFC_src} ${kDPFC_hdr} )
 target_link_libraries( kDPFC ${CommonLibs} )

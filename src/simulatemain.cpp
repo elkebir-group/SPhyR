@@ -19,7 +19,7 @@ int main(int argc, char** argv)
   std::string filenameDOT;
   
   lemon::ArgParser ap(argc, argv);
-  ap.refOption("k", "Maximum number of losses per SNV", k, true)
+  ap.refOption("k", "Maximum number of losses per character", k, true)
     .refOption("s", "Random number generator seeding (default: 0)", seed)
     .refOption("loss", "Loss rate", lossRate, true)
     .refOption("A", "Matrix A output filename", filenameA)

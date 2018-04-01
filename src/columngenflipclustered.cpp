@@ -14,17 +14,17 @@ ColumnGenFlipClustered::ColumnGenFlipClustered(const Matrix& B,
                                                bool lazy,
                                                double alpha,
                                                double beta,
-                                               int lC,
+                                               int t,
                                                const StlIntVector& zC,
-                                               int lT,
+                                               int s,
                                                const StlIntVector& zT)
-  : ColumnGenFlip(B, lT, lC, k, lazy, alpha, beta)
+  : ColumnGenFlip(B, s, t, k, lazy, alpha, beta)
   , _multiplicities(multiplicities)
   , _baseL(baseL)
-  , _zC(zC)
   , _zT(zT)
-  , _lC(lC)
-  , _lT(lT)
+  , _zC(zC)
+  , _s(s)
+  , _t(t)
 {
 }
 
@@ -41,9 +41,9 @@ void ColumnGenFlipClustered::initActiveVariables()
   const double log_beta = log(_beta);
   const double log_1_minus_beta = log(1 - _beta);
   
-  for (int h = 0; h < _lT; h++)
+  for (int h = 0; h < _s; h++)
   {
-    for (int f = 0; f < _lC; f++)
+    for (int f = 0; f < _t; f++)
     {
       int count0 = 0; // negative
       int count1 = 0; // positive
@@ -114,9 +114,9 @@ void ColumnGenFlipClustered::initHotStart(const Matrix& E)
   IloNumVarArray startVar(_env);
   IloNumArray startVal(_env);
   
-  for (int h = 0; h < _lT; ++h)
+  for (int h = 0; h < _s; ++h)
   {
-    for (int f = 0; f < _lC; ++f)
+    for (int f = 0; f < _t; ++f)
     {
       for (int i = 0; i <= _k + 1; ++i)
       {
@@ -203,13 +203,13 @@ void ColumnGenFlipClustered::initObjective()
   double unit = 0;
   unit = std::max(log_alpha, std::max(log_beta, std::max(log_1_minus_alpha, log_1_minus_beta)));
   
-  for (int h = 0; h < _lT; h++)
+  for (int h = 0; h < _s; h++)
   {
-    for (int f = 0; f < _lC; f++)
+    for (int f = 0; f < _t; f++)
     {
       for (int i = 2; i <= _k + 1; ++i)
       {
-        lossSum += _A[h][f][i] * pow(1./(_lT * _lC), _k + 2 - i);
+        lossSum += _A[h][f][i] * pow(1./(_s * _t), _k + 2 - i);
       }
     }
   }
