@@ -1,5 +1,11 @@
 #!/bin/bash
-exec=~/Projects/sifit/SiFit.jar
+if [ ! $# -eq 1 ]
+then
+    echo "Usage: $0 <SiFit.jar>" >&2
+    exit 1
+fi
+
+exec=$1
 fp=0.0152
 java -jar $exec -r 100 -m 178 -n 16 -fp $fp -fn 0.0789 -iter 10000 -df 0 -ipMat ../../data/CRC/CRC1.SiFit.input > CRC1.log
 fn=$(tail -n 5 CRC1.log | head -n 1 | cut -d' ' -f 6)
