@@ -53,11 +53,9 @@ The compilation results in the following files in the `build` directory:
 EXECUTABLE | DESCRIPTION
 -----------|-------------
 `analyze`  | Computes various performance statistics of a solution.
-`kDP`      | Solves the k-Dollo Phylogeny problem given a binary matrix
-B and integer k.
+`kDP`      | Solves the k-Dollo Phylogeny problem given a binary matrix B and integer k.
 `kDPFC`    | Solves the k-Dollo Phylogeny Flip and Clsuter problem given a binary matrix with missing data, an integer k, a false positve rate alpha, a false negative rate beta, a number s of taxon clusters and number t of character clusters.
-`perturb`  | Introduces false positives and false negatives in a given
-binary matrix.
+`perturb`  | Introduces false positives and false negatives in a given binary matrix.
 `simulate` | Simulates a k-Dollo phylogenetic tree given a perfect
 phylogeny tree
 `visualize`| Visualizes a phylogenetic treein Graphviz DOT format.
