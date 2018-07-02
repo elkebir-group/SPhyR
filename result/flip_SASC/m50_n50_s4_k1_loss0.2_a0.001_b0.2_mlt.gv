@@ -1,0 +1,231 @@
+digraph g {
+	"62" -> "63";
+	"63" [label="6"];
+	"60" -> "61";
+	"61" [label="47"];
+	"58" -> "59";
+	"59" [label="13"];
+	"57" -> "58";
+	"58" [label="12"];
+	"56" -> "57";
+	"57" [color=indianred1, style=filled, label="30"];
+	"55" -> "56";
+	"56" [color=indianred1, style=filled, label="31"];
+	"54" -> "55";
+	"55" [color=indianred1, style=filled, label="26"];
+	"52" -> "53";
+	"53" [label="20"];
+	"52" -> "54";
+	"54" [label="49"];
+	"52" -> "60";
+	"60" [label="37"];
+	"51" -> "52";
+	"52" [label="10"];
+	"50" -> "51";
+	"51" [label="26"];
+	"50" -> "62";
+	"62" [color=indianred1, style=filled, label="45"];
+	"47" -> "48";
+	"48" [label="1"];
+	"47" -> "49";
+	"49" [label="27"];
+	"46" -> "47";
+	"47" [color=indianred1, style=filled, label="4"];
+	"46" -> "50";
+	"50" [label="45"];
+	"46" -> "64";
+	"64" [label="36"];
+	"45" -> "46";
+	"46" [label="30"];
+	"44" -> "45";
+	"45" [label="4"];
+	"43" -> "44";
+	"44" [label="28"];
+	"39" -> "40";
+	"40" [label="34"];
+	"38" -> "39";
+	"39" [label="21"];
+	"36" -> "37";
+	"37" [label="3"];
+	"33" -> "34";
+	"34" [color=indianred1, style=filled, label="41"];
+	"32" -> "33";
+	"33" [label="7"];
+	"30" -> "31";
+	"31" [label="32"];
+	"30" -> "32";
+	"32" [color=indianred1, style=filled, label="22"];
+	"30" -> "35";
+	"35" [label="15"];
+	"29" -> "30";
+	"30" [label="41"];
+	"29" -> "36";
+	"36" [color=indianred1, style=filled, label="48"];
+	"28" -> "29";
+	"29" [label="22"];
+	"28" -> "38";
+	"38" [color=indianred1, style=filled, label="16"];
+	"27" -> "28";
+	"28" [label="48"];
+	"27" -> "41";
+	"41" [color=indianred1, style=filled, label="46"];
+	"23" -> "24";
+	"24" [label="14"];
+	"23" -> "25";
+	"25" [color=indianred1, style=filled, label="11"];
+	"23" -> "26";
+	"26" [label="8"];
+	"22" -> "23";
+	"23" [label="0"];
+	"19" -> "20";
+	"20" [color=indianred1, style=filled, label="5"];
+	"19" -> "21";
+	"21" [label="23"];
+	"18" -> "19";
+	"19" [label="42"];
+	"17" -> "18";
+	"18" [color=indianred1, style=filled, label="38"];
+	"15" -> "16";
+	"16" [label="9"];
+	"14" -> "15";
+	"15" [label="33"];
+	"13" -> "14";
+	"14" [label="44"];
+	"12" -> "13";
+	"13" [label="39"];
+	"11" -> "12";
+	"12" [label="29"];
+	"10" -> "11";
+	"11" [label="2"];
+	"9" -> "10";
+	"10" [label="17"];
+	"8" -> "9";
+	"9" [label="25"];
+	"7" -> "8";
+	"8" [label="19"];
+	"6" -> "7";
+	"7" [label="35"];
+	"6" -> "17";
+	"17" [label="24"];
+	"5" -> "6";
+	"6" [label="38"];
+	"4" -> "5";
+	"5" [color=indianred1, style=filled, label="18"];
+	"3" -> "4";
+	"4" [label="5"];
+	"2" -> "3";
+	"3" [label="43"];
+	"2" -> "22";
+	"22" [label="11"];
+	"2" -> "27";
+	"27" [label="16"];
+	"1" -> "2";
+	"2" [label="46"];
+	"1" -> "42";
+	"42" [label="40"];
+	"0" -> "1";
+	"1" [label="18"];
+	"0" -> "43";
+	"43" [label="31"];
+	"0" [label="germline"];
+	"59" -> cell1;
+	cell1 [shape=box]
+	"32" -> cell2;
+	cell2 [shape=box]
+	"54" -> cell3;
+	cell3 [shape=box]
+	"35" -> cell4;
+	cell4 [shape=box]
+	"53" -> cell5;
+	cell5 [shape=box]
+	"28" -> cell6;
+	cell6 [shape=box]
+	"59" -> cell7;
+	cell7 [shape=box]
+	"32" -> cell8;
+	cell8 [shape=box]
+	"30" -> cell9;
+	cell9 [shape=box]
+	"55" -> cell10;
+	cell10 [shape=box]
+	"52" -> cell11;
+	cell11 [shape=box]
+	"34" -> cell12;
+	cell12 [shape=box]
+	"21" -> cell13;
+	cell13 [shape=box]
+	"63" -> cell14;
+	cell14 [shape=box]
+	"30" -> cell15;
+	cell15 [shape=box]
+	"23" -> cell16;
+	cell16 [shape=box]
+	"32" -> cell17;
+	cell17 [shape=box]
+	"22" -> cell18;
+	cell18 [shape=box]
+	"34" -> cell19;
+	cell19 [shape=box]
+	"28" -> cell20;
+	cell20 [shape=box]
+	"20" -> cell21;
+	cell21 [shape=box]
+	"61" -> cell22;
+	cell22 [shape=box]
+	"24" -> cell23;
+	cell23 [shape=box]
+	"54" -> cell24;
+	cell24 [shape=box]
+	"51" -> cell25;
+	cell25 [shape=box]
+	"32" -> cell26;
+	cell26 [shape=box]
+	"37" -> cell27;
+	cell27 [shape=box]
+	"48" -> cell28;
+	cell28 [shape=box]
+	"27" -> cell29;
+	cell29 [shape=box]
+	"42" -> cell30;
+	cell30 [shape=box]
+	"30" -> cell31;
+	cell31 [shape=box]
+	"28" -> cell32;
+	cell32 [shape=box]
+	"25" -> cell33;
+	cell33 [shape=box]
+	"23" -> cell34;
+	cell34 [shape=box]
+	"29" -> cell35;
+	cell35 [shape=box]
+	"28" -> cell36;
+	cell36 [shape=box]
+	"31" -> cell37;
+	cell37 [shape=box]
+	"29" -> cell38;
+	cell38 [shape=box]
+	"32" -> cell39;
+	cell39 [shape=box]
+	"36" -> cell40;
+	cell40 [shape=box]
+	"28" -> cell41;
+	cell41 [shape=box]
+	"48" -> cell42;
+	cell42 [shape=box]
+	"59" -> cell43;
+	cell43 [shape=box]
+	"63" -> cell44;
+	cell44 [shape=box]
+	"16" -> cell45;
+	cell45 [shape=box]
+	"54" -> cell46;
+	cell46 [shape=box]
+	"64" -> cell47;
+	cell47 [shape=box]
+	"30" -> cell48;
+	cell48 [shape=box]
+	"40" -> cell49;
+	cell49 [shape=box]
+	"41" -> cell50;
+	cell50 [shape=box]
+}

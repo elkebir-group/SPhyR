@@ -1,5 +1,5 @@
 /*
- * dollomain.cpp
+ * kdpfcmain.cpp
  *
  *  Created on: 9-mar-2018
  *      Author: M. El-Kebir
@@ -44,27 +44,28 @@ int main(int argc, char** argv)
     .other("input", "Input file")
     .other("output", "Output file");
   ap.parse();
-  
-  if (ap.files().empty())
+
+  Matrix D;
+  if (!ap.files().empty())
   {
-    std::cerr << "Error: missing input file" << std::endl;
-    return 1;
+    std::ifstream inD(ap.files()[0]);
+    if (!inD.good())
+    {
+      std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
+                << std::endl;
+      return 1;
+    }
+    
+    inD >> D;
+    inD.close();
   }
-  
-  std::ifstream inD(ap.files()[0]);
-  if (!inD.good())
+  else
   {
-    std::cerr << "Error: failed to open '" << ap.files()[0] << "' for reading"
-              << std::endl;
-    return 1;
+    std::cin >> D;
   }
   
   std::string outputFilename = ap.files().size() > 1 ? ap.files()[1] : "";
-  
-  Matrix D;
-  inD >> D;
-  inD.close();
-
+    
   StlIntVector characterMapping, taxonMapping;
   Matrix simpleD = D.simplify(characterMapping, taxonMapping);
   

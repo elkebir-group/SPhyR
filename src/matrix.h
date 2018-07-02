@@ -205,7 +205,7 @@ public:
   
   /// Identfies forbidden submatrices
   ///
-  /// @param int k Maximum number of character losses
+  /// @param k Maximum number of character losses
   /// @param violationList Output list of forbidden submatrices
   void identifyViolations(int k,
                           ViolationList& violationList) const;

@@ -4,6 +4,19 @@ project( SPhyR )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
+set( python_mod_src
+  src/matrix.cpp
+  src/utils.cpp
+  src/columngen.cpp
+  src/python.cpp
+)
+
+set( python_mod_hdr
+  src/matrix.h
+  src/utils.h
+  src/columngen.h
+)
+
 set (kDP_src
   src/kdpmain.cpp
   src/matrix.cpp
@@ -172,7 +185,29 @@ if( NOT CPLEX_INC_DIR OR NOT CPLEX_LIB_DIR OR NOT CONCERT_INC_DIR OR NOT CONCERT
 endif()
 
 set( Boost_USE_STATIC_LIBS ON )
-find_package( Boost REQUIRED )
+find_package( Boost REQUIRED COMPONENTS python2.7 )
+MESSAGE( STATUS "found boost:"
+"\nINCLUDE: ${Boost_INCLUDE_DIRS}"
+"\nLIB: ${Boost_LIBRARIES}"
+)
+
+FIND_PACKAGE(PythonInterp REQUIRED)
+FIND_PACKAGE(PythonLibsNew REQUIRED)
+
+# custom macro with most of the redundant code for making a python example module
+MACRO( addPythonExe _name _srccpp )
+ADD_EXECUTABLE(${_name} ${_srccpp} ${python_mod_src} ${python_mod_hdr} )
+# make the pyd library link against boost_numpy python and boost
+TARGET_INCLUDE_DIRECTORIES(${_name} PUBLIC "${PROJECT_SOURCE_DIR}/src" ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${GUROBI_INCLUDE_DIR})
+TARGET_LINK_LIBRARIES(${_name} ${CommonLibs} boost_python2.7)
+ENDMACRO()
+
+MACRO( addPythonMod _name _srccpp )
+PYTHON_ADD_MODULE(${_name} ${_srccpp} ${python_mod_src} ${python_mod_hdr} )
+# make the pyd library link against boost_numpy python and boost
+TARGET_INCLUDE_DIRECTORIES(${_name} PUBLIC "${PROJECT_SOURCE_DIR}/src" ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${GUROBI_INCLUDE_DIR})
+TARGET_LINK_LIBRARIES(${_name} ${CommonLibs})
+ENDMACRO()
 
 set( LIBLEMON_ROOT "$ENV{HOME}/lemon" CACHE PATH "Additional search directory for lemon library" )
 
@@ -192,6 +227,7 @@ set( CommonLibs
   pthread
   emon
   dl
+  ${Boost_LIBRARIES}
 )
 
 add_executable( kDP ${kDP_src} ${kDP_hdr} )
@@ -211,3 +247,5 @@ target_link_libraries( analyze ${CommonLibs} )
 
 add_executable( perturb ${perturb_src} ${perturb_hdr} )
 target_link_libraries( perturb ${CommonLibs} )
+
+addPythonMod( sphyr src/python.cpp )

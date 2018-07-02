@@ -15,9 +15,11 @@ if __name__ == "__main__":
         for i_prime in range(1, k + 2):
             for j in range(1, k + 2):
                 for j_prime in range(1, k + 2):
-                    print i, 0
-                    print 0, j
-                    print i_prime, j_prime
+                    print "\\begin{pmatrix}"
+                    print i, "&", 0, "\\\\"
+                    print 0, "&", j, "\\\\"
+                    print i_prime, "&", j_prime
+                    print "\\end{pmatrix}"
                     print
                     M = (i,0,0,j,i_prime,j_prime)
                     assert M not in forbidden
@@ -31,9 +33,11 @@ if __name__ == "__main__":
                 for j_prime in range(1, k + 2):
                     if j_prime == j:
                         continue
-                    print i, j_prime
-                    print 0, j
-                    print i_prime, j
+                    print "\\begin{pmatrix}"
+                    print i, "&", j_prime, "\\\\"
+                    print 0, "&", j, "\\\\"
+                    print i_prime, "&", j
+                    print "\\end{pmatrix}"
                     print
                     M = (i,j_prime,0,j,i_prime,j)
                     assert M not in forbidden
@@ -47,9 +51,11 @@ if __name__ == "__main__":
                 continue
             for j in range(1, k + 2):
                 for j_prime in range(1, k + 2):
-                    print i, 0
-                    print i_prime, j
-                    print i, j_prime
+                    print "\\begin{pmatrix}"
+                    print i, "&", 0, "\\\\"
+                    print i_prime, "&", j, "\\\\"
+                    print i, "&", j_prime
+                    print "\\end{pmatrix}"
                     print
                     M = (i,0,i_prime,j,i,j_prime)
                     assert M not in forbidden
@@ -65,9 +71,11 @@ if __name__ == "__main__":
                 for j_prime in range(1, k + 2):
                     if j_prime == j:
                         continue
-                    print i, j_prime
-                    print i_prime, j
-                    print i, j
+                    print "\\begin{pmatrix}"
+                    print i, "&", j_prime, "\\\\"
+                    print i_prime, "&", j, "\\\\"
+                    print i, "&", j
+                    print "\\end{pmatrix}"
                     print
                     M = (i,j_prime,i_prime,j,i,j)
                     assert M not in forbidden

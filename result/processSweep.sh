@@ -46,6 +46,26 @@ then
         echo -n ","
         $2 -T $f ../data/k_dollo/m${m}_n${n}_s${s}_k${k}_loss${loss}.A ../data/flip/m${m}_n${n}_s${s}_k${k}_loss${loss}_a${a}_b${b}.B -a $inA -b $inB
     done
+elif [ $1 == "SASC" ]
+then
+    for f in flip_${1}/*.A
+    do
+        #m50_n50_1_k1_seed2_loss0.2_a0.001_b0.2.A
+        g=`basename $f`
+        m=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\1/g"`
+        n=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\2/g"`
+        s=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\3/g"`
+        k=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\4/g"`
+        loss=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\5/g"`
+        a=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\6/g"`
+        b=`echo $g | sed -e "s/^m\([0-9]*\)_n\([0-9]*\)_s\([0-9]*\)_k\([0-9]*\)_loss\(0\.[0-9]*\)_a\(0\.[0-9]*\)_b\(0\.[0-9]*\).*/\7/g"`
+        inA=$a
+        inB=$b
+
+        echo -n "$1,$m,$n,$s,$k,$loss,$inA,$inB,"
+        echo -n $(cat $(dirname $f)/$(basename $f .A).time),
+        $2 $f ../data/k_dollo/m${m}_n${n}_s${s}_k${k}_loss${loss}.A ../data/flip/m${m}_n${n}_s${s}_k${k}_loss${loss}_a${a}_b${b}.B -a $inA -b $inB
+    done
 else
     for f in flip_${1}/*.A
     do
