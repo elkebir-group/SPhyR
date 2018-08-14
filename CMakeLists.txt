@@ -4,18 +4,18 @@ project( SPhyR )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
-set( python_mod_src
-  src/matrix.cpp
-  src/utils.cpp
-  src/columngen.cpp
-  src/python.cpp
-)
-
-set( python_mod_hdr
-  src/matrix.h
-  src/utils.h
-  src/columngen.h
-)
+##set( python_mod_src
+##  src/matrix.cpp
+##  src/utils.cpp
+##  src/columngen.cpp
+##  src/python.cpp
+##)
+##
+##set( python_mod_hdr
+##  src/matrix.h
+##  src/utils.h
+##  src/columngen.h
+##)
 
 set (kDP_src
   src/kdpmain.cpp
@@ -185,14 +185,15 @@ if( NOT CPLEX_INC_DIR OR NOT CPLEX_LIB_DIR OR NOT CONCERT_INC_DIR OR NOT CONCERT
 endif()
 
 set( Boost_USE_STATIC_LIBS ON )
-find_package( Boost REQUIRED COMPONENTS python2.7 )
+##find_package( Boost REQUIRED COMPONENTS python2.7 )
+find_package( Boost REQUIRED )
 MESSAGE( STATUS "found boost:"
 "\nINCLUDE: ${Boost_INCLUDE_DIRS}"
 "\nLIB: ${Boost_LIBRARIES}"
 )
 
-FIND_PACKAGE(PythonInterp REQUIRED)
-FIND_PACKAGE(PythonLibsNew REQUIRED)
+##FIND_PACKAGE(PythonInterp REQUIRED)
+##FIND_PACKAGE(PythonLibsNew REQUIRED)
 
 # custom macro with most of the redundant code for making a python example module
 MACRO( addPythonExe _name _srccpp )
@@ -248,4 +249,4 @@ target_link_libraries( analyze ${CommonLibs} )
 add_executable( perturb ${perturb_src} ${perturb_hdr} )
 target_link_libraries( perturb ${CommonLibs} )
 
-addPythonMod( sphyr src/python.cpp )
+##addPythonMod( sphyr src/python.cpp )
