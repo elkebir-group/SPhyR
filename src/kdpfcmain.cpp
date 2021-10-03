@@ -81,7 +81,7 @@ int main(int argc, char** argv)
   
   std::cerr << "Solution likelihood: " << ca.getLogLikelihood() << std::endl;
   
-  assert(!g_tol.different(ca.getLogLikelihood(), D.getLogLikelihood(bestA, alpha, beta)));
+//  assert(!g_tol.different(ca.getLogLikelihood(), D.getLogLikelihood(bestA, alpha, beta)));
   
   if (outputFilename.empty())
   {
