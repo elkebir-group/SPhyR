@@ -51,7 +51,7 @@ void Cluster::cluster(int seed)
     _zC[c] = z[c];
   }
   
-  const int MAX_SNVS = 1000;
+  const int MAX_SNVS = 100000;
   
   assert(n <= MAX_SNVS);
   
