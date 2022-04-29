@@ -116,7 +116,7 @@ In the k-Dollo Phylogeny Flip and Cluster, we are given matrix `D`, error rates 
 
     Usage:
       ./kDPFC [--help|-h|-help] [-M int] [-N int] [-T int] [-a num] [-b num]
-         [-k int] [-s int] [-t int] [-v] input output
+         [-k int] [-lC int] [-lT int] [-s int] [-t int] [-v] input output
     Where:
       input
          Input file
@@ -127,7 +127,7 @@ In the k-Dollo Phylogeny Flip and Cluster, we are given matrix `D`, error rates 
       -M int
          Memory limit in MB (default: -1, unlimited)
       -N int
-         Number of restarts (default: 1)
+         Number of restarts (default: 10)
       -T int
          Time limit in seconds (default: -1, unlimited).
       -a num
@@ -136,6 +136,10 @@ In the k-Dollo Phylogeny Flip and Cluster, we are given matrix `D`, error rates 
          False negative rate (default: 0.3)
       -k int
          Maximum number of losses per SNV (default: 1)
+      -lC int
+         Number of character clusters (default: 15)
+      -lT int
+         Number of taxon clusters (default: 10)
       -s int
          Random number generator seed (default: 0)
       -t int
