@@ -28,27 +28,27 @@ namespace details {
 /*
 Calculate the square of the distance between two points.
 */
-template <typename T, size_t N>
-T distance_squared(const std::array<T, N>& point_a, const std::array<T, N>& point_b) {
+template <typename T>
+T distance_squared(const std::vector<T>& point_a, const std::vector<T>& point_b) {
 	T d_squared = T();
-	for (typename std::array<T, N>::size_type i = 0; i < N; ++i) {
+	for (typename std::vector<T>::size_type i = 0; i < (int)point_a.size(); ++i) {
 		auto delta = point_a[i] - point_b[i];
 		d_squared += delta * delta;
 	}
 	return d_squared;
 }
 
-template <typename T, size_t N>
-T distance(const std::array<T, N>& point_a, const std::array<T, N>& point_b) {
+template <typename T>
+T distance(const std::vector<T>& point_a, const std::vector<T>& point_b) {
 	return std::sqrt(distance_squared(point_a, point_b));
 }
 
 /*
 Calculate the smallest distance between each of the data points and any of the input means.
 */
-template <typename T, size_t N>
+template <typename T>
 std::vector<T> closest_distance(
-	const std::vector<std::array<T, N>>& means, const std::vector<std::array<T, N>>& data, uint32_t k) {
+	const std::vector<std::vector<T>>& means, const std::vector<std::vector<T>>& data, uint32_t k) {
 	std::vector<T> distances;
 	distances.reserve(k);
 	for (auto& d : data) {
@@ -67,11 +67,11 @@ std::vector<T> closest_distance(
 This is an alternate initialization method based on the [kmeans++](https://en.wikipedia.org/wiki/K-means%2B%2B)
 initialization algorithm.
 */
-template <typename T, size_t N>
-std::vector<std::array<T, N>> random_plusplus(const std::vector<std::array<T, N>>& data, uint32_t k, uint32_t seed) {
+template <typename T>
+std::vector<std::vector<T>> random_plusplus(const std::vector<std::vector<T>>& data, uint32_t k, uint32_t seed) {
 	assert(k > 0);
-	using input_size_t = typename std::array<T, N>::size_type;
-	std::vector<std::array<T, N>> means;
+	using input_size_t = typename std::vector<T>::size_type;
+	std::vector<std::vector<T>> means;
 	// Using a very simple PRBS generator, parameters selected according to
 	// https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
 	std::random_device rand_device;
@@ -97,11 +97,11 @@ std::vector<std::array<T, N>> random_plusplus(const std::vector<std::array<T, N>
 /*
 Calculate the index of the mean a particular data point is closest to (euclidean distance)
 */
-template <typename T, size_t N>
-uint32_t closest_mean(const std::array<T, N>& point, const std::vector<std::array<T, N>>& means) {
+template <typename T>
+uint32_t closest_mean(const std::vector<T>& point, const std::vector<std::vector<T>>& means) {
 	assert(!means.empty());
 	T smallest_distance = distance_squared(point, means[0]);
-	typename std::array<T, N>::size_type index = 0;
+	typename std::vector<T>::size_type index = 0;
 	T distance;
 	for (size_t i = 1; i < means.size(); ++i) {
 		distance = distance_squared(point, means[i]);
@@ -116,9 +116,9 @@ uint32_t closest_mean(const std::array<T, N>& point, const std::vector<std::arra
 /*
 Calculate the index of the mean each data point is closest to (euclidean distance).
 */
-template <typename T, size_t N>
+template <typename T>
 std::vector<uint32_t> calculate_clusters(
-	const std::vector<std::array<T, N>>& data, const std::vector<std::array<T, N>>& means) {
+	const std::vector<std::vector<T>>& data, const std::vector<std::vector<T>>& means) {
 	std::vector<uint32_t> clusters;
 	for (auto& point : data) {
 		clusters.push_back(closest_mean(point, means));
@@ -129,12 +129,16 @@ std::vector<uint32_t> calculate_clusters(
 /*
 Calculate means based on data points and their cluster assignments.
 */
-template <typename T, size_t N>
-std::vector<std::array<T, N>> calculate_means(const std::vector<std::array<T, N>>& data,
+template <typename T>
+std::vector<std::vector<T>> calculate_means(const std::vector<std::vector<T>>& data,
 	const std::vector<uint32_t>& clusters,
-	const std::vector<std::array<T, N>>& old_means,
-	uint32_t k) {
-	std::vector<std::array<T, N>> means(k);
+	const std::vector<std::vector<T>>& old_means,
+	uint32_t k, uint32_t n) {
+	std::vector<std::vector<T>> means(k);
+	for(size_t i = 0; i < k; ++i){
+		for(int j = 0; j < n; ++j)
+			means[i].push_back(0);
+	}
 	std::vector<T> count(k, T());
 	for (size_t i = 0; i < std::min(clusters.size(), data.size()); ++i) {
 		auto& mean = means[clusters[i]];
@@ -175,27 +179,27 @@ This implementation of k-means uses [Lloyd's Algorithm](https://en.wikipedia.org
 with the [kmeans++](https://en.wikipedia.org/wiki/K-means%2B%2B)
 used for initializing the means.
 */
-template <typename T, size_t N>
-std::tuple<std::vector<std::array<T, N>>, std::vector<uint32_t>> kmeans_lloyd(
-	const std::vector<std::array<T, N>>& data, uint32_t k,  uint32_t seed) {
+template <typename T>
+std::tuple<std::vector<std::vector<T>>, std::vector<uint32_t>> kmeans_lloyd(
+	const std::vector<std::vector<T>>& data, uint32_t k,  uint32_t seed) {
 	static_assert(std::is_arithmetic<T>::value && std::is_signed<T>::value,
 		"kmeans_lloyd requires the template parameter T to be a signed arithmetic type (e.g. float, double, int)");
 	assert(k > 0); // k must be greater than zero
 	assert(data.size() >= k); // there must be at least k data points
-	std::vector<std::array<T, N>> means = details::random_plusplus(data, k, seed);
+	std::vector<std::vector<T>> means = details::random_plusplus(data, k, seed);
 
-	std::vector<std::array<T, N>> old_means;
+	std::vector<std::vector<T>> old_means;
 	std::vector<uint32_t> clusters;
 	// Calculate new means until convergence is reached
 	int count = 0;
 	do {
 		clusters = details::calculate_clusters(data, means);
 		old_means = means;
-		means = details::calculate_means(data, clusters, old_means, k);
+		means = details::calculate_means(data, clusters, old_means, k, old_means[0].size());
 		++count;
 	} while (means != old_means);
 
-	return std::tuple<std::vector<std::array<T, N>>, std::vector<uint32_t>>(means, clusters);
+	return std::tuple<std::vector<std::vector<T>>, std::vector<uint32_t>>(means, clusters);
 }
 
 } // namespace dkm
